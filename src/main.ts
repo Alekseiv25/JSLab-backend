@@ -6,11 +6,6 @@ async function start() {
   const app = await NestFactory.create(AppModule);
   await app.listen(PORT, () => console.log(`JSLab-backend server started on port ${PORT}`));
   console.log();
-const name = obj.name
-
-
-
-
 }
 
 start();
