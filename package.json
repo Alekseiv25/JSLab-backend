@@ -29,7 +29,6 @@
   "lint-staged": {
     "*.ts": [
       "npm run lint:write",
-      "npm run prettier",
       "git add"
     ]
   },
