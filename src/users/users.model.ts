@@ -27,8 +27,8 @@ export class User extends Model<User, UserCreationAttributes> {
   @Column({ type: DataType.STRING, allowNull: false })
   lastName: string;
 
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  isAdmin: boolean;
+  @Column({ type: DataType.STRING, defaultValue: 'USER' })
+  userRole: string;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   isSuspended: boolean;
