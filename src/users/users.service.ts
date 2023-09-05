@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { DuplicateValueExeption } from '../Exceptions/exception';
 import { User } from './users.model';
 import { CreateUserDto } from './dto/create-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -23,6 +25,15 @@ export class UsersService {
   }
 
   async createUser(dto: CreateUserDto) {
+    const isEmailUnique: Promise<boolean> = await this.checkUniquenessOfEmail(dto.email);
+
+    if (!isEmailUnique) {
+      throw new DuplicateValueExeption('email');
+    }
+
+    const saltRounds = 10;
+    dto.password = await bcrypt.hash(dto.password, saltRounds);
+
     const user = await this.userRepository.create(dto);
     return user;
   }
@@ -47,5 +58,13 @@ export class UsersService {
 
     await user.destroy();
     return { message: `User with ID ${id} has been deleted...` };
+  }
+
+  async checkUniquenessOfEmail(email: string) {
+    const userWithThisEmail = await this.userRepository.findOne({ where: { email } });
+    let isUserEmailUnique = null;
+
+    userWithThisEmail ? (isUserEmailUnique = false) : (isUserEmailUnique = true);
+    return isUserEmailUnique;
   }
 }

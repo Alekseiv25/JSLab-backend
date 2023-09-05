@@ -2,7 +2,7 @@ import { userBusinessData, userLocationData } from '../../interfaces/interfaces'
 
 export class CreateUserDto {
   readonly email: string;
-  readonly password: string;
+  password: string;
   readonly firstName: string;
   readonly lastName: string;
   readonly userBusiness: userBusinessData;
