@@ -1,4 +1,4 @@
-import { userBusinessData, userLocationData } from '../../interfaces/interfaces';
+import { userBusinessData, userLocationData } from '../../interfaces';
 
 export class CreateUserDto {
   readonly email: string;
