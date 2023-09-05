@@ -4,6 +4,7 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { User } from './users/users.model';
 import { BusinessesModule } from './businesses/businesses.module';
+import { Business } from './businesses/businesses.model';
 
 @Module({
   controllers: [],
@@ -19,7 +20,7 @@ import { BusinessesModule } from './businesses/businesses.module';
       username: process.env.USER,
       password: process.env.PASSWORD,
       database: process.env.DB,
-      models: [User],
+      models: [User, Business],
       autoLoadModels: true,
     }),
     UsersModule,

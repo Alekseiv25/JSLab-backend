@@ -1,4 +1,5 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, Model, Table, BelongsTo, ForeignKey } from 'sequelize-typescript';
+import { User } from 'src/users/users.model';
 
 export interface BusinessCreationAttributes {
   legalName: string;
@@ -13,6 +14,10 @@ export interface BusinessCreationAttributes {
 
 @Table({ tableName: 'businesses' })
 export class Business extends Model<Business, BusinessCreationAttributes> {
+  @ForeignKey(() => User)
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  userId: number;
+
   @Column({ type: DataType.STRING, allowNull: false, unique: true })
   legalName: string;
 
@@ -36,4 +41,7 @@ export class Business extends Model<Business, BusinessCreationAttributes> {
 
   @Column({ type: DataType.INTEGER, allowNull: false })
   zip: number;
+
+  @BelongsTo(() => User)
+  owner: User;
 }

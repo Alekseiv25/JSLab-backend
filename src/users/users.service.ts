@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { DuplicateValueExeption } from '../Exceptions/exception';
+import { DuplicateValueExeption } from '../exceptions/exception';
 import { User } from './users.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -10,12 +10,12 @@ export class UsersService {
   constructor(@InjectModel(User) private userRepository: typeof User) {}
 
   async getAllUsers() {
-    const users = await this.userRepository.findAll();
+    const users = await this.userRepository.findAll({ include: 'businesses' });
     return users;
   }
 
   async getUserByID(id: string) {
-    const user = await this.userRepository.findByPk(id);
+    const user = await this.userRepository.findByPk(id, { include: 'businesses' });
 
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -25,7 +25,7 @@ export class UsersService {
   }
 
   async createUser(dto: CreateUserDto) {
-    const isEmailUnique: Promise<boolean> = await this.checkUniquenessOfEmail(dto.email);
+    const isEmailUnique: boolean = await this.checkUniquenessOfEmail(dto.email);
 
     if (!isEmailUnique) {
       throw new DuplicateValueExeption('email');
@@ -62,9 +62,7 @@ export class UsersService {
 
   async checkUniquenessOfEmail(email: string) {
     const userWithThisEmail = await this.userRepository.findOne({ where: { email } });
-    let isUserEmailUnique = null;
-
-    userWithThisEmail ? (isUserEmailUnique = false) : (isUserEmailUnique = true);
+    const isUserEmailUnique: boolean = userWithThisEmail ? false : true;
     return isUserEmailUnique;
   }
 }
