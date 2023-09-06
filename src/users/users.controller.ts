@@ -22,7 +22,7 @@ export class UsersController {
   }
 
   @Put(':id')
-  updateUserByID(@Param('id') id: string, @Body() updatedUserDto: CreateUserDto) {
+  updateUserByID(@Param('id') id: number, @Body() updatedUserDto: CreateUserDto) {
     return this.userService.updateUserByID(id, updatedUserDto);
   }
 

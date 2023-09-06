@@ -1,12 +1,4 @@
-import {
-  Column,
-  DataType,
-  Model,
-  Table,
-  BelongsTo,
-  ForeignKey,
-  HasMany,
-} from 'sequelize-typescript';
+import { Column, DataType, Model, Table, HasMany } from 'sequelize-typescript';
 import { Station } from 'src/stations/stations.model';
 import { User } from 'src/users/users.model';
 
@@ -23,10 +15,6 @@ export interface BusinessCreationAttributes {
 
 @Table({ tableName: 'businesses' })
 export class Business extends Model<Business, BusinessCreationAttributes> {
-  @ForeignKey(() => User)
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  userId: number;
-
   @Column({ type: DataType.STRING, allowNull: false, unique: true })
   legalName: string;
 
@@ -51,8 +39,8 @@ export class Business extends Model<Business, BusinessCreationAttributes> {
   @Column({ type: DataType.INTEGER, allowNull: false })
   zip: number;
 
-  @BelongsTo(() => User)
-  owner: User;
+  @HasMany(() => User)
+  users: User[];
 
   @HasMany(() => Station)
   stations: Station[];

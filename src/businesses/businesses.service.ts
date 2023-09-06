@@ -3,13 +3,22 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Business } from './businesses.model';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { DuplicateValueExeption } from '../exceptions/exception';
+import { Station } from 'src/stations/stations.model';
 
 @Injectable()
 export class BusinessesService {
   constructor(@InjectModel(Business) private businessRepository: typeof Business) {}
 
   async getAllBusinesses() {
-    const business = await this.businessRepository.findAll({ include: 'stations' });
+    const business = await this.businessRepository.findAll({
+      include: [
+        'users',
+        {
+          model: Station,
+          as: 'stations',
+        },
+      ],
+    });
     return business;
   }
 
@@ -35,15 +44,15 @@ export class BusinessesService {
     return business;
   }
 
-  async deleteBusiness(legalName: string) {
-    const business = await this.businessRepository.findOne({ where: { legalName } });
+  async deleteBusiness(id: number) {
+    const business = await this.businessRepository.findOne({ where: { id } });
 
     if (!business) {
-      throw new NotFoundException(`Business with such legal name - ${legalName}, not found!`);
+      throw new NotFoundException(`Business with such id - ${id}, not found!`);
     }
 
     await business.destroy();
-    return { message: `Business with with legal name - ${legalName}, has been deleted...` };
+    return { message: `Business with with id - ${id}, has been deleted...` };
   }
 
   async checkIsBusinessNameUnique(legalName) {

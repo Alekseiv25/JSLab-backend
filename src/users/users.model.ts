@@ -1,4 +1,4 @@
-import { Column, DataType, Model, Table, HasMany } from 'sequelize-typescript';
+import { Column, DataType, Model, Table, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { Business } from 'src/businesses/businesses.model';
 
 export interface UserCreationAttributes {
@@ -8,10 +8,15 @@ export interface UserCreationAttributes {
   password: string;
   phone: string;
   isAdmin?: boolean;
+  businessId?: number | null;
 }
 
 @Table({ tableName: 'users' })
 export class User extends Model<User, UserCreationAttributes> {
+  @ForeignKey(() => Business)
+  @Column({ type: DataType.INTEGER })
+  businessId: number;
+
   @Column({ type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true })
   id: number;
 
@@ -39,6 +44,6 @@ export class User extends Model<User, UserCreationAttributes> {
   @Column({ type: DataType.STRING, allowNull: false })
   phone: string;
 
-  @HasMany(() => Business)
-  businesses: Business[];
+  @BelongsTo(() => Business)
+  business: Business;
 }

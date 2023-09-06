@@ -21,8 +21,8 @@ export class BusinessesController {
     return this.businessesService.updateBusiness(id, updatedBusinessDto);
   }
 
-  @Delete(':legalName')
-  deleteBusiness(@Param('legalName') legalName: string) {
-    return this.businessesService.deleteBusiness(legalName);
+  @Delete(':id')
+  deleteBusiness(@Param('id') id: number) {
+    return this.businessesService.deleteBusiness(id);
   }
 }

@@ -44,7 +44,7 @@ export class UsersService {
     return user;
   }
 
-  async updateUserByID(id: string, updatedUserDto) {
+  async updateUserByID(id: number, updatedUserDto: CreateUserDto) {
     const user = await this.userRepository.findByPk(id);
 
     if (!user) {
