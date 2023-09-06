@@ -24,14 +24,14 @@ export class BusinessesService {
     return business;
   }
 
-  async updateBusiness(legalName: string, updatedBusinessDto) {
-    const business = await this.businessRepository.findOne({ where: { legalName } });
+  async updateBusiness(id: number, dto) {
+    const business = await this.businessRepository.findOne({ where: { id } });
 
     if (!business) {
-      throw new NotFoundException(`Business with such legal name - ${legalName}, not found!`);
+      throw new NotFoundException(`Business with such id - ${id}, not found!`);
     }
 
-    await business.update(updatedBusinessDto);
+    await business.update(dto);
     return business;
   }
 

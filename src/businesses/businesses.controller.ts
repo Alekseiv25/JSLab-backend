@@ -16,12 +16,9 @@ export class BusinessesController {
     return this.businessesService.createNewBusiness(businessDto);
   }
 
-  @Put(':legalName')
-  updateBusiness(
-    @Param('legalName') legalName: string,
-    @Body() updatedBusinessDto: CreateBusinessDto,
-  ) {
-    return this.businessesService.updateBusiness(legalName, updatedBusinessDto);
+  @Put(':id')
+  updateBusiness(@Param('id') id: number, @Body() updatedBusinessDto: CreateBusinessDto) {
+    return this.businessesService.updateBusiness(id, updatedBusinessDto);
   }
 
   @Delete(':legalName')
