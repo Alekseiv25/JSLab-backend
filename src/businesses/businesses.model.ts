@@ -1,4 +1,13 @@
-import { Column, DataType, Model, Table, BelongsTo, ForeignKey } from 'sequelize-typescript';
+import {
+  Column,
+  DataType,
+  Model,
+  Table,
+  BelongsTo,
+  ForeignKey,
+  HasMany,
+} from 'sequelize-typescript';
+import { Station } from 'src/stations/stations.model';
 import { User } from 'src/users/users.model';
 
 export interface BusinessCreationAttributes {
@@ -44,4 +53,7 @@ export class Business extends Model<Business, BusinessCreationAttributes> {
 
   @BelongsTo(() => User)
   owner: User;
+
+  @HasMany(() => Station)
+  stations: Station[];
 }

@@ -4,18 +4,24 @@ import { DuplicateValueExeption } from '../exceptions/exception';
 import { User } from './users.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { Business } from 'src/businesses/businesses.model';
+import { Station } from 'src/stations/stations.model';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User) private userRepository: typeof User) {}
 
   async getAllUsers() {
-    const users = await this.userRepository.findAll({ include: 'businesses' });
+    const users = await this.userRepository.findAll({
+      include: [{ model: Business, include: [Station] }],
+    });
     return users;
   }
 
   async getUserByID(id: string) {
-    const user = await this.userRepository.findByPk(id, { include: 'businesses' });
+    const user = await this.userRepository.findByPk(id, {
+      include: [{ model: Business, include: [Station] }],
+    });
 
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);

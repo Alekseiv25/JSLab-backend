@@ -9,7 +9,7 @@ export class BusinessesService {
   constructor(@InjectModel(Business) private businessRepository: typeof Business) {}
 
   async getAllBusinesses() {
-    const business = await this.businessRepository.findAll();
+    const business = await this.businessRepository.findAll({ include: 'stations' });
     return business;
   }
 
