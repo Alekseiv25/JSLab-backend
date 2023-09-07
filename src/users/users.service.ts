@@ -68,7 +68,6 @@ export class UsersService {
 
   async checkUniquenessOfEmail(email: string) {
     const userWithThisEmail = await this.userRepository.findOne({ where: { email } });
-    const isUserEmailUnique: boolean = userWithThisEmail ? false : true;
-    return isUserEmailUnique;
+    return !userWithThisEmail;
   }
 }

@@ -56,8 +56,7 @@ export class BusinessesService {
   }
 
   async checkIsBusinessNameUnique(legalName) {
-    const business = await this.businessRepository.findOne({ where: { legalName } });
-    const isBusinessNameUnique = business ? false : true;
-    return isBusinessNameUnique;
+    const businessWithThisName = await this.businessRepository.findOne({ where: { legalName } });
+    return !businessWithThisName;
   }
 }

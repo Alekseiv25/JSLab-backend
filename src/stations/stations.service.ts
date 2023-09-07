@@ -48,7 +48,6 @@ export class StationsService {
 
   async checkUniquenessOfStationName(name: string) {
     const stationWithThisName = await this.stationRepository.findOne({ where: { name } });
-    const isNameUnique: boolean = stationWithThisName ? false : true;
-    return isNameUnique;
+    return !stationWithThisName;
   }
 }
