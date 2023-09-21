@@ -55,7 +55,7 @@ export class BusinessesService {
     return { message: `Business with with id - ${id}, has been deleted...` };
   }
 
-  async checkIsBusinessNameUnique(legalName) {
+  async checkIsBusinessNameUnique(legalName: string) {
     const businessWithThisName = await this.businessRepository.findOne({ where: { legalName } });
     return !businessWithThisName;
   }

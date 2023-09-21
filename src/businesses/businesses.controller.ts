@@ -16,6 +16,12 @@ export class BusinessesController {
     return this.businessesService.createNewBusiness(businessDto);
   }
 
+  @Post('check-name-uniqueness')
+  async checkUniquenessOfBusinessName(@Body('name') name: string) {
+    const isLegalNameUnique = await this.businessesService.checkIsBusinessNameUnique(name);
+    return JSON.stringify({ isLegalNameUnique: isLegalNameUnique });
+  }
+
   @Put(':id')
   updateBusiness(@Param('id') id: number, @Body() updatedBusinessDto: CreateBusinessDto) {
     return this.businessesService.updateBusiness(id, updatedBusinessDto);
