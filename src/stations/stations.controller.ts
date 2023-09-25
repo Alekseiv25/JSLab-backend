@@ -16,6 +16,12 @@ export class StationsController {
     return this.stationsService.createNewStation(stationDto);
   }
 
+  @Post('check-email-uniqueness')
+  async checkUniquenessOfUserEmail(@Body('email') email: string) {
+    const isEmailUnique = await this.stationsService.checkUniquenessOfEmail(email);
+    return JSON.stringify({ isEmailUnique: isEmailUnique });
+  }
+
   @Put(':id')
   updateBusiness(@Param('id') id: number, @Body() updatedStationDto: CreateStationDto) {
     return this.stationsService.updateStation(id, updatedStationDto);

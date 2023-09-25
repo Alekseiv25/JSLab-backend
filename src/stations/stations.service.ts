@@ -50,4 +50,8 @@ export class StationsService {
     const stationWithThisName = await this.stationRepository.findOne({ where: { name } });
     return !stationWithThisName;
   }
+  async checkUniquenessOfEmail(email: string) {
+    const stationWithThisEmail = await this.stationRepository.findOne({ where: { email } });
+    return !stationWithThisEmail;
+  }
 }
