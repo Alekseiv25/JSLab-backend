@@ -21,10 +21,9 @@ export class UsersController {
     return this.userService.createUser(userDto);
   }
 
-  @Post('check-email-uniqueness')
+  @Post('email-uniqueness')
   async checkUniquenessOfUserEmail(@Body('email') email: string) {
-    const isEmailUnique = await this.userService.checkUniquenessOfEmail(email);
-    return JSON.stringify({ isEmailUnique: isEmailUnique });
+    return await this.userService.checkUniquenessOfEmail(email);
   }
 
   @Put(':id')

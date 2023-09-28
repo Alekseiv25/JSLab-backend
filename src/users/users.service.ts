@@ -34,13 +34,9 @@ export class UsersService {
     try {
       const response = await this.checkUniquenessOfEmail(dto.email);
 
-      if (response instanceof DuplicateValueExeption) {
-        return {
-          response: `${response.message}`,
-          status: response.getStatus(),
-          options: undefined,
-        };
-      } else if (response instanceof UniqueValueExeption) {
+      if (response.status === 400) {
+        return response;
+      } else if (response.status === 200) {
         return await this.createUserWithHashedPassword(dto);
       }
     } catch (error) {
@@ -80,8 +76,9 @@ export class UsersService {
 
   async checkUniquenessOfEmail(email: string) {
     const userWithThisEmail = await this.userRepository.findOne({ where: { email } });
-    return userWithThisEmail
+    const response = userWithThisEmail
       ? new DuplicateValueExeption('Email')
-      : new UniqueValueExeption('Emial');
+      : new UniqueValueExeption('Email');
+    return { response: `${response.message}`, status: response.getStatus() };
   }
 }
