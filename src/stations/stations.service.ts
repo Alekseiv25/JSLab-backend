@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateStationDto } from './dto/create-station.dto';
 import { Station } from './stations.model';
-import { DuplicateValueExeption } from 'src/exceptions/exception';
+import { DuplicateValueExeption } from 'src/Exceptions/exceptions';
 
 @Injectable()
 export class StationsService {

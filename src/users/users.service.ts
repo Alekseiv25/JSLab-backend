@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { DuplicateValueExeption } from '../exceptions/exception';
+import { DuplicateValueExeption, UniqueValueExeption } from '../Exceptions/exceptions';
 import { User } from './users.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -31,15 +31,27 @@ export class UsersService {
   }
 
   async createUser(dto: CreateUserDto) {
-    const isEmailUnique: boolean = await this.checkUniquenessOfEmail(dto.email);
+    try {
+      const response = await this.checkUniquenessOfEmail(dto.email);
 
-    if (!isEmailUnique) {
-      throw new DuplicateValueExeption('email');
+      if (response instanceof DuplicateValueExeption) {
+        return {
+          response: `${response.message}`,
+          status: response.getStatus(),
+          options: undefined,
+        };
+      } else if (response instanceof UniqueValueExeption) {
+        return await this.createUserWithHashedPassword(dto);
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
+  }
 
+  async createUserWithHashedPassword(dto: CreateUserDto) {
     const saltRounds = 10;
     dto.password = await bcrypt.hash(dto.password, saltRounds);
-
     const user = await this.userRepository.create(dto);
     return user;
   }
@@ -68,6 +80,8 @@ export class UsersService {
 
   async checkUniquenessOfEmail(email: string) {
     const userWithThisEmail = await this.userRepository.findOne({ where: { email } });
-    return !userWithThisEmail;
+    return userWithThisEmail
+      ? new DuplicateValueExeption('Email')
+      : new UniqueValueExeption('Emial');
   }
 }
