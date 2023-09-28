@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { DuplicateValueExeption, UniqueValueExeption } from '../Exceptions/exceptions';
 import { User } from './users.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { Business } from 'src/businesses/businesses.model';
 import { Station } from 'src/stations/stations.model';
+import makeUniquenessResponseMessage from 'src/utils/messageGenerator';
 
 @Injectable()
 export class UsersService {
@@ -33,15 +33,12 @@ export class UsersService {
   async createUser(dto: CreateUserDto) {
     try {
       const response = await this.checkUniquenessOfEmail(dto.email);
-
-      if (response.status === 400) {
-        return response;
-      } else if (response.status === 200) {
-        return await this.createUserWithHashedPassword(dto);
-      }
+      const result =
+        response.status === 200 ? await this.createUserWithHashedPassword(dto) : response;
+      return result;
     } catch (error) {
       console.error(error);
-      throw error;
+      return { status: 500, message: 'Internal server error' };
     }
   }
 
@@ -77,8 +74,8 @@ export class UsersService {
   async checkUniquenessOfEmail(email: string) {
     const userWithThisEmail = await this.userRepository.findOne({ where: { email } });
     const response = userWithThisEmail
-      ? new DuplicateValueExeption('Email')
-      : new UniqueValueExeption('Email');
-    return { response: `${response.message}`, status: response.getStatus() };
+      ? { status: 409, message: makeUniquenessResponseMessage('Email', false) }
+      : { status: 200, message: makeUniquenessResponseMessage('Email', true) };
+    return response;
   }
 }

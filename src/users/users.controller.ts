@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 
@@ -22,6 +22,7 @@ export class UsersController {
   }
 
   @Post('email-uniqueness')
+  @HttpCode(200)
   async checkUniquenessOfUserEmail(@Body('email') email: string) {
     return await this.userService.checkUniquenessOfEmail(email);
   }
