@@ -26,7 +26,8 @@ export class BusinessesService {
     try {
       const response = await this.checkUniquenessOfName(dto.legalName);
       if (response.status === 200) {
-        return await this.businessRepository.create(dto);
+        const newBusiness = await this.businessRepository.create(dto);
+        return newBusiness;
       } else {
         return response;
       }

@@ -34,7 +34,8 @@ export class UsersService {
     try {
       const response = await this.checkUniquenessOfEmail(dto.email);
       if (response.status === 200) {
-        return await this.createUserWithHashedPassword(dto);
+        const newUser = await this.createUserWithHashedPassword(dto);
+        return newUser;
       } else {
         return response;
       }

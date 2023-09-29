@@ -17,7 +17,8 @@ export class StationsService {
     try {
       const response = await this.checkUniquenessOfName(dto.name);
       if (response.status === 200) {
-        return await this.stationRepository.create(dto);
+        const newStation = await this.stationRepository.create(dto);
+        return newStation;
       } else {
         return response;
       }
