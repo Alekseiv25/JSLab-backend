@@ -33,9 +33,11 @@ export class UsersService {
   async createUser(dto: CreateUserDto) {
     try {
       const response = await this.checkUniquenessOfEmail(dto.email);
-      const result =
-        response.status === 200 ? await this.createUserWithHashedPassword(dto) : response;
-      return result;
+      if (response.status === 200) {
+        return await this.createUserWithHashedPassword(dto);
+      } else {
+        return response;
+      }
     } catch (error) {
       console.error(error);
       return { status: 500, message: 'Internal server error' };
@@ -73,9 +75,10 @@ export class UsersService {
 
   async checkUniquenessOfEmail(email: string) {
     const userWithThisEmail = await this.userRepository.findOne({ where: { email } });
-    const response = userWithThisEmail
-      ? { status: 409, message: makeUniquenessResponseMessage('Email', false) }
-      : { status: 200, message: makeUniquenessResponseMessage('Email', true) };
-    return response;
+    if (userWithThisEmail) {
+      return { status: 409, message: makeUniquenessResponseMessage('Email', false) };
+    } else {
+      return { status: 200, message: makeUniquenessResponseMessage('Email', true) };
+    }
   }
 }

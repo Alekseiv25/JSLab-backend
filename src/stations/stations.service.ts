@@ -16,8 +16,11 @@ export class StationsService {
   async createNewStation(dto: CreateStationDto) {
     try {
       const response = await this.checkUniquenessOfName(dto.name);
-      const result = response.status === 200 ? await this.stationRepository.create(dto) : response;
-      return result;
+      if (response.status === 200) {
+        return await this.stationRepository.create(dto);
+      } else {
+        return response;
+      }
     } catch (error) {
       console.error(error);
       return { status: 500, message: 'Internal server error' };
@@ -48,9 +51,10 @@ export class StationsService {
 
   async checkUniquenessOfName(name: string) {
     const stationWithThisName = await this.stationRepository.findOne({ where: { name } });
-    const response = stationWithThisName
-      ? { status: 409, message: makeUniquenessResponseMessage('Station Name', false) }
-      : { status: 200, message: makeUniquenessResponseMessage('Station Name', true) };
-    return response;
+    if (stationWithThisName) {
+      return { status: 409, message: makeUniquenessResponseMessage('Station Name', false) };
+    } else {
+      return { status: 200, message: makeUniquenessResponseMessage('Station Name', true) };
+    }
   }
 }

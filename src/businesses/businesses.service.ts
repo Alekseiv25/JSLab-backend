@@ -25,8 +25,11 @@ export class BusinessesService {
   async createNewBusiness(dto: CreateBusinessDto) {
     try {
       const response = await this.checkUniquenessOfName(dto.legalName);
-      const result = response.status === 200 ? await this.businessRepository.create(dto) : response;
-      return result;
+      if (response.status === 200) {
+        return await this.businessRepository.create(dto);
+      } else {
+        return response;
+      }
     } catch (error) {
       console.error(error);
       return { status: 500, message: 'Internal server error' };
@@ -57,9 +60,10 @@ export class BusinessesService {
 
   async checkUniquenessOfName(legalName: string) {
     const businessWithThisName = await this.businessRepository.findOne({ where: { legalName } });
-    const response = businessWithThisName
-      ? { status: 409, message: makeUniquenessResponseMessage('Legal Name', false) }
-      : { status: 200, message: makeUniquenessResponseMessage('Legal Name', true) };
-    return response;
+    if (businessWithThisName) {
+      return { status: 409, message: makeUniquenessResponseMessage('Legal Name', false) };
+    } else {
+      return { status: 200, message: makeUniquenessResponseMessage('Legal Name', true) };
+    }
   }
 }
