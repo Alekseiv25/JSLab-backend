@@ -1,4 +1,4 @@
-import { Controller, Body, Param, Get, Post, Put, Delete } from '@nestjs/common';
+import { Controller, Body, Param, Get, Post, Put, Delete, HttpCode } from '@nestjs/common';
 import { BusinessesService } from './businesses.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 
@@ -16,10 +16,10 @@ export class BusinessesController {
     return this.businessesService.createNewBusiness(businessDto);
   }
 
-  @Post('check-name-uniqueness')
+  @Post('name-uniqueness')
+  @HttpCode(200)
   async checkUniquenessOfBusinessName(@Body('name') name: string) {
-    const isLegalNameUnique = await this.businessesService.checkIsBusinessNameUnique(name);
-    return JSON.stringify({ isLegalNameUnique: isLegalNameUnique });
+    return await this.businessesService.checkUniquenessOfName(name);
   }
 
   @Put(':id')

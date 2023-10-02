@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateStationDto } from './dto/create-station.dto';
 import { Station } from './stations.model';
-import { DuplicateValueExeption } from 'src/exceptions/exception';
+import makeUniquenessResponseMessage from 'src/utils/messageGenerator';
 
 @Injectable()
 export class StationsService {
@@ -14,14 +14,18 @@ export class StationsService {
   }
 
   async createNewStation(dto: CreateStationDto) {
-    const isStationNameUnique = await this.checkUniquenessOfStationName(dto.name);
-
-    if (!isStationNameUnique) {
-      throw new DuplicateValueExeption('name');
+    try {
+      const response = await this.checkUniquenessOfName(dto.name);
+      if (response.status === 200) {
+        const newStation = await this.stationRepository.create(dto);
+        return newStation;
+      } else {
+        return response;
+      }
+    } catch (error) {
+      console.error(error);
+      return { status: 500, message: 'Internal server error' };
     }
-
-    const station = await this.stationRepository.create(dto);
-    return station;
   }
 
   async updateStation(id: number, dto: CreateStationDto) {
@@ -46,9 +50,13 @@ export class StationsService {
     return { message: `Station with ID ${id} has been deleted...` };
   }
 
-  async checkUniquenessOfStationName(name: string) {
+  async checkUniquenessOfName(name: string) {
     const stationWithThisName = await this.stationRepository.findOne({ where: { name } });
-    return !stationWithThisName;
+    if (stationWithThisName) {
+      return { status: 409, message: makeUniquenessResponseMessage('Station Name', false) };
+    } else {
+      return { status: 200, message: makeUniquenessResponseMessage('Station Name', true) };
+    }
   }
   async checkUniquenessOfEmail(email: string) {
     const stationWithThisEmail = await this.stationRepository.findOne({ where: { email } });

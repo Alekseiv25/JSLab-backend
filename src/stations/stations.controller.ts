@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode } from '@nestjs/common';
 import { StationsService } from './stations.service';
 import { CreateStationDto } from './dto/create-station.dto';
 
@@ -16,10 +16,10 @@ export class StationsController {
     return this.stationsService.createNewStation(stationDto);
   }
 
-  @Post('check-email-uniqueness')
-  async checkUniquenessOfUserEmail(@Body('email') email: string) {
-    const isEmailUnique = await this.stationsService.checkUniquenessOfEmail(email);
-    return JSON.stringify({ isEmailUnique: isEmailUnique });
+
+  @Post('name-uniqueness')
+  async checkUniquenessOfStationName(@Body('name') name: string) {
+    return await this.stationsService.checkUniquenessOfName(name);
   }
 
   @Put(':id')

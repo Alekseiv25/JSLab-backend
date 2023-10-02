@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Business } from './businesses.model';
 import { CreateBusinessDto } from './dto/create-business.dto';
-import { DuplicateValueExeption } from '../exceptions/exception';
 import { Station } from 'src/stations/stations.model';
+import makeUniquenessResponseMessage from 'src/utils/messageGenerator';
 
 @Injectable()
 export class BusinessesService {
@@ -23,14 +23,18 @@ export class BusinessesService {
   }
 
   async createNewBusiness(dto: CreateBusinessDto) {
-    const isBusinessNameUnique = await this.checkIsBusinessNameUnique(dto.legalName);
-
-    if (!isBusinessNameUnique) {
-      throw new DuplicateValueExeption('Legal Name');
+    try {
+      const response = await this.checkUniquenessOfName(dto.legalName);
+      if (response.status === 200) {
+        const newBusiness = await this.businessRepository.create(dto);
+        return newBusiness;
+      } else {
+        return response;
+      }
+    } catch (error) {
+      console.error(error);
+      return { status: 500, message: 'Internal server error' };
     }
-
-    const business = await this.businessRepository.create(dto);
-    return business;
   }
 
   async updateBusiness(id: number, dto) {
@@ -55,8 +59,12 @@ export class BusinessesService {
     return { message: `Business with with id - ${id}, has been deleted...` };
   }
 
-  async checkIsBusinessNameUnique(legalName: string) {
+  async checkUniquenessOfName(legalName: string) {
     const businessWithThisName = await this.businessRepository.findOne({ where: { legalName } });
-    return !businessWithThisName;
+    if (businessWithThisName) {
+      return { status: 409, message: makeUniquenessResponseMessage('Legal Name', false) };
+    } else {
+      return { status: 200, message: makeUniquenessResponseMessage('Legal Name', true) };
+    }
   }
 }
