@@ -7,6 +7,8 @@ import { BusinessesModule } from './businesses/businesses.module';
 import { Business } from './businesses/businesses.model';
 import { StationsModule } from './stations/stations.module';
 import { Station } from './stations/stations.model';
+import { Account } from './accounts/accounts.model';
+import { AccountsModule } from './accounts/accounts.module';
 
 @Module({
   controllers: [],
@@ -22,12 +24,13 @@ import { Station } from './stations/stations.model';
       username: process.env.USER,
       password: process.env.PASSWORD,
       database: process.env.DB,
-      models: [User, Business, Station],
+      models: [User, Business, Station, Account],
       autoLoadModels: true,
     }),
     UsersModule,
     BusinessesModule,
     StationsModule,
+    AccountsModule,
   ],
 })
 export class AppModule {}
