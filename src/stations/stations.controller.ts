@@ -16,8 +16,8 @@ export class StationsController {
     return this.stationsService.createNewStation(stationDto);
   }
 
+
   @Post('name-uniqueness')
-  @HttpCode(200)
   async checkUniquenessOfStationName(@Body('name') name: string) {
     return await this.stationsService.checkUniquenessOfName(name);
   }

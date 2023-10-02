@@ -58,4 +58,8 @@ export class StationsService {
       return { status: 200, message: makeUniquenessResponseMessage('Station Name', true) };
     }
   }
+  async checkUniquenessOfEmail(email: string) {
+    const stationWithThisEmail = await this.stationRepository.findOne({ where: { email } });
+    return !stationWithThisEmail;
+  }
 }
