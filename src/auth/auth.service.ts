@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.model';
+import { IBasicResponseObject, IResponseJWT } from 'src/types/responses';
 import * as bcrypt from 'bcrypt';
 
 interface IJWT {
@@ -18,10 +19,9 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(userDto: CreateUserDto) {
-    const responseOfCheckingUniqueness = await this.userService.checkUniquenessOfEmail(
-      userDto.email,
-    );
+  async login(userDto: CreateUserDto): Promise<IResponseJWT | IBasicResponseObject> {
+    const responseOfCheckingUniqueness: IBasicResponseObject =
+      await this.userService.checkUniquenessOfEmail(userDto.email);
 
     if (responseOfCheckingUniqueness.status !== 200) {
       return responseOfCheckingUniqueness;
@@ -32,7 +32,7 @@ export class AuthService {
     return this.generateToken(newUser);
   }
 
-  async generateToken(user: User) {
+  private async generateToken(user: User): Promise<IResponseJWT> {
     const payload: IJWT = { id: user.id, email: user.email, isAdmin: user.isAdmin };
     return { token: this.jwtService.sign(payload) };
   }

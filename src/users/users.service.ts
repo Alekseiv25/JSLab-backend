@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './users.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Business } from 'src/businesses/businesses.model';
 import { Station } from 'src/stations/stations.model';
 import makeUniquenessResponseMessage from 'src/utils/messageGenerator';
+import { IBasicResponseObject } from 'src/types/responses';
 
 @Injectable()
 export class UsersService {
@@ -56,12 +57,18 @@ export class UsersService {
     return { message: `User with ID ${id} has been deleted...` };
   }
 
-  async checkUniquenessOfEmail(email: string) {
-    const userWithThisEmail = await this.userRepository.findOne({ where: { email } });
+  async checkUniquenessOfEmail(email: string): Promise<IBasicResponseObject> {
+    const userWithThisEmail: User | undefined = await this.findUserByEmail(email);
+
     if (userWithThisEmail) {
-      return { status: 409, message: makeUniquenessResponseMessage('Email', false) };
-    } else {
-      return { status: 200, message: makeUniquenessResponseMessage('Email', true) };
+      throw new HttpException(makeUniquenessResponseMessage('Email', false), HttpStatus.CONFLICT);
     }
+
+    return { status: 200, message: makeUniquenessResponseMessage('Email', true) };
+  }
+
+  async findUserByEmail(email: string): Promise<User> {
+    const user: User = await this.userRepository.findOne({ where: { email } });
+    return user;
   }
 }

@@ -16,11 +16,6 @@ export class UsersController {
     return this.userService.getUserByID(id);
   }
 
-  @Post()
-  create(@Body() userDto: CreateUserDto) {
-    return this.userService.createUser(userDto);
-  }
-
   @Post('email-uniqueness')
   @HttpCode(200)
   async checkUniquenessOfUserEmail(@Body('email') email: string) {
