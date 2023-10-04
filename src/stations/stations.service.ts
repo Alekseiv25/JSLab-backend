@@ -3,13 +3,21 @@ import { InjectModel } from '@nestjs/sequelize';
 import { CreateStationDto } from './dto/create-station.dto';
 import { Station } from './stations.model';
 import makeUniquenessResponseMessage from 'src/utils/messageGenerator';
+import { Account } from 'src/accounts/accounts.model';
 
 @Injectable()
 export class StationsService {
   constructor(@InjectModel(Station) private stationRepository: typeof Station) {}
 
   async getAllStations() {
-    const stations = await this.stationRepository.findAll();
+    const stations = await this.stationRepository.findAll({
+      include: [
+        {
+          model: Account,
+          as: 'accounts',
+        },
+      ],
+    });
     return stations;
   }
 
