@@ -5,7 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { Business } from 'src/businesses/businesses.model';
 import { Station } from 'src/stations/stations.model';
 import { IBasicResponseObject } from 'src/types/responses';
-import makeUniquenessResponseMessage from 'src/utils/generators/messageGenerators';
+import { makeUniquenessResponseMessage } from 'src/utils/generators/messageGenerators';
 
 @Injectable()
 export class UsersService {

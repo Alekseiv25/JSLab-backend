@@ -1,9 +1,11 @@
-function makeUniquenessResponseMessage(entityName, isAvailable) {
+export function makeUniquenessResponseMessage(name: string, isAvailable: boolean): string {
   if (isAvailable) {
-    return `${entityName} is available for registration.`;
+    return `${name} is available for registration.`;
   } else {
-    return `${entityName} is already in use. Please choose a different one.`;
+    return `${name} is already in use. Please choose a different one.`;
   }
 }
 
-export default makeUniquenessResponseMessage;
+export function makeNotFoundMessage(name: string): string {
+  return `The ${name} was not found in the database!`;
+}

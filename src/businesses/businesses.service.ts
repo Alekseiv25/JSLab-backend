@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Business } from './businesses.model';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { Station } from 'src/stations/stations.model';
-import makeUniquenessResponseMessage from 'src/utils/generators/messageGenerators';
+import { makeUniquenessResponseMessage } from 'src/utils/generators/messageGenerators';
 
 @Injectable()
 export class BusinessesService {

@@ -5,10 +5,10 @@ import { Station } from './stations.model';
 import { Account } from 'src/accounts/accounts.model';
 import { IResponseStationDataObject } from 'src/types/responses';
 import { generateStationFoundResponse } from 'src/utils/generators/responseObjectsGenerators';
-import makeUniquenessResponseMessage from 'src/utils/generators/messageGenerators';
-
-const NOT_FOUND_MESSAGE = 'The station was not found in the database!';
-const SERVER_ERROR_MESSAGE = 'Oops... Internal server error';
+import {
+  makeNotFoundMessage,
+  makeUniquenessResponseMessage,
+} from 'src/utils/generators/messageGenerators';
 
 @Injectable()
 export class StationsService {
@@ -27,25 +27,16 @@ export class StationsService {
   }
 
   async getStationById(id: number): Promise<HttpException | IResponseStationDataObject> {
-    try {
-      const station: Station = await this.stationRepository.findByPk(id, {
-        include: { model: Account },
-      });
+    const station: Station = await this.stationRepository.findByPk(id, {
+      include: { model: Account },
+    });
 
-      if (!station) {
-        throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
-      }
-
-      const response = generateStationFoundResponse(station);
-      return response;
-    } catch (error) {
-      if (error.status === HttpStatus.NOT_FOUND) {
-        throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
-      } else {
-        console.warn(error);
-        throw new HttpException(SERVER_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
-      }
+    if (!station) {
+      throw new HttpException(makeNotFoundMessage('station'), HttpStatus.NOT_FOUND);
     }
+
+    const response = generateStationFoundResponse(station);
+    return response;
   }
 
   async createNewStation(dto: CreateStationDto) {
