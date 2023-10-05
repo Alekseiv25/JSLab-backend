@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
 import { StationsService } from './stations.service';
 import { CreateStationDto } from './dto/create-station.dto';
+import { IBasicResponseObject, IResponseObjectWithStationData } from 'src/types/responses';
 
 @Controller('stations')
 export class StationsController {
@@ -9,6 +10,13 @@ export class StationsController {
   @Get()
   getAllStations() {
     return this.stationsService.getAllStations();
+  }
+
+  @Get(':id')
+  getStationById(
+    @Param('id') id: number,
+  ): Promise<IResponseObjectWithStationData | IBasicResponseObject> {
+    return this.stationsService.getStationById(id);
   }
 
   @Post()
@@ -22,12 +30,12 @@ export class StationsController {
   }
 
   @Put(':id')
-  updateBusiness(@Param('id') id: number, @Body() updatedStationDto: CreateStationDto) {
-    return this.stationsService.updateStation(id, updatedStationDto);
+  updateStationData(@Param('id') id: number, @Body() updatedData: CreateStationDto) {
+    return this.stationsService.updateStation(id, updatedData);
   }
 
   @Delete(':id')
-  deleteBusiness(@Param('id') id: number) {
+  deleteStation(@Param('id') id: number) {
     return this.stationsService.deleteStation(id);
   }
 }

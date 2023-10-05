@@ -1,0 +1,26 @@
+export interface StationTableColumns {
+  businessId: number;
+  type: string;
+  brand: string;
+  name: string;
+  address: string;
+  lat: string;
+  lng: string;
+  phone: string;
+  email: string;
+  convenientStore: boolean;
+  groceries: boolean;
+  alcohol: boolean;
+  automotive: boolean;
+  ice: boolean;
+  tobacco: boolean;
+  lottery: boolean;
+  carWash: boolean;
+  restrooms: boolean;
+  ATM: boolean;
+  foodOfferings: boolean;
+  restaurant: boolean;
+  overnightParking: boolean;
+  showers: boolean;
+  POS: string;
+}

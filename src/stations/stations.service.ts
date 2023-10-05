@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateStationDto } from './dto/create-station.dto';
 import { Station } from './stations.model';
-import makeUniquenessResponseMessage from 'src/utils/messageGenerator';
+import makeUniquenessResponseMessage from 'src/utils/generators/messageGenerators';
 import { Account } from 'src/accounts/accounts.model';
+import { IBasicResponseObject, IResponseObjectWithStationData } from 'src/types/responses';
+import {
+  generateStationFoundResponse,
+  generateNotFoundResponse,
+} from 'src/utils/generators/responseObjectsGenerators';
 
 @Injectable()
 export class StationsService {
@@ -19,6 +24,25 @@ export class StationsService {
       ],
     });
     return stations;
+  }
+
+  async getStationById(id: number): Promise<IBasicResponseObject | IResponseObjectWithStationData> {
+    try {
+      const station: Station = await this.stationRepository.findByPk(id, {
+        include: [{ model: Account, as: 'accounts' }],
+      });
+
+      if (!station) {
+        const notFoundResponse: IBasicResponseObject = generateNotFoundResponse('station');
+        return notFoundResponse;
+      }
+
+      const response = generateStationFoundResponse(station);
+      return response;
+    } catch (error) {
+      console.warn(error);
+      throw new HttpException('Oops... Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async createNewStation(dto: CreateStationDto) {
