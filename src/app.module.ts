@@ -7,6 +7,8 @@ import { BusinessesModule } from './businesses/businesses.module';
 import { Business } from './businesses/businesses.model';
 import { StationsModule } from './stations/stations.module';
 import { Station } from './stations/stations.model';
+import { Account } from './accounts/accounts.model';
+import { AccountsModule } from './accounts/accounts.module';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
@@ -23,12 +25,13 @@ import { AuthModule } from './auth/auth.module';
       username: process.env.USER,
       password: process.env.PASSWORD,
       database: process.env.DB,
-      models: [User, Business, Station],
+      models: [User, Business, Station, Account],
       autoLoadModels: true,
     }),
     UsersModule,
     BusinessesModule,
     StationsModule,
+    AccountsModule,
     AuthModule,
   ],
 })
