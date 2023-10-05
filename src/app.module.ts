@@ -9,6 +9,7 @@ import { StationsModule } from './stations/stations.module';
 import { Station } from './stations/stations.model';
 import { Account } from './accounts/accounts.model';
 import { AccountsModule } from './accounts/accounts.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   controllers: [],
@@ -31,6 +32,7 @@ import { AccountsModule } from './accounts/accounts.module';
     BusinessesModule,
     StationsModule,
     AccountsModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
