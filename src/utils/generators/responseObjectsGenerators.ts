@@ -1,18 +1,10 @@
+import { HttpStatus } from '@nestjs/common';
 import { Station } from 'src/stations/stations.model';
-import { IBasicResponseObject, IResponseObjectWithStationData } from 'src/types/responses';
+import { IResponseStationDataObject } from 'src/types/responses';
 
-enum StatusCodes {
-  OK = 200,
-  NOT_FOUND = 404,
-}
-
-export function generateNotFoundResponse(entityName: string): IBasicResponseObject {
+export function generateStationFoundResponse(data: Station): IResponseStationDataObject {
   return {
-    status: StatusCodes.NOT_FOUND,
-    message: `The ${entityName} was not found in the database!`,
+    status: HttpStatus.OK,
+    data: data,
   };
-}
-
-export function generateStationFoundResponse(data: Station): IResponseObjectWithStationData {
-  return { status: StatusCodes.OK, data: data };
 }

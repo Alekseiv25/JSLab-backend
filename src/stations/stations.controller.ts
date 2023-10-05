@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, HttpException } from '@nestjs/common';
 import { StationsService } from './stations.service';
 import { CreateStationDto } from './dto/create-station.dto';
-import { IBasicResponseObject, IResponseObjectWithStationData } from 'src/types/responses';
+import { IResponseStationDataObject } from 'src/types/responses';
 
 @Controller('stations')
 export class StationsController {
@@ -13,9 +13,7 @@ export class StationsController {
   }
 
   @Get(':id')
-  getStationById(
-    @Param('id') id: number,
-  ): Promise<IResponseObjectWithStationData | IBasicResponseObject> {
+  getStationById(@Param('id') id: number): Promise<IResponseStationDataObject | HttpException> {
     return this.stationsService.getStationById(id);
   }
 

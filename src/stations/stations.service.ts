@@ -2,13 +2,13 @@ import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestj
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateStationDto } from './dto/create-station.dto';
 import { Station } from './stations.model';
-import makeUniquenessResponseMessage from 'src/utils/generators/messageGenerators';
 import { Account } from 'src/accounts/accounts.model';
-import { IBasicResponseObject, IResponseObjectWithStationData } from 'src/types/responses';
-import {
-  generateStationFoundResponse,
-  generateNotFoundResponse,
-} from 'src/utils/generators/responseObjectsGenerators';
+import { IResponseStationDataObject } from 'src/types/responses';
+import { generateStationFoundResponse } from 'src/utils/generators/responseObjectsGenerators';
+import makeUniquenessResponseMessage from 'src/utils/generators/messageGenerators';
+
+const NOT_FOUND_MESSAGE = 'The station was not found in the database!';
+const SERVER_ERROR_MESSAGE = 'Oops... Internal server error';
 
 @Injectable()
 export class StationsService {
@@ -26,22 +26,25 @@ export class StationsService {
     return stations;
   }
 
-  async getStationById(id: number): Promise<IBasicResponseObject | IResponseObjectWithStationData> {
+  async getStationById(id: number): Promise<HttpException | IResponseStationDataObject> {
     try {
       const station: Station = await this.stationRepository.findByPk(id, {
-        include: [{ model: Account, as: 'accounts' }],
+        include: { model: Account },
       });
 
       if (!station) {
-        const notFoundResponse: IBasicResponseObject = generateNotFoundResponse('station');
-        return notFoundResponse;
+        throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
       }
 
       const response = generateStationFoundResponse(station);
       return response;
     } catch (error) {
-      console.warn(error);
-      throw new HttpException('Oops... Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
+      if (error.status === HttpStatus.NOT_FOUND) {
+        throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+      } else {
+        console.warn(error);
+        throw new HttpException(SERVER_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
     }
   }
 

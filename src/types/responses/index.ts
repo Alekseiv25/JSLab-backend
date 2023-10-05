@@ -5,7 +5,7 @@ export interface IBasicResponseObject {
   message: string;
 }
 
-export interface IResponseObjectWithStationData {
+export interface IResponseStationDataObject {
   status: number;
   data: StationTableColumns;
 }
