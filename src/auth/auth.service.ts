@@ -20,11 +20,12 @@ export class AuthService {
   ) {}
 
   async login(userDto: CreateUserDto): Promise<IResponseJWT | IBasicResponseObject> {
-    const responseOfCheckingUniqueness: IBasicResponseObject =
-      await this.userService.checkUniquenessOfEmail(userDto.email);
+    const response: IBasicResponseObject = await this.userService.checkUniquenessOfEmail(
+      userDto.email,
+    );
 
-    if (responseOfCheckingUniqueness.status !== 200) {
-      return responseOfCheckingUniqueness;
+    if (response.status !== 200) {
+      return response;
     }
 
     const hashPassword: string = await bcrypt.hash(userDto.password, 10);
