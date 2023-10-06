@@ -1,3 +1,14 @@
+export interface UserTableColumns {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  isAdmin?: boolean;
+  isSuspended?: boolean;
+  suspensionReason?: string;
+  businessId?: number;
+}
+
 export interface StationTableColumns {
   businessId: number;
   type: string;
