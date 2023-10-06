@@ -5,8 +5,9 @@ import { AccountTableColumns } from 'src/types/tableColumns';
 @Table({ tableName: 'accounts' })
 export class Account extends Model<Account, AccountTableColumns> {
   @ForeignKey(() => Station)
-  @Column({ type: DataType.INTEGER })
-  StationId: number;
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  stationId: number;
+
   @Column({ type: DataType.STRING, allowNull: false })
   paymentMethod: string;
 
