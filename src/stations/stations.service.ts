@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateStationDto } from './dto/create-station.dto';
 import { Station } from './stations.model';
-import makeUniquenessResponseMessage from 'src/utils/messageGenerator';
 import { Account } from 'src/accounts/accounts.model';
+import { IResponseStationDataObject } from 'src/types/responses';
+import { generateStationFoundResponse } from 'src/utils/generators/responseObjectsGenerators';
+import {
+  makeNotFoundMessage,
+  makeUniquenessResponseMessage,
+} from 'src/utils/generators/messageGenerators';
 
 @Injectable()
 export class StationsService {
@@ -19,6 +24,19 @@ export class StationsService {
       ],
     });
     return stations;
+  }
+
+  async getStationById(id: number): Promise<HttpException | IResponseStationDataObject> {
+    const station: Station = await this.stationRepository.findByPk(id, {
+      include: { model: Account },
+    });
+
+    if (!station) {
+      throw new HttpException(makeNotFoundMessage('station'), HttpStatus.NOT_FOUND);
+    }
+
+    const response = generateStationFoundResponse(station);
+    return response;
   }
 
   async createNewStation(dto: CreateStationDto) {

@@ -1,3 +1,6 @@
+import { Account } from 'src/accounts/accounts.model';
+import { Business } from 'src/businesses/businesses.model';
+import { StationTableColumns } from 'src/types/tableColumns';
 import {
   Column,
   DataType,
@@ -7,37 +10,9 @@ import {
   ForeignKey,
   HasMany,
 } from 'sequelize-typescript';
-import { Account } from 'src/accounts/accounts.model';
-import { Business } from 'src/businesses/businesses.model';
-
-export interface StationCreationAttributes {
-  businessId: number;
-  type: string;
-  brand: string;
-  name: string;
-  adress: string;
-  latitiud: number;
-  longitude: number;
-  phone: string;
-  email: string;
-  convenientStrore: boolean;
-  groceries: boolean;
-  alcohol: boolean;
-  automotive: boolean;
-  ice: boolean;
-  tabacco: boolean;
-  lottery: boolean;
-  carWash: boolean;
-  restrooms: boolean;
-  ATM: boolean;
-  foodOfferings: boolean;
-  restaurant: boolean;
-  overnightParking: boolean;
-  showers: boolean;
-}
 
 @Table({ tableName: 'stations' })
-export class Station extends Model<Station, StationCreationAttributes> {
+export class Station extends Model<Station, StationTableColumns> {
   @ForeignKey(() => Business)
   @Column({ type: DataType.INTEGER, allowNull: false })
   businessId: number;
@@ -51,14 +26,14 @@ export class Station extends Model<Station, StationCreationAttributes> {
   @Column({ type: DataType.STRING, allowNull: false, unique: true })
   name: string;
 
-  @Column({ type: DataType.STRING, allowNull: false, unique: true })
-  adress: string;
+  @Column({ type: DataType.STRING, allowNull: false })
+  address: string;
 
-  @Column({ type: DataType.INTEGER, allowNull: false, unique: true })
-  latitiud: number;
+  @Column({ type: DataType.STRING, allowNull: false })
+  lat: string;
 
-  @Column({ type: DataType.INTEGER, allowNull: false, unique: true })
-  longitude: number;
+  @Column({ type: DataType.STRING, allowNull: false })
+  lng: string;
 
   @Column({ type: DataType.STRING, allowNull: false })
   phone: string;
@@ -67,7 +42,7 @@ export class Station extends Model<Station, StationCreationAttributes> {
   email: string;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  convenientStrore: boolean;
+  convenientStore: boolean;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   groceries: boolean;
@@ -82,7 +57,7 @@ export class Station extends Model<Station, StationCreationAttributes> {
   ice: boolean;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  tabacco: boolean;
+  tobacco: boolean;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   lottery: boolean;
@@ -107,6 +82,9 @@ export class Station extends Model<Station, StationCreationAttributes> {
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   showers: boolean;
+
+  @Column({ type: DataType.STRING, allowNull: false })
+  POS: string;
 
   @BelongsTo(() => Business)
   owner: Business;
