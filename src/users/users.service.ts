@@ -1,33 +1,49 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './users.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Business } from 'src/businesses/businesses.model';
 import { Station } from 'src/stations/stations.model';
-import { IBasicResponseObject } from 'src/types/responses';
-import { makeUniquenessResponseMessage } from 'src/utils/generators/messageGenerators';
+import {
+  makeDeleteMessage,
+  makeNotFoundMessage,
+  makeUniquenessResponseMessage,
+} from 'src/utils/generators/messageGenerators';
+import {
+  IBasicUserResponse,
+  ICheckUserEmailResponse,
+  IDeleteUserResponse,
+  IGetAllUsersResponse,
+} from 'src/types/responses/users';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User) private userRepository: typeof User) {}
 
-  async getAllUsers() {
-    const users = await this.userRepository.findAll({
+  async getAllUsers(): Promise<IGetAllUsersResponse | HttpException> {
+    const users: User[] = await this.userRepository.findAll({
       include: [{ model: Business, include: [Station] }],
     });
-    return users;
+
+    if (users.length === 0) {
+      throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
+    }
+
+    const response: IGetAllUsersResponse = { status: HttpStatus.OK, data: users };
+    return response;
   }
 
-  async getUserByID(id: string) {
-    const user = await this.userRepository.findByPk(id, {
+  async getUserByID(id: number): Promise<IBasicUserResponse | HttpException> {
+    const user: User = await this.userRepository.findByPk(id, {
       include: [{ model: Business, include: [Station] }],
     });
 
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
     }
 
-    return user;
+    const response: IBasicUserResponse = { status: HttpStatus.OK, data: user };
+    return response;
   }
 
   async createUser(dto: CreateUserDto) {
@@ -35,39 +51,54 @@ export class UsersService {
     return newUser;
   }
 
-  async updateUserByID(id: number, updatedUserDto: CreateUserDto) {
-    const user = await this.userRepository.findByPk(id);
+  async updateUserByID(
+    id: number,
+    updatedUserDto: CreateUserDto,
+  ): Promise<IBasicUserResponse | HttpException> {
+    const user: User = await this.userRepository.findByPk(id);
 
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
     }
 
-    await user.update(updatedUserDto);
-    return user;
+    const updatedUser: User = await user.update(updatedUserDto);
+    const response: IBasicUserResponse = { status: HttpStatus.OK, data: updatedUser };
+    return response;
   }
 
-  async deleteUserByID(id: string) {
-    const user = await this.userRepository.findByPk(id);
+  async deleteUserByID(id: number): Promise<IDeleteUserResponse | HttpException> {
+    const user: User = await this.userRepository.findByPk(id);
 
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
     }
 
     await user.destroy();
-    return { message: `User with ID ${id} has been deleted...` };
+    const response: IDeleteUserResponse = {
+      status: HttpStatus.OK,
+      message: makeDeleteMessage('User'),
+      data: user,
+    };
+    return response;
   }
 
-  async checkUniquenessOfEmail(email: string): Promise<IBasicResponseObject> {
+  async checkUniquenessOfEmail(email: string): Promise<ICheckUserEmailResponse> {
     const userWithThisEmail: User | undefined = await this.findUserByEmail(email);
+
+    console.log(userWithThisEmail);
 
     if (userWithThisEmail) {
       throw new HttpException(makeUniquenessResponseMessage('Email', false), HttpStatus.CONFLICT);
     }
 
-    return { status: 200, message: makeUniquenessResponseMessage('Email', true) };
+    const response: ICheckUserEmailResponse = {
+      status: HttpStatus.OK,
+      message: makeUniquenessResponseMessage('Email', true),
+    };
+    return response;
   }
 
-  async findUserByEmail(email: string): Promise<User> {
+  async findUserByEmail(email: string): Promise<User | undefined> {
     const user: User = await this.userRepository.findOne({ where: { email } });
     return user;
   }

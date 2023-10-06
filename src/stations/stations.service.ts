@@ -32,7 +32,7 @@ export class StationsService {
     });
 
     if (!station) {
-      throw new HttpException(makeNotFoundMessage('station'), HttpStatus.NOT_FOUND);
+      throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
     }
 
     const response = generateStationFoundResponse(station);

@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.model';
-import { IBasicResponseObject, IResponseJWT } from 'src/types/responses';
+import { IBasicResponse, IResponseJWT } from 'src/types/responses';
 import * as bcrypt from 'bcrypt';
+import { ICheckUserEmailResponse } from 'src/types/responses/users';
 
 interface IJWT {
   id: number;
@@ -19,10 +20,9 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(userDto: CreateUserDto): Promise<IResponseJWT | IBasicResponseObject> {
-    const response: IBasicResponseObject = await this.userService.checkUniquenessOfEmail(
-      userDto.email,
-    );
+  async login(userDto: CreateUserDto): Promise<IResponseJWT | IBasicResponse> {
+    const response: ICheckUserEmailResponse | HttpException =
+      await this.userService.checkUniquenessOfEmail(userDto.email);
 
     if (response.status !== 200) {
       return response;

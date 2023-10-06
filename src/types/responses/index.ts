@@ -1,6 +1,6 @@
 import { StationTableColumns } from '../tableColumns';
 
-export interface IBasicResponseObject {
+export interface IBasicResponse {
   status: number;
   message: string;
 }
