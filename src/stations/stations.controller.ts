@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode } from '@nestjs/common';
 import { StationsService } from './stations.service';
 import { CreateStationDto } from './dto/create-station.dto';
-import { IResponseStationDataObject } from 'src/types/responses';
 import {
   IBasicStationResponse,
   ICheckStationEmailResponse,
@@ -19,7 +18,7 @@ export class StationsController {
   }
 
   @Get(':id')
-  getStationById(@Param('id') id: number): Promise<IResponseStationDataObject> {
+  getStationById(@Param('id') id: number): Promise<IBasicStationResponse> {
     return this.stationsService.getStationById(id);
   }
 
@@ -29,6 +28,7 @@ export class StationsController {
   }
 
   @Post('name-uniqueness')
+  @HttpCode(200)
   async checkUniquenessOfStationName(
     @Body('name') name: string,
   ): Promise<ICheckStationEmailResponse> {

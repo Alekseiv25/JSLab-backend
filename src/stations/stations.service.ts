@@ -3,8 +3,6 @@ import { InjectModel } from '@nestjs/sequelize';
 import { CreateStationDto } from './dto/create-station.dto';
 import { Station } from './stations.model';
 import { Account } from 'src/accounts/accounts.model';
-import { IResponseStationDataObject } from 'src/types/responses';
-import { generateStationFoundResponse } from 'src/utils/generators/responseObjectsGenerators';
 import {
   makeDeleteMessage,
   makeNotFoundMessage,
@@ -34,7 +32,7 @@ export class StationsService {
     return response;
   }
 
-  async getStationById(id: number): Promise<IResponseStationDataObject> {
+  async getStationById(id: number): Promise<IBasicStationResponse> {
     const station: Station | null = await this.stationRepository.findByPk(id, {
       include: { model: Account },
     });
@@ -43,7 +41,7 @@ export class StationsService {
       throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
     }
 
-    const response = generateStationFoundResponse(station);
+    const response: IBasicStationResponse = { status: HttpStatus.OK, data: station };
     return response;
   }
 

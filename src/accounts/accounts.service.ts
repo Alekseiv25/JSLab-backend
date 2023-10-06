@@ -1,9 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Account } from './accounts.model';
 import { CreateAccountDto } from './dto/create-account.dto';
 import * as crypto from 'crypto';
 import { decrypt, encrypt } from 'src/utils/crypto';
+import { IBasicAccountResponse, IDeleteAccountResponse } from 'src/types/responses/accounts';
+import { makeDeleteMessage, makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
 
 @Injectable()
 export class AccountsService {
@@ -13,7 +15,12 @@ export class AccountsService {
   }
 
   async getAllAccounts() {
-    const accounts = await this.accountRepository.findAll();
+    const accounts: Account[] | null = await this.accountRepository.findAll();
+
+    if (accounts.length === 0) {
+      throw new HttpException(makeNotFoundMessage('Accounts'), HttpStatus.NOT_FOUND);
+    }
+
     const decryptedAccounts = accounts.map((account) => {
       const decryptedRoutingNumber = decrypt(account.routingNumber, this.key);
       const decryptedAccountNumber = decrypt(account.accountNumber, this.key);
@@ -26,41 +33,43 @@ export class AccountsService {
     return decryptedAccounts;
   }
 
-  async createNewAccount(dto: CreateAccountDto) {
-    try {
-      const encryptedDto = {
-        ...dto,
-        routingNumber: encrypt(dto.routingNumber, this.key),
-        accountNumber: encrypt(dto.accountNumber, this.key),
-      };
+  async createNewAccount(dto: CreateAccountDto): Promise<IBasicAccountResponse> {
+    const encryptedDto = {
+      ...dto,
+      routingNumber: encrypt(dto.routingNumber, this.key),
+      accountNumber: encrypt(dto.accountNumber, this.key),
+    };
 
-      const newAccount = await this.accountRepository.create(encryptedDto);
-      return newAccount;
-    } catch (error) {
-      console.error(error);
-      return { status: 500, message: 'Internal server error' };
-    }
+    const newAccount: Account = await this.accountRepository.create(encryptedDto);
+    const response: IBasicAccountResponse = { status: HttpStatus.OK, data: newAccount };
+    return response;
   }
 
-  async updateAccount(id: number, dto: CreateAccountDto) {
-    const account = await this.accountRepository.findOne({ where: { id } });
+  async updateAccount(id: number, dto: CreateAccountDto): Promise<IBasicAccountResponse> {
+    const account: Account | null = await this.accountRepository.findOne({ where: { id } });
 
     if (!account) {
-      throw new NotFoundException(`Account with such id - ${id}, not found!`);
+      throw new HttpException(makeNotFoundMessage('Account'), HttpStatus.NOT_FOUND);
     }
 
-    await account.update(dto);
-    return account;
+    const updatedAccount: Account = await account.update(dto);
+    const response: IBasicAccountResponse = { status: HttpStatus.OK, data: updatedAccount };
+    return response;
   }
 
-  async deleteAccount(id: number) {
-    const account = await this.accountRepository.findByPk(id);
+  async deleteAccount(id: number): Promise<IDeleteAccountResponse> {
+    const account: Account | null = await this.accountRepository.findByPk(id);
 
     if (!account) {
-      throw new NotFoundException(`Account with ID ${id} not found!`);
+      throw new HttpException(makeNotFoundMessage('Account'), HttpStatus.NOT_FOUND);
     }
 
     await account.destroy();
-    return { message: `Account with ID ${id} has been deleted...` };
+    const response: IDeleteAccountResponse = {
+      status: HttpStatus.OK,
+      message: makeDeleteMessage('Account'),
+      data: account,
+    };
+    return response;
   }
 }

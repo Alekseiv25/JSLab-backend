@@ -1,6 +1,7 @@
 import { Controller, Body, Param, Get, Post, Put, Delete } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto } from './dto/create-account.dto';
+import { IBasicAccountResponse, IDeleteAccountResponse } from 'src/types/responses/accounts';
 
 @Controller('accounts')
 export class AccountsController {
@@ -12,17 +13,20 @@ export class AccountsController {
   }
 
   @Post()
-  createNewAccount(@Body() accountDto: CreateAccountDto) {
+  createNewAccount(@Body() accountDto: CreateAccountDto): Promise<IBasicAccountResponse> {
     return this.accountsService.createNewAccount(accountDto);
   }
 
   @Put(':id')
-  updateAccount(@Param('id') id: number, @Body() updateAccountDto: CreateAccountDto) {
-    return this.accountsService.updateAccount(id, updateAccountDto);
+  updateAccount(
+    @Param('id') id: number,
+    @Body() updatedData: CreateAccountDto,
+  ): Promise<IBasicAccountResponse> {
+    return this.accountsService.updateAccount(id, updatedData);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: number) {
+  delete(@Param('id') id: number): Promise<IDeleteAccountResponse> {
     return this.accountsService.deleteAccount(id);
   }
 }
