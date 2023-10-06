@@ -1,3 +1,25 @@
+export interface UserTableColumns {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  isAdmin?: boolean;
+  isSuspended?: boolean;
+  suspensionReason?: string;
+  businessId?: number;
+}
+
+export interface BusinessTableColumns {
+  legalName: string;
+  yearsOfOperation: string;
+  type: string;
+  streetAddress: string;
+  secondaryAddress: string;
+  city: string;
+  ST: string;
+  zip: number;
+}
+
 export interface StationTableColumns {
   businessId: number;
   type: string;
@@ -23,4 +45,14 @@ export interface StationTableColumns {
   overnightParking: boolean;
   showers: boolean;
   POS: string;
+}
+
+export interface AccountTableColumns {
+  stationId: number;
+  paymentMethod: string;
+  verificationMethod: string;
+  accountNickname: string;
+  accountType: string;
+  routingNumber: string;
+  accountNumber: string;
 }

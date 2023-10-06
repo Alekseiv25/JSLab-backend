@@ -5,5 +5,5 @@ export class CreateUserDto {
   readonly lastName: string;
   readonly phone: string;
   readonly isAdmin?: boolean;
-  readonly businessId?: number | null;
+  readonly businessId?: number;
 }

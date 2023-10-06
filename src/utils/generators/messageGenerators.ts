@@ -7,5 +7,9 @@ export function makeUniquenessResponseMessage(name: string, isAvailable: boolean
 }
 
 export function makeNotFoundMessage(name: string): string {
-  return `The ${name} was not found in the database!`;
+  return `${name} was not found in the database!`;
+}
+
+export function makeDeleteMessage(name: string): string {
+  return `${name} was delete from the database!`;
 }

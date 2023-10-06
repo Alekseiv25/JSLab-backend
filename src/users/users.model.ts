@@ -1,18 +1,9 @@
 import { Column, DataType, Model, Table, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { Business } from 'src/businesses/businesses.model';
-
-export interface UserCreationAttributes {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  phone: string;
-  isAdmin?: boolean;
-  businessId?: number | null;
-}
+import { UserTableColumns } from 'src/types/tableColumns';
 
 @Table({ tableName: 'users' })
-export class User extends Model<User, UserCreationAttributes> {
+export class User extends Model<User, UserTableColumns> {
   @ForeignKey(() => Business)
   @Column({ type: DataType.INTEGER })
   businessId: number;
@@ -39,10 +30,7 @@ export class User extends Model<User, UserCreationAttributes> {
   isSuspended: boolean;
 
   @Column({ type: DataType.STRING, defaultValue: null })
-  suspensionReason: string | null;
-
-  @Column({ type: DataType.STRING, allowNull: false })
-  phone: string;
+  suspensionReason: string;
 
   @BelongsTo(() => Business)
   business: Business;

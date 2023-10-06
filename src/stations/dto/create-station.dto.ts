@@ -3,17 +3,17 @@ export class CreateStationDto {
   readonly type: string;
   readonly brand: string;
   readonly name: string;
-  readonly adress: string;
-  readonly latitiud: number;
-  readonly longitude: number;
+  readonly address: string;
+  readonly lat: string;
+  readonly lng: string;
   readonly phone: string;
   readonly email: string;
-  readonly convenientStrore: boolean;
+  readonly convenientStore: boolean;
   readonly groceries: boolean;
   readonly alcohol: boolean;
   readonly automotive: boolean;
   readonly ice: boolean;
-  readonly tabacco: boolean;
+  readonly tobacco: boolean;
   readonly lottery: boolean;
   readonly carWash: boolean;
   readonly restrooms: boolean;
@@ -22,4 +22,5 @@ export class CreateStationDto {
   readonly restaurant: boolean;
   readonly overnightParking: boolean;
   readonly showers: boolean;
+  readonly POS: string;
 }
