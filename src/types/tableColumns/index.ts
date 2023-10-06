@@ -9,6 +9,17 @@ export interface UserTableColumns {
   businessId?: number;
 }
 
+export interface BusinessTableColumns {
+  legalName: string;
+  yearsOfOperation: string;
+  type: string;
+  streetAddress: string;
+  secondaryAddress: string;
+  city: string;
+  ST: string;
+  zip: number;
+}
+
 export interface StationTableColumns {
   businessId: number;
   type: string;
