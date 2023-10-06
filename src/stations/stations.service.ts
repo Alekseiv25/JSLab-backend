@@ -28,7 +28,7 @@ export class StationsService {
       throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
     }
 
-    const response: IGetAllStationsResponse = { status: HttpStatus.OK, data: stations };
+    const response: IGetAllStationsResponse = { statusCode: HttpStatus.OK, data: stations };
     return response;
   }
 
@@ -41,7 +41,7 @@ export class StationsService {
       throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
     }
 
-    const response: IBasicStationResponse = { status: HttpStatus.OK, data: station };
+    const response: IBasicStationResponse = { statusCode: HttpStatus.OK, data: station };
     return response;
   }
 
@@ -50,12 +50,12 @@ export class StationsService {
       dto.name,
     );
 
-    if (uniquenessResponse.status !== 200) {
+    if (uniquenessResponse.statusCode !== 200) {
       throw new HttpException(uniquenessResponse.message, HttpStatus.CONFLICT);
     }
 
     const newStation: Station = await this.stationRepository.create(dto);
-    const response: IBasicStationResponse = { status: HttpStatus.OK, data: newStation };
+    const response: IBasicStationResponse = { statusCode: HttpStatus.OK, data: newStation };
     return response;
   }
 
@@ -70,7 +70,7 @@ export class StationsService {
     }
 
     const updatedStation: Station = await station.update(updatedStationDto);
-    const response: IBasicStationResponse = { status: HttpStatus.OK, data: updatedStation };
+    const response: IBasicStationResponse = { statusCode: HttpStatus.OK, data: updatedStation };
     return response;
   }
 
@@ -83,7 +83,7 @@ export class StationsService {
 
     await station.destroy();
     const response: IDeleteStationResponse = {
-      status: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       message: makeDeleteMessage('Station'),
       data: station,
     };
@@ -100,7 +100,7 @@ export class StationsService {
     }
 
     const response: ICheckStationEmailResponse = {
-      status: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       message: makeUniquenessResponseMessage('Name', true),
     };
     return response;

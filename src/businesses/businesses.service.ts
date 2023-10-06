@@ -27,7 +27,7 @@ export class BusinessesService {
       throw new HttpException(makeNotFoundMessage('Businesses'), HttpStatus.NOT_FOUND);
     }
 
-    const response: IGetAllBusinessResponse = { status: HttpStatus.OK, data: businesses };
+    const response: IGetAllBusinessResponse = { statusCode: HttpStatus.OK, data: businesses };
     return response;
   }
 
@@ -36,12 +36,12 @@ export class BusinessesService {
       dto.legalName,
     );
 
-    if (uniquenessResponse.status !== 200) {
+    if (uniquenessResponse.statusCode !== 200) {
       throw new HttpException(uniquenessResponse.message, HttpStatus.CONFLICT);
     }
 
     const newBusiness: Business = await this.businessRepository.create(dto);
-    const response: IBasicBusinessResponse = { status: HttpStatus.OK, data: newBusiness };
+    const response: IBasicBusinessResponse = { statusCode: HttpStatus.OK, data: newBusiness };
     return response;
   }
 
@@ -56,7 +56,7 @@ export class BusinessesService {
     }
 
     const updatedBusiness: Business = await business.update(updatedBusinessDto);
-    const response: IBasicBusinessResponse = { status: HttpStatus.OK, data: updatedBusiness };
+    const response: IBasicBusinessResponse = { statusCode: HttpStatus.OK, data: updatedBusiness };
     return response;
   }
 
@@ -69,7 +69,7 @@ export class BusinessesService {
 
     await business.destroy();
     const response: IDeleteBusinessResponse = {
-      status: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       message: makeDeleteMessage('Business'),
       data: business,
     };
@@ -86,7 +86,7 @@ export class BusinessesService {
     }
 
     const response: ICheckBusinessNameResponse = {
-      status: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       message: makeUniquenessResponseMessage('Name', true),
     };
     return response;

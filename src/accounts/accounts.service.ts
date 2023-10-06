@@ -41,7 +41,7 @@ export class AccountsService {
     };
 
     const newAccount: Account = await this.accountRepository.create(encryptedDto);
-    const response: IBasicAccountResponse = { status: HttpStatus.OK, data: newAccount };
+    const response: IBasicAccountResponse = { statusCode: HttpStatus.OK, data: newAccount };
     return response;
   }
 
@@ -53,7 +53,7 @@ export class AccountsService {
     }
 
     const updatedAccount: Account = await account.update(dto);
-    const response: IBasicAccountResponse = { status: HttpStatus.OK, data: updatedAccount };
+    const response: IBasicAccountResponse = { statusCode: HttpStatus.OK, data: updatedAccount };
     return response;
   }
 
@@ -66,7 +66,7 @@ export class AccountsService {
 
     await account.destroy();
     const response: IDeleteAccountResponse = {
-      status: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       message: makeDeleteMessage('Account'),
       data: account,
     };

@@ -29,7 +29,7 @@ export class UsersService {
       throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
     }
 
-    const response: IGetAllUsersResponse = { status: HttpStatus.OK, data: users };
+    const response: IGetAllUsersResponse = { statusCode: HttpStatus.OK, data: users };
     return response;
   }
 
@@ -42,7 +42,7 @@ export class UsersService {
       throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
     }
 
-    const response: IBasicUserResponse = { status: HttpStatus.OK, data: user };
+    const response: IBasicUserResponse = { statusCode: HttpStatus.OK, data: user };
     return response;
   }
 
@@ -59,7 +59,7 @@ export class UsersService {
     }
 
     const updatedUser: User = await user.update(updatedUserDto);
-    const response: IBasicUserResponse = { status: HttpStatus.OK, data: updatedUser };
+    const response: IBasicUserResponse = { statusCode: HttpStatus.OK, data: updatedUser };
     return response;
   }
 
@@ -72,7 +72,7 @@ export class UsersService {
 
     await user.destroy();
     const response: IDeleteUserResponse = {
-      status: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       message: makeDeleteMessage('User'),
       data: user,
     };
@@ -87,7 +87,7 @@ export class UsersService {
     }
 
     const response: ICheckUserEmailResponse = {
-      status: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       message: makeUniquenessResponseMessage('Email', true),
     };
     return response;

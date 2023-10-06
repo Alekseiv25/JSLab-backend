@@ -1,17 +1,17 @@
 import { Account } from 'src/accounts/accounts.model';
 
 export interface IBasicAccountResponse {
-  status: number;
+  statusCode: number;
   data: Account;
 }
 
 export interface IGetAllAccountsResponse {
-  status: number;
+  statusCode: number;
   data: Account[];
 }
 
 export interface IDeleteAccountResponse {
-  status: number;
+  statusCode: number;
   message: string;
   data: Account;
 }

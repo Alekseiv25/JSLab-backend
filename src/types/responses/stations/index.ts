@@ -1,22 +1,22 @@
 import { Station } from 'src/stations/stations.model';
 
 export interface IBasicStationResponse {
-  status: number;
+  statusCode: number;
   data: Station;
 }
 
 export interface IGetAllStationsResponse {
-  status: number;
+  statusCode: number;
   data: Station[];
 }
 
 export interface ICheckStationEmailResponse {
-  status: number;
+  statusCode: number;
   message: string;
 }
 
 export interface IDeleteStationResponse {
-  status: number;
+  statusCode: number;
   message: string;
   data: Station;
 }

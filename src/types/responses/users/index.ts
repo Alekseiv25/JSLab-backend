@@ -1,22 +1,22 @@
 import { User } from 'src/users/users.model';
 
 export interface IBasicUserResponse {
-  status: number;
+  statusCode: number;
   data: User;
 }
 
 export interface IGetAllUsersResponse {
-  status: number;
+  statusCode: number;
   data: User[];
 }
 
 export interface ICheckUserEmailResponse {
-  status: number;
+  statusCode: number;
   message: string;
 }
 
 export interface IDeleteUserResponse {
-  status: number;
+  statusCode: number;
   message: string;
   data: User;
 }

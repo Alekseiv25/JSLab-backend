@@ -1,22 +1,22 @@
 import { Business } from 'src/businesses/businesses.model';
 
 export interface IBasicBusinessResponse {
-  status: number;
+  statusCode: number;
   data: Business;
 }
 
 export interface IGetAllBusinessResponse {
-  status: number;
+  statusCode: number;
   data: Business[];
 }
 
 export interface ICheckBusinessNameResponse {
-  status: number;
+  statusCode: number;
   message: string;
 }
 
 export interface IDeleteBusinessResponse {
-  status: number;
+  statusCode: number;
   message: string;
   data: Business;
 }
