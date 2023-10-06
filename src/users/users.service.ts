@@ -21,7 +21,7 @@ export class UsersService {
   constructor(@InjectModel(User) private userRepository: typeof User) {}
 
   async getAllUsers(): Promise<IGetAllUsersResponse> {
-    const users: User[] = await this.userRepository.findAll({
+    const users: User[] | [] = await this.userRepository.findAll({
       include: [{ model: Business, include: [Station] }],
     });
 
@@ -34,7 +34,7 @@ export class UsersService {
   }
 
   async getUserByID(id: number): Promise<IBasicUserResponse> {
-    const user: User = await this.userRepository.findByPk(id, {
+    const user: User | null = await this.userRepository.findByPk(id, {
       include: [{ model: Business, include: [Station] }],
     });
 
@@ -52,7 +52,7 @@ export class UsersService {
   }
 
   async updateUserByID(id: number, updatedUserDto: CreateUserDto): Promise<IBasicUserResponse> {
-    const user: User = await this.userRepository.findByPk(id);
+    const user: User | null = await this.userRepository.findByPk(id);
 
     if (!user) {
       throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
@@ -64,7 +64,7 @@ export class UsersService {
   }
 
   async deleteUserByID(id: number): Promise<IDeleteUserResponse> {
-    const user: User = await this.userRepository.findByPk(id);
+    const user: User | null = await this.userRepository.findByPk(id);
 
     if (!user) {
       throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
@@ -80,7 +80,7 @@ export class UsersService {
   }
 
   async checkUniquenessOfEmail(email: string): Promise<ICheckUserEmailResponse> {
-    const userWithThisEmail: User | undefined = await this.findUserByEmail(email);
+    const userWithThisEmail: User | null = await this.findUserByEmail(email);
 
     if (userWithThisEmail) {
       throw new HttpException(makeUniquenessResponseMessage('Email', false), HttpStatus.CONFLICT);
@@ -93,8 +93,8 @@ export class UsersService {
     return response;
   }
 
-  async findUserByEmail(email: string): Promise<User | undefined> {
-    const user: User = await this.userRepository.findOne({ where: { email } });
+  async findUserByEmail(email: string): Promise<User | null> {
+    const user: User | null = await this.userRepository.findOne({ where: { email } });
     return user;
   }
 }

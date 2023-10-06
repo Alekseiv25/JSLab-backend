@@ -19,7 +19,7 @@ export class BusinessesService {
   constructor(@InjectModel(Business) private businessRepository: typeof Business) {}
 
   async getAllBusinesses(): Promise<IGetAllBusinessResponse> {
-    const businesses: Business[] = await this.businessRepository.findAll({
+    const businesses: Business[] | [] = await this.businessRepository.findAll({
       include: ['users', 'stations'],
     });
 
@@ -49,7 +49,7 @@ export class BusinessesService {
     id: number,
     updatedBusinessDto: CreateBusinessDto,
   ): Promise<IBasicBusinessResponse> {
-    const business: Business = await this.businessRepository.findOne({ where: { id } });
+    const business: Business | null = await this.businessRepository.findOne({ where: { id } });
 
     if (!business) {
       throw new HttpException(makeNotFoundMessage('Business'), HttpStatus.NOT_FOUND);
@@ -61,7 +61,7 @@ export class BusinessesService {
   }
 
   async deleteBusiness(id: number): Promise<IDeleteBusinessResponse> {
-    const business: Business = await this.businessRepository.findOne({ where: { id } });
+    const business: Business | null = await this.businessRepository.findOne({ where: { id } });
 
     if (!business) {
       throw new HttpException(makeNotFoundMessage('Business'), HttpStatus.NOT_FOUND);
@@ -77,7 +77,7 @@ export class BusinessesService {
   }
 
   async checkUniquenessOfName(legalName: string): Promise<ICheckBusinessNameResponse> {
-    const businessWithThisName: Business | undefined = await this.businessRepository.findOne({
+    const businessWithThisName: Business | null = await this.businessRepository.findOne({
       where: { legalName },
     });
 
