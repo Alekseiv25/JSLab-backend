@@ -1,70 +1,94 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Business } from './businesses.model';
 import { CreateBusinessDto } from './dto/create-business.dto';
-import { Station } from 'src/stations/stations.model';
-import { makeUniquenessResponseMessage } from 'src/utils/generators/messageGenerators';
+import {
+  makeDeleteMessage,
+  makeNotFoundMessage,
+  makeUniquenessResponseMessage,
+} from 'src/utils/generators/messageGenerators';
+import {
+  IBasicBusinessResponse,
+  ICheckBusinessNameResponse,
+  IDeleteBusinessResponse,
+  IGetAllBusinessResponse,
+} from 'src/types/responses/businesses';
 
 @Injectable()
 export class BusinessesService {
   constructor(@InjectModel(Business) private businessRepository: typeof Business) {}
 
-  async getAllBusinesses() {
-    const business = await this.businessRepository.findAll({
-      include: [
-        'users',
-        {
-          model: Station,
-          as: 'stations',
-        },
-      ],
+  async getAllBusinesses(): Promise<IGetAllBusinessResponse> {
+    const businesses: Business[] = await this.businessRepository.findAll({
+      include: ['users', 'stations'],
     });
-    return business;
-  }
 
-  async createNewBusiness(dto: CreateBusinessDto) {
-    try {
-      const response = await this.checkUniquenessOfName(dto.legalName);
-      if (response.status === 200) {
-        const newBusiness = await this.businessRepository.create(dto);
-        return newBusiness;
-      } else {
-        return response;
-      }
-    } catch (error) {
-      console.error(error);
-      return { status: 500, message: 'Internal server error' };
-    }
-  }
-
-  async updateBusiness(id: number, dto) {
-    const business = await this.businessRepository.findOne({ where: { id } });
-
-    if (!business) {
-      throw new NotFoundException(`Business with such id - ${id}, not found!`);
+    if (businesses.length === 0) {
+      throw new HttpException(makeNotFoundMessage('Businesses'), HttpStatus.NOT_FOUND);
     }
 
-    await business.update(dto);
-    return business;
+    const response: IGetAllBusinessResponse = { status: HttpStatus.OK, data: businesses };
+    return response;
   }
 
-  async deleteBusiness(id: number) {
-    const business = await this.businessRepository.findOne({ where: { id } });
+  async createNewBusiness(dto: CreateBusinessDto): Promise<IBasicBusinessResponse> {
+    const uniquenessResponse: ICheckBusinessNameResponse = await this.checkUniquenessOfName(
+      dto.legalName,
+    );
+
+    if (uniquenessResponse.status !== 200) {
+      throw new HttpException(uniquenessResponse.message, HttpStatus.CONFLICT);
+    }
+
+    const newBusiness: Business = await this.businessRepository.create(dto);
+    const response: IBasicBusinessResponse = { status: HttpStatus.OK, data: newBusiness };
+    return response;
+  }
+
+  async updateBusiness(
+    id: number,
+    updatedBusinessDto: CreateBusinessDto,
+  ): Promise<IBasicBusinessResponse> {
+    const business: Business = await this.businessRepository.findOne({ where: { id } });
 
     if (!business) {
-      throw new NotFoundException(`Business with such id - ${id}, not found!`);
+      throw new HttpException(makeNotFoundMessage('Business'), HttpStatus.NOT_FOUND);
+    }
+
+    const updatedBusiness: Business = await business.update(updatedBusinessDto);
+    const response: IBasicBusinessResponse = { status: HttpStatus.OK, data: updatedBusiness };
+    return response;
+  }
+
+  async deleteBusiness(id: number): Promise<IDeleteBusinessResponse> {
+    const business: Business = await this.businessRepository.findOne({ where: { id } });
+
+    if (!business) {
+      throw new HttpException(makeNotFoundMessage('Business'), HttpStatus.NOT_FOUND);
     }
 
     await business.destroy();
-    return { message: `Business with with id - ${id}, has been deleted...` };
+    const response: IDeleteBusinessResponse = {
+      status: HttpStatus.OK,
+      message: makeDeleteMessage('Business'),
+      data: business,
+    };
+    return response;
   }
 
-  async checkUniquenessOfName(legalName: string) {
-    const businessWithThisName = await this.businessRepository.findOne({ where: { legalName } });
+  async checkUniquenessOfName(legalName: string): Promise<ICheckBusinessNameResponse> {
+    const businessWithThisName: Business | undefined = await this.businessRepository.findOne({
+      where: { legalName },
+    });
+
     if (businessWithThisName) {
-      return { status: 409, message: makeUniquenessResponseMessage('Legal Name', false) };
-    } else {
-      return { status: 200, message: makeUniquenessResponseMessage('Legal Name', true) };
+      throw new HttpException(makeUniquenessResponseMessage('Name', false), HttpStatus.CONFLICT);
     }
+
+    const response: ICheckBusinessNameResponse = {
+      status: HttpStatus.OK,
+      message: makeUniquenessResponseMessage('Name', true),
+    };
+    return response;
   }
 }

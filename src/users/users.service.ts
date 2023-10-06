@@ -20,7 +20,7 @@ import {
 export class UsersService {
   constructor(@InjectModel(User) private userRepository: typeof User) {}
 
-  async getAllUsers(): Promise<IGetAllUsersResponse | HttpException> {
+  async getAllUsers(): Promise<IGetAllUsersResponse> {
     const users: User[] = await this.userRepository.findAll({
       include: [{ model: Business, include: [Station] }],
     });
@@ -33,7 +33,7 @@ export class UsersService {
     return response;
   }
 
-  async getUserByID(id: number): Promise<IBasicUserResponse | HttpException> {
+  async getUserByID(id: number): Promise<IBasicUserResponse> {
     const user: User = await this.userRepository.findByPk(id, {
       include: [{ model: Business, include: [Station] }],
     });
@@ -51,10 +51,7 @@ export class UsersService {
     return newUser;
   }
 
-  async updateUserByID(
-    id: number,
-    updatedUserDto: CreateUserDto,
-  ): Promise<IBasicUserResponse | HttpException> {
+  async updateUserByID(id: number, updatedUserDto: CreateUserDto): Promise<IBasicUserResponse> {
     const user: User = await this.userRepository.findByPk(id);
 
     if (!user) {
@@ -66,7 +63,7 @@ export class UsersService {
     return response;
   }
 
-  async deleteUserByID(id: number): Promise<IDeleteUserResponse | HttpException> {
+  async deleteUserByID(id: number): Promise<IDeleteUserResponse> {
     const user: User = await this.userRepository.findByPk(id);
 
     if (!user) {
@@ -84,8 +81,6 @@ export class UsersService {
 
   async checkUniquenessOfEmail(email: string): Promise<ICheckUserEmailResponse> {
     const userWithThisEmail: User | undefined = await this.findUserByEmail(email);
-
-    console.log(userWithThisEmail);
 
     if (userWithThisEmail) {
       throw new HttpException(makeUniquenessResponseMessage('Email', false), HttpStatus.CONFLICT);
