@@ -1,17 +1,9 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
 import { Station } from 'src/stations/stations.model';
-
-export interface AccountCreationAttributes {
-  paymentMethod: string;
-  verificationMethod: string;
-  accountNickname: string;
-  accountType: string;
-  routingNumber: string;
-  accountNumber: string;
-}
+import { AccountTableColumns } from 'src/types/tableColumns';
 
 @Table({ tableName: 'accounts' })
-export class Account extends Model<Account, AccountCreationAttributes> {
+export class Account extends Model<Account, AccountTableColumns> {
   @ForeignKey(() => Station)
   @Column({ type: DataType.INTEGER })
   StationId: number;

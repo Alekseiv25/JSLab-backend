@@ -46,3 +46,12 @@ export interface StationTableColumns {
   showers: boolean;
   POS: string;
 }
+
+export interface AccountTableColumns {
+  paymentMethod: string;
+  verificationMethod: string;
+  accountNickname: string;
+  accountType: string;
+  routingNumber: string;
+  accountNumber: string;
+}
