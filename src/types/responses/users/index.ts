@@ -20,3 +20,7 @@ export interface IDeleteUserResponse {
   message: string;
   data: User;
 }
+
+export interface IResponseJWT {
+  token: string;
+}

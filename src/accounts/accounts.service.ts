@@ -1,11 +1,13 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Account } from './accounts.model';
 import { CreateAccountDto } from './dto/create-account.dto';
 import * as crypto from 'crypto';
 import { decrypt, encrypt } from 'src/utils/crypto';
 import { IBasicAccountResponse, IDeleteAccountResponse } from 'src/types/responses/accounts';
-import { makeDeleteMessage, makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
+import { makeDeleteMessage } from 'src/utils/generators/messageGenerators';
+import { generateNotFoundResponse } from 'src/utils/generators/responseObjectGenerators';
+import { IBasicResponse } from 'src/types/responses';
 
 @Injectable()
 export class AccountsService {
@@ -18,7 +20,8 @@ export class AccountsService {
     const accounts: Account[] | null = await this.accountRepository.findAll();
 
     if (accounts.length === 0) {
-      throw new HttpException(makeNotFoundMessage('Accounts'), HttpStatus.NOT_FOUND);
+      const response: IBasicResponse = generateNotFoundResponse('Accounts');
+      return response;
     }
 
     const decryptedAccounts = accounts.map((account) => {
@@ -45,11 +48,15 @@ export class AccountsService {
     return response;
   }
 
-  async updateAccount(id: number, dto: CreateAccountDto): Promise<IBasicAccountResponse> {
+  async updateAccount(
+    id: number,
+    dto: CreateAccountDto,
+  ): Promise<IBasicAccountResponse | IBasicResponse> {
     const account: Account | null = await this.accountRepository.findOne({ where: { id } });
 
     if (!account) {
-      throw new HttpException(makeNotFoundMessage('Account'), HttpStatus.NOT_FOUND);
+      const response: IBasicResponse = generateNotFoundResponse('Account');
+      return response;
     }
 
     const updatedAccount: Account = await account.update(dto);
@@ -57,11 +64,12 @@ export class AccountsService {
     return response;
   }
 
-  async deleteAccount(id: number): Promise<IDeleteAccountResponse> {
+  async deleteAccount(id: number): Promise<IDeleteAccountResponse | IBasicResponse> {
     const account: Account | null = await this.accountRepository.findByPk(id);
 
     if (!account) {
-      throw new HttpException(makeNotFoundMessage('Account'), HttpStatus.NOT_FOUND);
+      const response: IBasicResponse = generateNotFoundResponse('Account');
+      return response;
     }
 
     await account.destroy();

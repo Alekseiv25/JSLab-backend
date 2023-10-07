@@ -3,9 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.model';
-import { IResponseJWT } from 'src/types/responses';
 import * as bcrypt from 'bcrypt';
-import { ICheckUserEmailResponse } from 'src/types/responses/users';
+import { ICheckUserEmailResponse, IResponseJWT } from 'src/types/responses/users';
 
 interface IJWT {
   id: number;

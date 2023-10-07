@@ -1,8 +1,4 @@
 export interface IBasicResponse {
-  status: number;
+  statusCode: number;
   message: string;
-}
-
-export interface IResponseJWT {
-  token: string;
 }

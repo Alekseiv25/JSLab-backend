@@ -1,57 +1,63 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateStationDto } from './dto/create-station.dto';
 import { Station } from './stations.model';
 import { Account } from 'src/accounts/accounts.model';
-import {
-  makeDeleteMessage,
-  makeNotFoundMessage,
-  makeUniquenessResponseMessage,
-} from 'src/utils/generators/messageGenerators';
+import { makeDeleteMessage } from 'src/utils/generators/messageGenerators';
+import { IBasicResponse } from 'src/types/responses';
 import {
   IBasicStationResponse,
   ICheckStationEmailResponse,
   IDeleteStationResponse,
   IGetAllStationsResponse,
 } from 'src/types/responses/stations';
+import {
+  generateAvailableResponse,
+  generateConflictResponse,
+  generateNotFoundResponse,
+} from 'src/utils/generators/responseObjectGenerators';
 
 @Injectable()
 export class StationsService {
   constructor(@InjectModel(Station) private stationRepository: typeof Station) {}
 
-  async getAllStations(): Promise<IGetAllStationsResponse> {
+  async getAllStations(): Promise<IGetAllStationsResponse | IBasicResponse> {
     const stations: Station[] | [] = await this.stationRepository.findAll({
       include: ['accounts'],
     });
 
     if (stations.length === 0) {
-      throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
+      const response: IBasicResponse = generateNotFoundResponse('Stations');
+      return response;
     }
 
     const response: IGetAllStationsResponse = { statusCode: HttpStatus.OK, data: stations };
     return response;
   }
 
-  async getStationById(id: number): Promise<IBasicStationResponse> {
+  async getStationById(id: number): Promise<IBasicStationResponse | IBasicResponse> {
     const station: Station | null = await this.stationRepository.findByPk(id, {
       include: { model: Account },
     });
 
     if (!station) {
-      throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
+      const response: IBasicResponse = generateNotFoundResponse('Station');
+      return response;
     }
 
     const response: IBasicStationResponse = { statusCode: HttpStatus.OK, data: station };
     return response;
   }
 
-  async createNewStation(dto: CreateStationDto): Promise<IBasicStationResponse> {
+  async createNewStation(
+    dto: CreateStationDto,
+  ): Promise<IBasicStationResponse | ICheckStationEmailResponse> {
     const uniquenessResponse: ICheckStationEmailResponse = await this.checkUniquenessOfName(
       dto.name,
     );
 
     if (uniquenessResponse.statusCode !== 200) {
-      throw new HttpException(uniquenessResponse.message, HttpStatus.CONFLICT);
+      return uniquenessResponse;
     }
 
     const newStation: Station = await this.stationRepository.create(dto);
@@ -62,11 +68,12 @@ export class StationsService {
   async updateStation(
     id: number,
     updatedStationDto: CreateStationDto,
-  ): Promise<IBasicStationResponse> {
+  ): Promise<IBasicStationResponse | IBasicResponse> {
     const station: Station | null = await this.stationRepository.findOne({ where: { id } });
 
     if (!station) {
-      throw new HttpException(makeNotFoundMessage('Station'), HttpStatus.NOT_FOUND);
+      const response: IBasicResponse = generateNotFoundResponse('Station');
+      return response;
     }
 
     const updatedStation: Station = await station.update(updatedStationDto);
@@ -74,11 +81,12 @@ export class StationsService {
     return response;
   }
 
-  async deleteStation(id: number): Promise<IDeleteStationResponse> {
+  async deleteStation(id: number): Promise<IDeleteStationResponse | IBasicResponse> {
     const station: Station | null = await this.stationRepository.findByPk(id);
 
     if (!station) {
-      throw new HttpException(makeNotFoundMessage('Station'), HttpStatus.NOT_FOUND);
+      const response: IBasicResponse = generateNotFoundResponse('Station');
+      return response;
     }
 
     await station.destroy();
@@ -96,13 +104,11 @@ export class StationsService {
     });
 
     if (stationWithThisName) {
-      throw new HttpException(makeUniquenessResponseMessage('Name', false), HttpStatus.CONFLICT);
+      const response: IBasicResponse = generateConflictResponse('Name');
+      return response;
     }
 
-    const response: ICheckStationEmailResponse = {
-      statusCode: HttpStatus.OK,
-      message: makeUniquenessResponseMessage('Name', true),
-    };
+    const response: IBasicResponse = generateAvailableResponse('Name');
     return response;
   }
 }
