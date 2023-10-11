@@ -45,14 +45,13 @@ export class TokensService {
   async saveToken(userId: number, refreshToken: string) {
     const tokenInDB = await this.tokenRepository.findOne({ where: { userId: userId } });
 
-    console.log('Token in DB:', tokenInDB);
-
     if (tokenInDB) {
       tokenInDB.refreshToken = refreshToken;
       return tokenInDB.save();
     }
 
     const token = await this.tokenRepository.create({ userId: userId, refreshToken: refreshToken });
+
     return token;
   }
 }
