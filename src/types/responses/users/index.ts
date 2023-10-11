@@ -22,5 +22,6 @@ export interface IDeleteUserResponse {
 }
 
 export interface IResponseJWT {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
 }
