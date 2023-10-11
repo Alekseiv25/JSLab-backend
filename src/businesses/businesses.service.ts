@@ -85,11 +85,7 @@ export class BusinessesService {
     });
 
     if (businessWithThisName) {
-      const response: ICheckBusinessNameResponse = {
-        status: HttpStatus.CONFLICT,
-        message: makeConflictMessage('Name'),
-      };
-      return response;
+      throw new HttpException(makeConflictMessage('Name'), HttpStatus.CONFLICT);
     }
 
     const response: ICheckBusinessNameResponse = {
