@@ -21,7 +21,7 @@ export interface IDeleteUserResponse {
   data: User;
 }
 
-export interface IResponseJWT {
+export interface IRegistrationResponseJWT {
   accessToken: string;
   refreshToken: string;
   createdUser: User;

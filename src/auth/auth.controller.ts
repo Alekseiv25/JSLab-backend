@@ -1,16 +1,17 @@
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
-import { ICheckUserEmailResponse, IResponseJWT } from 'src/types/responses/users';
+import { ICheckUserEmailResponse, IRegistrationResponseJWT } from 'src/types/responses/users';
 import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('/login')
-  async login(@Body() userDto: CreateUserDto, @Res({ passthrough: true }) res: Response) {
-    const response: IResponseJWT | ICheckUserEmailResponse = await this.authService.login(userDto);
+  @Post('/registration')
+  async registration(@Body() userDto: CreateUserDto, @Res({ passthrough: true }) res: Response) {
+    const response: IRegistrationResponseJWT | ICheckUserEmailResponse =
+      await this.authService.registration(userDto);
 
     if ('refreshToken' in response) {
       res.cookie('refreshToken', response.refreshToken, {

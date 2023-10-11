@@ -3,7 +3,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.model';
 import * as bcrypt from 'bcrypt';
-import { ICheckUserEmailResponse, IResponseJWT } from 'src/types/responses/users';
+import { ICheckUserEmailResponse, IRegistrationResponseJWT } from 'src/types/responses/users';
 import { TokensService } from 'src/tokens/tokens.service';
 
 export interface ITokensCreationResponse {
@@ -18,7 +18,9 @@ export class AuthService {
     private tokensService: TokensService,
   ) {}
 
-  async login(userDto: CreateUserDto): Promise<IResponseJWT | ICheckUserEmailResponse> {
+  async registration(
+    userDto: CreateUserDto,
+  ): Promise<IRegistrationResponseJWT | ICheckUserEmailResponse> {
     const emailUniqueResponse: ICheckUserEmailResponse | HttpException =
       await this.userService.checkUniquenessOfEmail(userDto.email);
 
@@ -32,7 +34,7 @@ export class AuthService {
     const tokens: ITokensCreationResponse = await this.tokensService.generateToken(newUser);
     await this.tokensService.saveToken(newUser.id, tokens.refreshToken);
 
-    const response: IResponseJWT = { ...tokens, createdUser: newUser };
+    const response: IRegistrationResponseJWT = { ...tokens, createdUser: newUser };
     return response;
   }
 }
