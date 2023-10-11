@@ -10,6 +10,8 @@ import { Station } from './stations/stations.model';
 import { Account } from './accounts/accounts.model';
 import { AccountsModule } from './accounts/accounts.module';
 import { AuthModule } from './auth/auth.module';
+import { TokensModule } from './tokens/tokens.module';
+import { Token } from './tokens/tokens.model';
 
 @Module({
   controllers: [],
@@ -25,7 +27,7 @@ import { AuthModule } from './auth/auth.module';
       username: process.env.USER,
       password: process.env.PASSWORD,
       database: process.env.DB,
-      models: [User, Business, Station, Account],
+      models: [User, Business, Station, Account, Token],
       autoLoadModels: true,
     }),
     UsersModule,
@@ -33,6 +35,7 @@ import { AuthModule } from './auth/auth.module';
     StationsModule,
     AccountsModule,
     AuthModule,
+    TokensModule,
   ],
 })
 export class AppModule {}

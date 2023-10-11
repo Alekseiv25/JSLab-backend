@@ -56,3 +56,8 @@ export interface AccountTableColumns {
   routingNumber: string;
   accountNumber: string;
 }
+
+export interface TokenTableColumns {
+  userId: number;
+  refreshToken: string;
+}

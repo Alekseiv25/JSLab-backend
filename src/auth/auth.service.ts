@@ -1,22 +1,16 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.model';
 import * as bcrypt from 'bcrypt';
 import { ICheckUserEmailResponse, IResponseJWT } from 'src/types/responses/users';
-
-interface IJWT {
-  id: number;
-  email: string;
-  isAdmin: boolean;
-}
+import { TokensService } from 'src/tokens/tokens.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UsersService,
-    private jwtService: JwtService,
+    private tokensService: TokensService,
   ) {}
 
   async login(userDto: CreateUserDto): Promise<IResponseJWT | ICheckUserEmailResponse> {
@@ -29,11 +23,7 @@ export class AuthService {
 
     const hashPassword: string = await bcrypt.hash(userDto.password, 10);
     const newUser: User = await this.userService.createUser({ ...userDto, password: hashPassword });
-    return this.generateToken(newUser);
-  }
 
-  private async generateToken(user: User): Promise<IResponseJWT> {
-    const payload: IJWT = { id: user.id, email: user.email, isAdmin: user.isAdmin };
-    return { token: this.jwtService.sign(payload) };
+    return this.tokensService.generateToken(newUser);
   }
 }
