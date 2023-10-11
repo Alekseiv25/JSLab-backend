@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { IResponseJWT } from 'src/types/responses/users';
+import { ITokensCreationResponse } from 'src/auth/auth.service';
 import { User } from 'src/users/users.model';
 import * as jwt from 'jsonwebtoken';
+
+const ACCESS_TOKEN_EXPIRES_IN = '30min';
+const REFRESH_TOKEN_EXPIRES_IN = '7d';
 
 interface IAccessToken {
   id: number;
@@ -15,7 +18,7 @@ interface IRefreshToken {
 
 @Injectable()
 export class TokensService {
-  async generateToken(user: User): Promise<IResponseJWT> {
+  async generateToken(user: User): Promise<ITokensCreationResponse> {
     const accessTokenPayload: IAccessToken = {
       id: user.id,
       email: user.email,
@@ -24,12 +27,12 @@ export class TokensService {
     const refreshTokenPayload: IRefreshToken = { id: user.id };
 
     const accessToken: string = jwt.sign(accessTokenPayload, process.env.JWT_PRIVATE_KEY, {
-      expiresIn: '1h',
+      expiresIn: ACCESS_TOKEN_EXPIRES_IN,
     });
     const refreshToken: string = jwt.sign(
       refreshTokenPayload,
       process.env.JWT_REFRESH_PRIVATE_KEY,
-      { expiresIn: '7d' },
+      { expiresIn: REFRESH_TOKEN_EXPIRES_IN },
     );
 
     return { accessToken, refreshToken };

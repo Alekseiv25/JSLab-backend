@@ -6,6 +6,11 @@ import * as bcrypt from 'bcrypt';
 import { ICheckUserEmailResponse, IResponseJWT } from 'src/types/responses/users';
 import { TokensService } from 'src/tokens/tokens.service';
 
+export interface ITokensCreationResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -14,16 +19,22 @@ export class AuthService {
   ) {}
 
   async login(userDto: CreateUserDto): Promise<IResponseJWT | ICheckUserEmailResponse> {
-    const response: ICheckUserEmailResponse | HttpException =
+    const emailUniqueResponse: ICheckUserEmailResponse | HttpException =
       await this.userService.checkUniquenessOfEmail(userDto.email);
 
-    if (response.status !== 200) {
-      return response;
+    if (emailUniqueResponse.status !== 200) {
+      return emailUniqueResponse;
     }
 
     const hashPassword: string = await bcrypt.hash(userDto.password, 10);
     const newUser: User = await this.userService.createUser({ ...userDto, password: hashPassword });
 
-    return this.tokensService.generateToken(newUser);
+    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(newUser);
+    const response: IResponseJWT = {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      createdUser: newUser,
+    };
+    return response;
   }
 }
