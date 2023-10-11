@@ -1,52 +1,49 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './users.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Business } from 'src/businesses/businesses.model';
 import { Station } from 'src/stations/stations.model';
-import { makeDeleteMessage } from 'src/utils/generators/messageGenerators';
-import { IBasicResponse } from 'src/types/responses';
+import {
+  makeAvailableMessage,
+  makeConflictMessage,
+  makeDeleteMessage,
+  makeNotFoundMessage,
+} from 'src/utils/generators/messageGenerators';
 import {
   IBasicUserResponse,
   ICheckUserEmailResponse,
   IDeleteUserResponse,
   IGetAllUsersResponse,
 } from 'src/types/responses/users';
-import {
-  generateAvailableResponse,
-  generateConflictResponse,
-  generateNotFoundResponse,
-} from 'src/utils/generators/responseObjectGenerators';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User) private userRepository: typeof User) {}
 
-  async getAllUsers(): Promise<IGetAllUsersResponse | IBasicResponse> {
+  async getAllUsers(): Promise<IGetAllUsersResponse> {
     const users: User[] | [] = await this.userRepository.findAll({
       include: [{ model: Business, include: [Station] }],
     });
 
     if (users.length === 0) {
-      const response: IBasicResponse = generateNotFoundResponse('Users');
-      return response;
+      throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
     }
 
-    const response: IGetAllUsersResponse = { statusCode: HttpStatus.OK, data: users };
+    const response: IGetAllUsersResponse = { status: HttpStatus.OK, data: users };
     return response;
   }
 
-  async getUserByID(id: number): Promise<IBasicUserResponse | IBasicResponse> {
+  async getUserByID(id: number): Promise<IBasicUserResponse> {
     const user: User | null = await this.userRepository.findByPk(id, {
       include: [{ model: Business, include: [Station] }],
     });
 
     if (!user) {
-      const response: IBasicResponse = generateNotFoundResponse('User');
-      return response;
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
     }
 
-    const response: IBasicUserResponse = { statusCode: HttpStatus.OK, data: user };
+    const response: IBasicUserResponse = { status: HttpStatus.OK, data: user };
     return response;
   }
 
@@ -55,48 +52,45 @@ export class UsersService {
     return newUser;
   }
 
-  async updateUserByID(
-    id: number,
-    updatedUserDto: CreateUserDto,
-  ): Promise<IBasicUserResponse | IBasicResponse> {
+  async updateUserByID(id: number, updatedUserDto: CreateUserDto): Promise<IBasicUserResponse> {
     const user: User | null = await this.userRepository.findByPk(id);
 
     if (!user) {
-      const response: IBasicResponse = generateNotFoundResponse('User');
-      return response;
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
     }
 
     const updatedUser: User = await user.update(updatedUserDto);
-    const response: IBasicUserResponse = { statusCode: HttpStatus.OK, data: updatedUser };
+    const response: IBasicUserResponse = { status: HttpStatus.OK, data: updatedUser };
     return response;
   }
 
-  async deleteUserByID(id: number): Promise<IDeleteUserResponse | IBasicResponse> {
+  async deleteUserByID(id: number): Promise<IDeleteUserResponse> {
     const user: User | null = await this.userRepository.findByPk(id);
 
     if (!user) {
-      const response: IBasicResponse = generateNotFoundResponse('User');
-      return response;
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
     }
 
     await user.destroy();
     const response: IDeleteUserResponse = {
-      statusCode: HttpStatus.OK,
+      status: HttpStatus.OK,
       message: makeDeleteMessage('User'),
       data: user,
     };
     return response;
   }
 
-  async checkUniquenessOfEmail(email: string): Promise<ICheckUserEmailResponse | IBasicResponse> {
+  async checkUniquenessOfEmail(email: string): Promise<ICheckUserEmailResponse> {
     const userWithThisEmail: User | null = await this.findUserByEmail(email);
 
     if (userWithThisEmail) {
-      const response: IBasicResponse = generateConflictResponse('User');
-      return response;
+      throw new HttpException(makeConflictMessage('Email'), HttpStatus.CONFLICT);
     }
 
-    const response: IBasicResponse = generateAvailableResponse('User');
+    const response: ICheckUserEmailResponse = {
+      status: HttpStatus.OK,
+      message: makeAvailableMessage('Email'),
+    };
     return response;
   }
 

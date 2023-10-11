@@ -1,4 +1,4 @@
 export interface IBasicResponse {
-  statusCode: number;
+  status: number;
   message: string;
 }

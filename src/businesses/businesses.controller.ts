@@ -1,7 +1,6 @@
 import { Controller, Body, Param, Get, Post, Put, Delete, HttpCode } from '@nestjs/common';
 import { BusinessesService } from './businesses.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
-import { IBasicResponse } from 'src/types/responses';
 import {
   IBasicBusinessResponse,
   ICheckBusinessNameResponse,
@@ -14,14 +13,14 @@ export class BusinessesController {
   constructor(private businessesService: BusinessesService) {}
 
   @Get()
-  getAllBusinesses(): Promise<IGetAllBusinessResponse | IBasicResponse> {
+  getAllBusinesses(): Promise<IGetAllBusinessResponse> {
     return this.businessesService.getAllBusinesses();
   }
 
   @Post()
   createNewBusiness(
     @Body() businessDto: CreateBusinessDto,
-  ): Promise<IBasicBusinessResponse | IBasicResponse> {
+  ): Promise<IBasicBusinessResponse | ICheckBusinessNameResponse> {
     return this.businessesService.createNewBusiness(businessDto);
   }
 
@@ -37,12 +36,12 @@ export class BusinessesController {
   updateBusiness(
     @Param('id') id: number,
     @Body() updatedData: CreateBusinessDto,
-  ): Promise<IBasicBusinessResponse | IBasicResponse> {
+  ): Promise<IBasicBusinessResponse> {
     return this.businessesService.updateBusiness(id, updatedData);
   }
 
   @Delete(':id')
-  deleteBusiness(@Param('id') id: number): Promise<IDeleteBusinessResponse | IBasicResponse> {
+  deleteBusiness(@Param('id') id: number): Promise<IDeleteBusinessResponse> {
     return this.businessesService.deleteBusiness(id);
   }
 }

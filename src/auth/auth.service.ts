@@ -23,7 +23,7 @@ export class AuthService {
     const response: ICheckUserEmailResponse | HttpException =
       await this.userService.checkUniquenessOfEmail(userDto.email);
 
-    if (response.statusCode !== 200) {
+    if (response.status !== 200) {
       return response;
     }
 
