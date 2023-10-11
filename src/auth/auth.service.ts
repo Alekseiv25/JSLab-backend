@@ -30,11 +30,9 @@ export class AuthService {
     const newUser: User = await this.userService.createUser({ ...userDto, password: hashPassword });
 
     const tokens: ITokensCreationResponse = await this.tokensService.generateToken(newUser);
-    const response: IResponseJWT = {
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-      createdUser: newUser,
-    };
+    await this.tokensService.saveToken(newUser.id, tokens.refreshToken);
+
+    const response: IResponseJWT = { ...tokens, createdUser: newUser };
     return response;
   }
 }
