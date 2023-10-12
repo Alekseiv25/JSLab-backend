@@ -25,3 +25,7 @@ export function makeConflictMessage(name: nameVariants): string {
 export function makeAvailableMessage(name: nameVariants): string {
   return `${name} is available for registration!`;
 }
+
+export function makeUnauthorizedMessage(): string {
+  return `Unauthorized!`;
+}

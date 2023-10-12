@@ -26,3 +26,9 @@ export interface IRegistrationResponseJWT {
   refreshToken: string;
   createdUser: User;
 }
+
+export interface IRefreshResponseJWT {
+  accessToken: string;
+  refreshToken: string;
+  user: User;
+}

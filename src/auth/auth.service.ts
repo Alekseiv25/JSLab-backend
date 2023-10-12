@@ -1,10 +1,19 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.model';
 import * as bcrypt from 'bcrypt';
-import { ICheckUserEmailResponse, IRegistrationResponseJWT } from 'src/types/responses/users';
-import { TokensService } from 'src/tokens/tokens.service';
+import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
+import {
+  makeNotFoundMessage,
+  makeUnauthorizedMessage,
+} from 'src/utils/generators/messageGenerators';
+import { Token } from 'src/tokens/tokens.model';
+import {
+  ICheckUserEmailResponse,
+  IRefreshResponseJWT,
+  IRegistrationResponseJWT,
+} from 'src/types/responses/users';
 
 export interface ITokensCreationResponse {
   accessToken: string;
@@ -17,6 +26,32 @@ export class AuthService {
     private userService: UsersService,
     private tokensService: TokensService,
   ) {}
+
+  async refresh(refreshToken: string): Promise<IRefreshResponseJWT> {
+    if (!refreshToken) {
+      throw new HttpException(makeUnauthorizedMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    const userDataFromToken: IRefreshToken | null =
+      this.tokensService.validateRefreshToken(refreshToken);
+    const tokenFromDB: Token = await this.tokensService.findTokenInDB(refreshToken);
+
+    if (!userDataFromToken || !tokenFromDB) {
+      throw new HttpException(makeUnauthorizedMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    const user: User = await this.userService.getUserInformation(userDataFromToken.id);
+
+    if (!user) {
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
+    }
+
+    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(user);
+    await this.tokensService.saveToken(user.id, tokens.refreshToken);
+
+    const response: IRefreshResponseJWT = { ...tokens, user: user };
+    return response;
+  }
 
   async registration(
     userDto: CreateUserDto,

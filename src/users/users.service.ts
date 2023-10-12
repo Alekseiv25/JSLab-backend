@@ -47,6 +47,11 @@ export class UsersService {
     return response;
   }
 
+  async getUserInformation(id: number): Promise<User | null> {
+    const user: User | null = await this.userRepository.findByPk(id);
+    return user;
+  }
+
   async createUser(dto: CreateUserDto) {
     const newUser: User = await this.userRepository.create(dto);
     return newUser;

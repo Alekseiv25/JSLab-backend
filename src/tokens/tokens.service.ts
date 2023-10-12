@@ -4,17 +4,18 @@ import { User } from 'src/users/users.model';
 import * as jwt from 'jsonwebtoken';
 import { InjectModel } from '@nestjs/sequelize';
 import { Token } from './tokens.model';
+import { JwtPayload } from 'jsonwebtoken';
 
 const ACCESS_TOKEN_EXPIRES_IN = '30min';
 const REFRESH_TOKEN_EXPIRES_IN = '7d';
 
-interface IAccessToken {
+export interface IAccessToken {
   id: number;
   email: string;
   isAdmin: boolean;
 }
 
-interface IRefreshToken {
+export interface IRefreshToken {
   id: number;
 }
 
@@ -53,5 +54,36 @@ export class TokensService {
     const token = await this.tokenRepository.create({ userId: userId, refreshToken: refreshToken });
 
     return token;
+  }
+
+  async findTokenInDB(refreshToken: string): Promise<Token> {
+    const tokenInDB: Token = await this.tokenRepository.findOne({
+      where: { refreshToken: refreshToken },
+    });
+    return tokenInDB;
+  }
+
+  validateAccessToken(accessToken: string): string | JwtPayload | null {
+    try {
+      const userDataFromToken: string | JwtPayload = jwt.verify(
+        accessToken,
+        process.env.JWT_PRIVATE_KEY,
+      );
+      return userDataFromToken;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  validateRefreshToken(refreshToken: string): IRefreshToken | null {
+    try {
+      const userDataFromToken: IRefreshToken = jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_PRIVATE_KEY,
+      ) as IRefreshToken;
+      return userDataFromToken;
+    } catch (e) {
+      return null;
+    }
   }
 }
