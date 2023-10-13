@@ -1,26 +1,44 @@
 import { User } from 'src/users/users.model';
 
 export interface IBasicUserResponse {
-  statusCode: number;
+  status: number;
   data: User;
 }
 
 export interface IGetAllUsersResponse {
-  statusCode: number;
+  status: number;
   data: User[];
 }
 
 export interface ICheckUserEmailResponse {
-  statusCode: number;
+  status: number;
   message: string;
 }
 
 export interface IDeleteUserResponse {
-  statusCode: number;
+  status: number;
   message: string;
   data: User;
 }
 
-export interface IResponseJWT {
-  token: string;
+type BasicRegistrationResponseJWT = {
+  accessToken: string;
+  refreshToken: string;
+  createdUser: User;
+};
+
+export interface IRegistrationResponseJWT {
+  status: number;
+  data: BasicRegistrationResponseJWT;
+}
+
+type BasicRefreshResponseJWT = {
+  accessToken: string;
+  refreshToken: string;
+  user: User;
+};
+
+export interface IRefreshResponseJWT {
+  status: number;
+  data: BasicRefreshResponseJWT;
 }

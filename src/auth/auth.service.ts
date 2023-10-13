@@ -1,39 +1,81 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.model';
 import * as bcrypt from 'bcrypt';
-import { ICheckUserEmailResponse, IResponseJWT } from 'src/types/responses/users';
+import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
+import {
+  makeNotFoundMessage,
+  makeUnauthorizedMessage,
+} from 'src/utils/generators/messageGenerators';
+import { Token } from 'src/tokens/tokens.model';
+import {
+  ICheckUserEmailResponse,
+  IRefreshResponseJWT,
+  IRegistrationResponseJWT,
+} from 'src/types/responses/users';
 
-interface IJWT {
-  id: number;
-  email: string;
-  isAdmin: boolean;
+export interface ITokensCreationResponse {
+  accessToken: string;
+  refreshToken: string;
 }
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UsersService,
-    private jwtService: JwtService,
+    private tokensService: TokensService,
   ) {}
 
-  async login(userDto: CreateUserDto): Promise<IResponseJWT | ICheckUserEmailResponse> {
-    const response: ICheckUserEmailResponse | HttpException =
+  async refresh(refreshToken: string): Promise<IRefreshResponseJWT> {
+    if (!refreshToken) {
+      throw new HttpException(makeUnauthorizedMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    const userDataFromToken: IRefreshToken | null =
+      this.tokensService.validateRefreshToken(refreshToken);
+    const tokenFromDB: Token = await this.tokensService.findTokenInDB(refreshToken);
+
+    if (!userDataFromToken || !tokenFromDB) {
+      throw new HttpException(makeUnauthorizedMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    const user: User = await this.userService.getUserInformation(userDataFromToken.id);
+
+    if (!user) {
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
+    }
+
+    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(user);
+    await this.tokensService.saveToken(user.id, tokens.refreshToken);
+
+    const response: IRefreshResponseJWT = {
+      status: HttpStatus.OK,
+      data: { ...tokens, user: user },
+    };
+    return response;
+  }
+
+  async registration(
+    userDto: CreateUserDto,
+  ): Promise<IRegistrationResponseJWT | ICheckUserEmailResponse> {
+    const emailUniqueResponse: ICheckUserEmailResponse | HttpException =
       await this.userService.checkUniquenessOfEmail(userDto.email);
 
-    if (response.statusCode !== 200) {
-      return response;
+    if (emailUniqueResponse.status !== 200) {
+      return emailUniqueResponse;
     }
 
     const hashPassword: string = await bcrypt.hash(userDto.password, 10);
     const newUser: User = await this.userService.createUser({ ...userDto, password: hashPassword });
-    return this.generateToken(newUser);
-  }
 
-  private async generateToken(user: User): Promise<IResponseJWT> {
-    const payload: IJWT = { id: user.id, email: user.email, isAdmin: user.isAdmin };
-    return { token: this.jwtService.sign(payload) };
+    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(newUser);
+    await this.tokensService.saveToken(newUser.id, tokens.refreshToken);
+
+    const response: IRegistrationResponseJWT = {
+      status: HttpStatus.CREATED,
+      data: { ...tokens, createdUser: newUser },
+    };
+    return response;
   }
 }
