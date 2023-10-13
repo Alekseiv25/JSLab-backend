@@ -49,7 +49,10 @@ export class AuthService {
     const tokens: ITokensCreationResponse = await this.tokensService.generateToken(user);
     await this.tokensService.saveToken(user.id, tokens.refreshToken);
 
-    const response: IRefreshResponseJWT = { ...tokens, user: user };
+    const response: IRefreshResponseJWT = {
+      status: HttpStatus.OK,
+      data: { ...tokens, user: user },
+    };
     return response;
   }
 
@@ -69,7 +72,10 @@ export class AuthService {
     const tokens: ITokensCreationResponse = await this.tokensService.generateToken(newUser);
     await this.tokensService.saveToken(newUser.id, tokens.refreshToken);
 
-    const response: IRegistrationResponseJWT = { ...tokens, createdUser: newUser };
+    const response: IRegistrationResponseJWT = {
+      status: HttpStatus.CREATED,
+      data: { ...tokens, createdUser: newUser },
+    };
     return response;
   }
 }

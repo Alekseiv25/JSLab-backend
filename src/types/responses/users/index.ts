@@ -21,14 +21,24 @@ export interface IDeleteUserResponse {
   data: User;
 }
 
-export interface IRegistrationResponseJWT {
+type BasicRegistrationResponseJWT = {
   accessToken: string;
   refreshToken: string;
   createdUser: User;
+};
+
+export interface IRegistrationResponseJWT {
+  status: number;
+  data: BasicRegistrationResponseJWT;
 }
 
-export interface IRefreshResponseJWT {
+type BasicRefreshResponseJWT = {
   accessToken: string;
   refreshToken: string;
   user: User;
+};
+
+export interface IRefreshResponseJWT {
+  status: number;
+  data: BasicRefreshResponseJWT;
 }
