@@ -49,6 +49,7 @@ export interface StationTableColumns {
 
 export interface AccountTableColumns {
   stationId: number;
+  businessId: number;
   paymentMethod: string;
   verificationMethod: string;
   accountNickname: string;

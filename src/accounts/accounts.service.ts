@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Account } from './accounts.model';
 import { CreateAccountDto } from './dto/create-account.dto';
 import * as crypto from 'crypto';
+import * as fs from 'fs';
 import { decrypt, encrypt } from '../utils/crypto';
 import {
   IBasicAccountResponse,
@@ -16,7 +17,28 @@ import { Op } from 'sequelize';
 export class AccountsService {
   key: Buffer;
   constructor(@InjectModel(Account) private accountRepository: typeof Account) {
-    this.key = crypto.randomBytes(32);
+    this.key = this.loadEncryptionKey();
+  }
+
+  private generateEncryptionKey(): Buffer {
+    return crypto.randomBytes(32);
+  }
+
+  private saveEncryptionKey(key: Buffer): void {
+    const config = { key32: key.toString('hex') };
+    fs.writeFileSync('keys.json', JSON.stringify(config));
+  }
+
+  private loadEncryptionKey(): Buffer {
+    try {
+      const config = JSON.parse(fs.readFileSync('keys.json', 'utf8'));
+      const keyString = config.key32;
+      return Buffer.from(keyString, 'hex');
+    } catch (error) {
+      const newKey = this.generateEncryptionKey();
+      this.saveEncryptionKey(newKey);
+      return newKey;
+    }
   }
 
   async getAllAccounts() {
