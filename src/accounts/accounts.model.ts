@@ -1,12 +1,17 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
-import { Station } from 'src/stations/stations.model';
-import { AccountTableColumns } from 'src/types/tableColumns';
+import { Business } from '../businesses/businesses.model';
+import { Station } from '../stations/stations.model';
+import { AccountTableColumns } from '../types/tableColumns';
 
 @Table({ tableName: 'accounts' })
 export class Account extends Model<Account, AccountTableColumns> {
   @ForeignKey(() => Station)
+  @ForeignKey(() => Business)
   @Column({ type: DataType.INTEGER, allowNull: false })
   stationId: number;
+
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  businessId: number;
 
   @Column({ type: DataType.STRING, allowNull: false })
   paymentMethod: string;
@@ -28,4 +33,7 @@ export class Account extends Model<Account, AccountTableColumns> {
 
   @BelongsTo(() => Station)
   stations: Station;
+
+  @BelongsTo(() => Business)
+  businesses: Business;
 }

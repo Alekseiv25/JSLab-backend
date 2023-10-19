@@ -3,9 +3,14 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Account } from './accounts.model';
 import { CreateAccountDto } from './dto/create-account.dto';
 import * as crypto from 'crypto';
-import { decrypt, encrypt } from 'src/utils/crypto';
-import { IBasicAccountResponse, IDeleteAccountResponse } from 'src/types/responses/accounts';
-import { makeDeleteMessage, makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
+import { decrypt, encrypt } from '../utils/crypto';
+import {
+  IBasicAccountResponse,
+  IDeleteAccountResponse,
+  IGetAllAccountsResponse,
+} from '../types/responses/accounts';
+import { makeDeleteMessage, makeNotFoundMessage } from '../utils/generators/messageGenerators';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class AccountsService {
@@ -31,6 +36,23 @@ export class AccountsService {
       };
     });
     return decryptedAccounts;
+  }
+
+  async getAccountsByBusinessId(businessId: number): Promise<IGetAllAccountsResponse> {
+    const accounts: Account[] = await this.accountRepository.findAll({
+      where: {
+        businessId: {
+          [Op.in]: [businessId],
+        },
+      },
+    });
+
+    if (!accounts) {
+      throw new HttpException(makeNotFoundMessage('Accounts'), HttpStatus.NOT_FOUND);
+    }
+
+    const response: IGetAllAccountsResponse = { status: HttpStatus.OK, data: accounts };
+    return response;
   }
 
   async createNewAccount(dto: CreateAccountDto): Promise<IBasicAccountResponse> {
