@@ -29,3 +29,7 @@ export function makeAvailableMessage(name: nameVariants): string {
 export function makeUnauthorizedMessage(): string {
   return `Unauthorized!`;
 }
+
+export function makeNotCorrectPassMessage(): string {
+  return `The password is wrong.`;
+}
