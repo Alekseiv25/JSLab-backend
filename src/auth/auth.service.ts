@@ -7,7 +7,7 @@ import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
 import { ILoginUserData } from 'src/types/requests/users';
 import { Token } from 'src/tokens/tokens.model';
 import {
-  makeNotCorrectPassMessage,
+  makeNotCorrectDataMessage,
   makeNotFoundMessage,
   makeUnauthorizedMessage,
 } from 'src/utils/generators/messageGenerators';
@@ -86,13 +86,13 @@ export class AuthService {
     const user: User | null = await this.userService.findUserByEmail(userData.email);
 
     if (!user) {
-      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
+      throw new HttpException(makeNotCorrectDataMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     const isPasswordsEquals: boolean = await bcrypt.compare(userData.password, user.password);
 
     if (!isPasswordsEquals) {
-      throw new HttpException(makeNotCorrectPassMessage(), HttpStatus.UNAUTHORIZED);
+      throw new HttpException(makeNotCorrectDataMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     const tokens: ITokensCreationResponse = await this.tokensService.generateToken(user);
