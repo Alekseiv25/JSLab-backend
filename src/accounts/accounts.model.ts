@@ -6,11 +6,10 @@ import { AccountTableColumns } from '../types/tableColumns';
 @Table({ tableName: 'accounts' })
 export class Account extends Model<Account, AccountTableColumns> {
   @ForeignKey(() => Station)
-  @ForeignKey(() => Business)
-  @Column({ type: DataType.INTEGER, allowNull: false })
+  @Column({ field: 'stationId', type: DataType.INTEGER, allowNull: false })
   stationId: number;
-
-  @Column({ type: DataType.INTEGER, allowNull: false })
+  @ForeignKey(() => Business)
+  @Column({ field: 'businessId', type: DataType.INTEGER, allowNull: false })
   businessId: number;
 
   @Column({ type: DataType.STRING, allowNull: false })
@@ -31,9 +30,9 @@ export class Account extends Model<Account, AccountTableColumns> {
   @Column({ type: DataType.STRING, allowNull: false })
   accountNumber: string;
 
-  @BelongsTo(() => Station)
+  @BelongsTo(() => Station, 'stationId')
   stations: Station;
 
-  @BelongsTo(() => Business)
+  @BelongsTo(() => Business, 'businessId')
   businesses: Business;
 }

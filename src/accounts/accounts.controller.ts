@@ -25,6 +25,7 @@ export class AccountsController {
 
   @Post()
   createNewAccount(@Body() accountDto: CreateAccountDto): Promise<IBasicAccountResponse> {
+    console.log(accountDto);
     return this.accountsService.createNewAccount(accountDto);
   }
 

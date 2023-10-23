@@ -107,6 +107,7 @@ export class AccountsService {
       routingNumber: encrypt(dto.routingNumber, this.key32, this.key16),
       accountNumber: encrypt(dto.accountNumber, this.key32, this.key16),
     };
+    console.log(encryptedDto);
 
     const newAccount: Account = await this.accountRepository.create(encryptedDto);
     const response: IBasicAccountResponse = { status: HttpStatus.OK, data: newAccount };
