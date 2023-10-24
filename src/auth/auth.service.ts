@@ -4,15 +4,18 @@ import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.model';
 import * as bcrypt from 'bcrypt';
 import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
+import { ILoginUserData } from 'src/types/requests/users';
+import { Token } from 'src/tokens/tokens.model';
 import {
+  makeNotCorrectDataMessage,
   makeNotFoundMessage,
   makeUnauthorizedMessage,
 } from 'src/utils/generators/messageGenerators';
-import { Token } from 'src/tokens/tokens.model';
 import {
   ICheckUserEmailResponse,
   IRefreshResponseJWT,
   IRegistrationResponseJWT,
+  ILoginResponse,
 } from 'src/types/responses/users';
 
 export interface ITokensCreationResponse {
@@ -76,6 +79,30 @@ export class AuthService {
       status: HttpStatus.CREATED,
       data: { ...tokens, createdUser: newUser },
     };
+    return response;
+  }
+
+  async login(userData: ILoginUserData): Promise<ILoginResponse> {
+    const user: User | null = await this.userService.findUserByEmail(userData.email);
+
+    if (!user) {
+      throw new HttpException(makeNotCorrectDataMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    const isPasswordsEquals: boolean = await bcrypt.compare(userData.password, user.password);
+
+    if (!isPasswordsEquals) {
+      throw new HttpException(makeNotCorrectDataMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(user);
+    await this.tokensService.saveToken(user.id, tokens.refreshToken);
+
+    const response: ILoginResponse = {
+      status: HttpStatus.OK,
+      data: { ...tokens, userData: user },
+    };
+
     return response;
   }
 }

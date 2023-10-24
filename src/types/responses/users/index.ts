@@ -42,3 +42,14 @@ export interface IRefreshResponseJWT {
   status: number;
   data: BasicRefreshResponseJWT;
 }
+
+type LoginResponseData = {
+  userData: User;
+  accessToken: string;
+  refreshToken: string;
+};
+
+export interface ILoginResponse {
+  status: number;
+  data: LoginResponseData;
+}
