@@ -1,4 +1,4 @@
-import { Account } from 'src/accounts/accounts.model';
+import { Account, StationAccount } from 'src/accounts/accounts.model';
 import { Business } from 'src/businesses/businesses.model';
 import { StationTableColumns } from 'src/types/tableColumns';
 import {
@@ -8,7 +8,7 @@ import {
   Table,
   BelongsTo,
   ForeignKey,
-  HasMany,
+  BelongsToMany,
 } from 'sequelize-typescript';
 
 @Table({ tableName: 'stations' })
@@ -89,6 +89,6 @@ export class Station extends Model<Station, StationTableColumns> {
   @BelongsTo(() => Business)
   owner: Business;
 
-  @HasMany(() => Account)
-  accounts: Account;
+  @BelongsToMany(() => Account, () => StationAccount)
+  accounts: Account[];
 }

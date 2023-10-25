@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateStationDto } from './dto/create-station.dto';
 import { Station } from './stations.model';
-import { Account } from 'src/accounts/accounts.model';
+import { Account, StationAccount } from 'src/accounts/accounts.model';
 import {
   makeAvailableMessage,
   makeConflictMessage,
@@ -18,7 +18,10 @@ import {
 
 @Injectable()
 export class StationsService {
-  constructor(@InjectModel(Station) private stationRepository: typeof Station) {}
+  constructor(
+    @InjectModel(Station) private stationRepository: typeof Station,
+    @InjectModel(StationAccount) private stationAccountRepository: typeof StationAccount,
+  ) {}
 
   async getAllStations(): Promise<IGetAllStationsResponse> {
     const stations: Station[] | [] = await this.stationRepository.findAll({
@@ -56,8 +59,10 @@ export class StationsService {
     if (uniquenessResponse.status !== 200) {
       return uniquenessResponse;
     }
-
     const newStation: Station = await this.stationRepository.create(dto);
+
+    await this.assignStationToAccount(newStation.id, dto.accountId);
+
     const response: IBasicStationResponse = { status: HttpStatus.OK, data: newStation };
     return response;
   }
@@ -107,5 +112,13 @@ export class StationsService {
       message: makeAvailableMessage('Name'),
     };
     return response;
+  }
+
+  assignStationToAccount(stationId: number, accountId: number) {
+    const stationAccountData = {
+      stationId,
+      accountId,
+    };
+    return this.stationAccountRepository.create(stationAccountData);
   }
 }

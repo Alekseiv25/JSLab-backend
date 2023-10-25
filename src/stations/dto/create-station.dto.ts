@@ -1,5 +1,6 @@
 export class CreateStationDto {
   readonly businessId: number;
+  readonly accountId: number;
   readonly type: string;
   readonly brand: string;
   readonly name: string;
