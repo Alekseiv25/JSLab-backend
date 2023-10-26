@@ -17,6 +17,11 @@ export class BusinessesController {
     return this.businessesService.getAllBusinesses();
   }
 
+  @Get(':id')
+  getBusinessByID(@Param('id') id: number): Promise<IBasicBusinessResponse> {
+    return this.businessesService.getBusinessByID(id);
+  }
+
   @Post()
   createNewBusiness(
     @Body() businessDto: CreateBusinessDto,
