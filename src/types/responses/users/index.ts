@@ -15,6 +15,11 @@ export interface ICheckUserEmailResponse {
   message: string;
 }
 
+export interface IValidateUserPasswordResponse {
+  status: number;
+  message: string;
+}
+
 export interface IDeleteUserResponse {
   status: number;
   message: string;

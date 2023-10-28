@@ -33,3 +33,11 @@ export function makeUnauthorizedMessage(): string {
 export function makeNotCorrectDataMessage(): string {
   return `Incorrect email or password.`;
 }
+
+export function makeNotValidPasswordMessage(): string {
+  return `Incorrect password.`;
+}
+
+export function makeValidPasswordMessage(): string {
+  return `Password is correct.`;
+}

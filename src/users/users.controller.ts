@@ -6,6 +6,7 @@ import {
   ICheckUserEmailResponse,
   IDeleteUserResponse,
   IGetAllUsersResponse,
+  IValidateUserPasswordResponse,
 } from 'src/types/responses/users';
 
 @Controller('users')
@@ -26,6 +27,15 @@ export class UsersController {
   @HttpCode(200)
   async checkUniquenessOfUserEmail(@Body('email') email: string): Promise<ICheckUserEmailResponse> {
     return this.userService.checkUniquenessOfEmail(email);
+  }
+
+  @Post('password-validation')
+  @HttpCode(200)
+  async validatePassword(
+    @Body('userID') userID: number,
+    @Body('password') password: string,
+  ): Promise<IValidateUserPasswordResponse> {
+    return this.userService.validatePassword(userID, password);
   }
 
   @Put(':id')
