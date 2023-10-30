@@ -7,7 +7,7 @@ import { BusinessesModule } from './businesses/businesses.module';
 import { Business } from './businesses/businesses.model';
 import { StationsModule } from './stations/stations.module';
 import { Station } from './stations/stations.model';
-import { Account } from './accounts/accounts.model';
+import { Account, StationAccount } from './accounts/accounts.model';
 import { AccountsModule } from './accounts/accounts.module';
 import { AuthModule } from './auth/auth.module';
 import { TokensModule } from './tokens/tokens.module';
@@ -27,7 +27,7 @@ import { Token } from './tokens/tokens.model';
       username: process.env.USER,
       password: process.env.PASSWORD,
       database: process.env.DB,
-      models: [User, Business, Station, Account, Token],
+      models: [User, Business, Station, Account, Token, StationAccount],
       autoLoadModels: true,
     }),
     UsersModule,

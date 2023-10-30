@@ -1,12 +1,21 @@
-import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
-import { Station } from 'src/stations/stations.model';
-import { AccountTableColumns } from 'src/types/tableColumns';
+import {
+  BelongsTo,
+  BelongsToMany,
+  Column,
+  DataType,
+  ForeignKey,
+  Model,
+  Table,
+} from 'sequelize-typescript';
+import { Business } from '../businesses/businesses.model';
+import { Station } from '../stations/stations.model';
+import { AccountTableColumns } from '../types/tableColumns';
 
 @Table({ tableName: 'accounts' })
 export class Account extends Model<Account, AccountTableColumns> {
-  @ForeignKey(() => Station)
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  stationId: number;
+  @ForeignKey(() => Business)
+  @Column({ field: 'businessId', type: DataType.INTEGER, allowNull: false })
+  businessId: number;
 
   @Column({ type: DataType.STRING, allowNull: false })
   paymentMethod: string;
@@ -26,6 +35,26 @@ export class Account extends Model<Account, AccountTableColumns> {
   @Column({ type: DataType.STRING, allowNull: false })
   accountNumber: string;
 
+  @BelongsToMany(() => Station, () => StationAccount)
+  stations: Station[];
+
+  @BelongsTo(() => Business, 'businessId')
+  businesses: Business;
+}
+
+@Table({ tableName: 'station_accounts' })
+export class StationAccount extends Model<StationAccount> {
+  @ForeignKey(() => Station)
+  @Column
+  stationId: number;
+
+  @ForeignKey(() => Account)
+  @Column
+  accountId: number;
+
   @BelongsTo(() => Station)
-  stations: Station;
+  station: Station;
+
+  @BelongsTo(() => Account)
+  account: Account;
 }

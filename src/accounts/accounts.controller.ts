@@ -1,7 +1,11 @@
 import { Controller, Body, Param, Get, Post, Put, Delete } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto } from './dto/create-account.dto';
-import { IBasicAccountResponse, IDeleteAccountResponse } from 'src/types/responses/accounts';
+import {
+  IBasicAccountResponse,
+  IDeleteAccountResponse,
+  IGetAllAccountsResponse,
+} from 'src/types/responses/accounts';
 
 @Controller('accounts')
 export class AccountsController {
@@ -12,8 +16,16 @@ export class AccountsController {
     return this.accountsService.getAllAccounts();
   }
 
+  @Get(':businessId')
+  getAccountsByBusinessId(
+    @Param('businessId') businessId: number,
+  ): Promise<IGetAllAccountsResponse> {
+    return this.accountsService.getAccountsByBusinessId(businessId);
+  }
+
   @Post()
   createNewAccount(@Body() accountDto: CreateAccountDto): Promise<IBasicAccountResponse> {
+    console.log(accountDto);
     return this.accountsService.createNewAccount(accountDto);
   }
 
