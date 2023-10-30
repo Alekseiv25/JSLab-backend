@@ -114,11 +114,11 @@ export class StationsService {
     return response;
   }
 
-  assignStationToAccount(stationId: number, accountId: number) {
+  async assignStationToAccount(stationId: number, accountId: number) {
     const stationAccountData = {
       stationId,
       accountId,
     };
-    return this.stationAccountRepository.create(stationAccountData);
+    await this.stationAccountRepository.create(stationAccountData);
   }
 }
