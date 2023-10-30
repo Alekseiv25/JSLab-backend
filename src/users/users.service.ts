@@ -68,7 +68,8 @@ export class UsersService {
       throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
     }
 
-    const updatedUser: User = await user.update(updatedUserDto);
+    const hashPassword: string = await this.hashUserPassword(updatedUserDto.password);
+    const updatedUser: User = await user.update({ ...updatedUserDto, password: hashPassword });
     const response: IBasicUserResponse = { status: HttpStatus.OK, data: updatedUser };
     return response;
   }
@@ -134,5 +135,10 @@ export class UsersService {
   private async findUserByID(userID: number): Promise<User | null> {
     const user: User | null = await this.userRepository.findByPk(userID);
     return user;
+  }
+
+  private async hashUserPassword(password: string): Promise<string> {
+    const hashPassword: string = await bcrypt.hash(password, 10);
+    return hashPassword;
   }
 }
