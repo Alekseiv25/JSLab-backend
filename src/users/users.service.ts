@@ -68,8 +68,15 @@ export class UsersService {
       throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
     }
 
-    const hashPassword: string = await this.hashUserPassword(updatedUserDto.password);
-    const updatedUser: User = await user.update({ ...updatedUserDto, password: hashPassword });
+    let updatedUser: User | null = null;
+
+    if (updatedUserDto.hasOwnProperty('password')) {
+      const hashPassword: string = await this.hashUserPassword(updatedUserDto.password);
+      updatedUser = await user.update({ ...updatedUserDto, password: hashPassword });
+    } else {
+      updatedUser = await user.update({ ...updatedUserDto });
+    }
+
     const response: IBasicUserResponse = { status: HttpStatus.OK, data: updatedUser };
     return response;
   }
