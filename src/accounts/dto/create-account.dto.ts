@@ -1,5 +1,4 @@
 export class CreateAccountDto {
-  readonly stationId: number;
   readonly businessId: number;
   readonly paymentMethod: string;
   readonly verificationMethod: string;
