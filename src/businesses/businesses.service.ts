@@ -32,6 +32,17 @@ export class BusinessesService {
     return response;
   }
 
+  async getBusinessByID(id: number): Promise<IBasicBusinessResponse> {
+    const business: Business | null = await this.businessRepository.findByPk(id);
+
+    if (!business) {
+      throw new HttpException(makeNotFoundMessage('Business'), HttpStatus.NOT_FOUND);
+    }
+
+    const response: IBasicBusinessResponse = { status: HttpStatus.OK, data: business };
+    return response;
+  }
+
   async createNewBusiness(
     dto: CreateBusinessDto,
   ): Promise<IBasicBusinessResponse | ICheckBusinessNameResponse> {

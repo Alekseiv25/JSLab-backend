@@ -4,17 +4,21 @@ import { User } from './users.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Business } from 'src/businesses/businesses.model';
 import { Station } from 'src/stations/stations.model';
+import * as bcrypt from 'bcrypt';
 import {
   makeAvailableMessage,
   makeConflictMessage,
   makeDeleteMessage,
   makeNotFoundMessage,
+  makeNotValidPasswordMessage,
+  makeValidPasswordMessage,
 } from 'src/utils/generators/messageGenerators';
 import {
   IBasicUserResponse,
   ICheckUserEmailResponse,
   IDeleteUserResponse,
   IGetAllUsersResponse,
+  IValidateUserPasswordResponse,
 } from 'src/types/responses/users';
 
 @Injectable()
@@ -64,7 +68,15 @@ export class UsersService {
       throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
     }
 
-    const updatedUser: User = await user.update(updatedUserDto);
+    let updatedUser: User | null = null;
+
+    if (updatedUserDto.hasOwnProperty('password')) {
+      const hashPassword: string = await this.hashUserPassword(updatedUserDto.password);
+      updatedUser = await user.update({ ...updatedUserDto, password: hashPassword });
+    } else {
+      updatedUser = await user.update({ ...updatedUserDto });
+    }
+
     const response: IBasicUserResponse = { status: HttpStatus.OK, data: updatedUser };
     return response;
   }
@@ -99,8 +111,41 @@ export class UsersService {
     return response;
   }
 
+  async validatePassword(
+    userID: number,
+    userPassword: string,
+  ): Promise<IValidateUserPasswordResponse> {
+    const user: User | null = await this.findUserByID(userID);
+
+    if (!user) {
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
+    }
+
+    const isPasswordsEquals: boolean = await bcrypt.compare(userPassword, user.password);
+
+    if (!isPasswordsEquals) {
+      throw new HttpException(makeNotValidPasswordMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    const response: IValidateUserPasswordResponse = {
+      status: HttpStatus.OK,
+      message: makeValidPasswordMessage(),
+    };
+    return response;
+  }
+
   async findUserByEmail(email: string): Promise<User | null> {
     const user: User | null = await this.userRepository.findOne({ where: { email } });
     return user;
+  }
+
+  private async findUserByID(userID: number): Promise<User | null> {
+    const user: User | null = await this.userRepository.findByPk(userID);
+    return user;
+  }
+
+  private async hashUserPassword(password: string): Promise<string> {
+    const hashPassword: string = await bcrypt.hash(password, 10);
+    return hashPassword;
   }
 }
