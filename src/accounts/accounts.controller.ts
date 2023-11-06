@@ -6,6 +6,7 @@ import {
   IDeleteAccountResponse,
   IGetAllAccountsResponse,
 } from 'src/types/responses/accounts';
+import { Account } from './accounts.model';
 
 @Controller('accounts')
 export class AccountsController {
@@ -16,7 +17,12 @@ export class AccountsController {
     return this.accountsService.getAllAccounts();
   }
 
-  @Get(':businessId')
+  @Get(':id')
+  getAccountById(@Param('id') id: number): Promise<Account | null> {
+    return this.accountsService.getAccountById(id);
+  }
+
+  @Get('businessId/:businessId')
   getAccountsByBusinessId(
     @Param('businessId') businessId: number,
   ): Promise<IGetAllAccountsResponse> {

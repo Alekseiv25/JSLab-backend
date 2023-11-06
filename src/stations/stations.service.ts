@@ -78,6 +78,7 @@ export class StationsService {
     }
 
     const updatedStation: Station = await station.update(updatedStationDto);
+    await this.assignStationToAccount(updatedStation.id, updatedStationDto.accountId);
     const response: IBasicStationResponse = { status: HttpStatus.OK, data: updatedStation };
     return response;
   }
