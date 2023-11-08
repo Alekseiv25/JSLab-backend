@@ -6,6 +6,7 @@ export interface UserTableColumns {
   isAdmin?: boolean;
   isSuspended?: boolean;
   suspensionReason?: string;
+  isFinishedTutorial: boolean;
   businessId?: number;
 }
 

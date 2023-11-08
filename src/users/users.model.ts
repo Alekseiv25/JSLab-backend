@@ -32,6 +32,9 @@ export class User extends Model<User, UserTableColumns> {
   @Column({ type: DataType.STRING, defaultValue: null })
   suspensionReason: string;
 
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  isFinishedTutorial: boolean;
+
   @BelongsTo(() => Business)
   business: Business;
 }
