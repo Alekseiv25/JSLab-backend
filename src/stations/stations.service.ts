@@ -9,19 +9,58 @@ import {
   makeDeleteMessage,
   makeNotFoundMessage,
 } from 'src/utils/generators/messageGenerators';
+import * as crypto from 'crypto';
+import * as fs from 'fs';
 import {
   IBasicStationResponse,
   ICheckStationNameResponse,
   IDeleteStationResponse,
   IGetAllStationsResponse,
 } from 'src/types/responses/stations';
+import { decrypt } from 'src/utils/crypto';
 
 @Injectable()
 export class StationsService {
+  key32: Buffer;
+  key16: Buffer;
   constructor(
     @InjectModel(Station) private stationRepository: typeof Station,
     @InjectModel(StationAccount) private stationAccountRepository: typeof StationAccount,
-  ) {}
+  ) {
+    const { key32, key16 } = this.loadEncryptionKeys();
+    this.key32 = key32;
+    this.key16 = key16;
+  }
+
+  private generateEncryptionKeys(): { key32: Buffer; key16: Buffer } {
+    const key32 = crypto.randomBytes(32);
+    const key16 = crypto.randomBytes(16);
+    return { key32, key16 };
+  }
+
+  private saveEncryptionKeys(keys: { key32: Buffer; key16: Buffer }): void {
+    const config = {
+      key32: keys.key32.toString('hex'),
+      key16: keys.key16.toString('hex'),
+    };
+    fs.writeFileSync('keys.json', JSON.stringify(config));
+  }
+
+  private loadEncryptionKeys(): { key32: Buffer; key16: Buffer } {
+    try {
+      const config = JSON.parse(fs.readFileSync('keys.json', 'utf8'));
+      const key32String = config.key32;
+      const key16String = config.key16;
+      return {
+        key32: Buffer.from(key32String, 'hex'),
+        key16: Buffer.from(key16String, 'hex'),
+      };
+    } catch (error) {
+      const newKeys = this.generateEncryptionKeys();
+      this.saveEncryptionKeys(newKeys);
+      return newKeys;
+    }
+  }
 
   async getAllStations(): Promise<IGetAllStationsResponse> {
     const stations: Station[] | [] = await this.stationRepository.findAll({
@@ -45,6 +84,22 @@ export class StationsService {
       throw new HttpException(makeNotFoundMessage('Station'), HttpStatus.NOT_FOUND);
     }
 
+    const decryptedAccounts = await Promise.all(
+      station.accounts.map(async (account) => {
+        const decryptedRoutingNumber = decrypt(account.routingNumber, this.key32, this.key16);
+        const decryptedAccountNumber = decrypt(account.accountNumber, this.key32, this.key16);
+
+        const decryptedAccount = Account.build({
+          ...account.get({ plain: true }),
+          routingNumber: decryptedRoutingNumber,
+          accountNumber: decryptedAccountNumber,
+        });
+        decryptedAccount.isNewRecord = false;
+        return decryptedAccount;
+      }),
+    );
+
+    station.setDataValue('accounts', decryptedAccounts);
     const response: IBasicStationResponse = { status: HttpStatus.OK, data: station };
     return response;
   }
