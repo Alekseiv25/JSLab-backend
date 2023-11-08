@@ -78,7 +78,7 @@ export class StationsService {
     }
 
     const updatedStation: Station = await station.update(updatedStationDto);
-    await this.assignStationToAccount(updatedStation.id, updatedStationDto.accountId);
+
     const response: IBasicStationResponse = { status: HttpStatus.OK, data: updatedStation };
     return response;
   }
@@ -120,6 +120,16 @@ export class StationsService {
       stationId,
       accountId,
     };
+
+    if (!stationAccountData) {
+      throw new HttpException(makeConflictMessage('Account'), HttpStatus.CONFLICT);
+    }
+
     await this.stationAccountRepository.create(stationAccountData);
+
+    const response = {
+      status: HttpStatus.OK,
+    };
+    return response;
   }
 }

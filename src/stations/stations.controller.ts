@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode } from '@nestjs/common';
 import { StationsService } from './stations.service';
-import { CreateStationDto } from './dto/create-station.dto';
+import { CreateStationDto, stationAccountDataDto } from './dto/create-station.dto';
 import {
   IBasicStationResponse,
   ICheckStationNameResponse,
@@ -27,6 +27,13 @@ export class StationsController {
     @Body() stationDto: CreateStationDto,
   ): Promise<IBasicStationResponse | ICheckStationNameResponse> {
     return this.stationsService.createNewStation(stationDto);
+  }
+
+  @Post('station-account')
+  async assignStationToAccount(@Body() stationAccountData: stationAccountDataDto) {
+    const { stationId, accountId } = stationAccountData;
+    const response = await this.stationsService.assignStationToAccount(stationId, accountId);
+    return response;
   }
 
   @Post('name-uniqueness')

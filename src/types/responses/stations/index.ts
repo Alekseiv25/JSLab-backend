@@ -1,3 +1,4 @@
+import { StationAccount } from 'src/accounts/accounts.model';
 import { Station } from 'src/stations/stations.model';
 
 export interface IBasicStationResponse {
@@ -19,4 +20,8 @@ export interface IDeleteStationResponse {
   status: number;
   message: string;
   data: Station;
+}
+
+export interface IExampleResponse {
+  data: StationAccount;
 }
