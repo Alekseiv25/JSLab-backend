@@ -47,6 +47,51 @@ export interface StationTableColumns {
   POS: string;
 }
 
+export interface OperationTableColumns {
+  sunday: boolean;
+  sundayFrom: string;
+  sundayTo: string;
+  sundayBreakClosed: boolean;
+  sundayBreakFrom: string;
+  sundayBreakTo: string;
+  monday: boolean;
+  mondayFrom: string;
+  mondayTo: string;
+  mondayBreakClosed: boolean;
+  mondayBreakFrom: string;
+  mondayBreakTo: string;
+  tuesday: boolean;
+  tuesdayFrom: string;
+  tuesdayTo: string;
+  tuesdayBreakClosed: boolean;
+  tuesdayBreakFrom: string;
+  tuesdayBreakTo: string;
+  wednesday: boolean;
+  wednesdayFrom: string;
+  wednesdayTo: string;
+  wednesdayBreakClosed: boolean;
+  wednesdayBreakFrom: string;
+  wednesdayBreakTo: string;
+  thursday: boolean;
+  thursdayTo: string;
+  thursdayFrom: string;
+  thursdayBreakClosed: boolean;
+  thursdayBreakFrom: string;
+  thursdayBreakTo: string;
+  friday: boolean;
+  fridayFrom: string;
+  fridayTo: string;
+  fridayBreakClosed: boolean;
+  fridayBreakFrom: string;
+  fridayBreakTo: string;
+  saturday: boolean;
+  saturdayFrom: string;
+  saturdayTo: string;
+  saturdayBreakClosed: boolean;
+  saturdayBreakFrom: string;
+  saturdayBreakTo: string;
+}
+
 export interface AccountTableColumns {
   stationId: number;
   businessId: number;
