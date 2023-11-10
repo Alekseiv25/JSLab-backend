@@ -7,10 +7,14 @@ import {
   IGetAllAccountsResponse,
 } from 'src/types/responses/accounts';
 import { Account } from './accounts.model';
+import { StationsService } from 'src/stations/stations.service';
 
 @Controller('accounts')
 export class AccountsController {
-  constructor(private accountsService: AccountsService) {}
+  constructor(
+    private accountsService: AccountsService,
+    private stationsService: StationsService,
+  ) {}
 
   @Get()
   getAllAccounts() {
@@ -27,6 +31,15 @@ export class AccountsController {
     @Param('businessId') businessId: number,
   ): Promise<IGetAllAccountsResponse> {
     return this.accountsService.getAccountsByBusinessId(businessId);
+  }
+
+  @Post(':accountId/station')
+  async assignStationToAccount(
+    @Param('accountId') accountId: number,
+    @Body('stationId') stationId: number,
+  ) {
+    const response = await this.stationsService.assignStationToAccount(stationId, accountId);
+    return response;
   }
 
   @Post()
