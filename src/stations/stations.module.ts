@@ -4,10 +4,12 @@ import { StationsService } from './stations.service';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Station } from './stations.model';
 import { StationAccount } from 'src/accounts/accounts.model';
+import { OperationsService } from 'src/operations/operations.service';
+import { Operation } from 'src/operations/operations.model';
 
 @Module({
   controllers: [StationsController],
-  providers: [StationsService],
-  imports: [SequelizeModule.forFeature([Station, StationAccount])],
+  providers: [StationsService, OperationsService],
+  imports: [SequelizeModule.forFeature([Station, StationAccount, Operation])],
 })
 export class StationsModule {}

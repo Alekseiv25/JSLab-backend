@@ -1,131 +1,33 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
+import { Station } from 'src/stations/stations.model';
 import { OperationTableColumns } from 'src/types/tableColumns';
 
 @Table({ tableName: 'operations_hours' })
 export class Operation extends Model<Operation, OperationTableColumns> {
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  sunday: boolean;
+  @ForeignKey(() => Station)
+  stationId: number;
 
   @Column({ type: DataType.STRING })
-  sundayFrom: string;
-
-  @Column({ type: DataType.STRING })
-  sundayTo: string;
+  day: string;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  sundayBreakClosed: boolean;
+  isOpen: boolean;
 
   @Column({ type: DataType.STRING })
-  sundayBreakFrom: string;
+  timeFrom: string;
 
   @Column({ type: DataType.STRING })
-  sundayBreakTo: string;
+  timeTo: string;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  monday: boolean;
+  isBreak: boolean;
 
   @Column({ type: DataType.STRING })
-  mondayFrom: string;
+  timeBreakFrom: string;
 
   @Column({ type: DataType.STRING })
-  mondayTo: string;
+  timeBreakTo: string;
 
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  mondayBreakClosed: boolean;
-
-  @Column({ type: DataType.STRING })
-  mondayBreakFrom: string;
-
-  @Column({ type: DataType.STRING })
-  mondayBreakTo: string;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  tuesday: boolean;
-
-  @Column({ type: DataType.STRING })
-  tuesdayFrom: string;
-
-  @Column({ type: DataType.STRING })
-  tuesdayTo: string;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  tuesdayBreakClosed: boolean;
-
-  @Column({ type: DataType.STRING })
-  tuesdayBreakFrom: string;
-
-  @Column({ type: DataType.STRING })
-  tuesdayBreakTo: string;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  wednesday: boolean;
-
-  @Column({ type: DataType.STRING })
-  wednesdayFrom: string;
-
-  @Column({ type: DataType.STRING })
-  wednesdayTo: string;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  wednesDayBreakClosed: boolean;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  wednesdayBreakFrom: boolean;
-
-  @Column({ type: DataType.STRING })
-  wednesdayBreakTo: string;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  thursday: boolean;
-
-  @Column({ type: DataType.STRING })
-  thursdayFrom: string;
-
-  @Column({ type: DataType.STRING })
-  thursdayTo: string;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  thursdayBreakClosed: boolean;
-
-  @Column({ type: DataType.STRING })
-  thursdayBreakFrom: string;
-
-  @Column({ type: DataType.STRING })
-  thursdayBreakTo: string;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  friday: boolean;
-
-  @Column({ type: DataType.STRING })
-  fridayFrom: string;
-
-  @Column({ type: DataType.STRING })
-  fridayTo: string;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  fridayBreakClosed: boolean;
-
-  @Column({ type: DataType.STRING })
-  fridayBreakFrom: string;
-
-  @Column({ type: DataType.STRING })
-  fridayBreakTo: string;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  saturday: boolean;
-
-  @Column({ type: DataType.STRING })
-  saturdayFrom: string;
-
-  @Column({ type: DataType.STRING })
-  saturdayTo: string;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  saturdayBreakClosed: boolean;
-
-  @Column({ type: DataType.STRING })
-  saturdayBreakFrom: string;
-
-  @Column({ type: DataType.STRING })
-  saturdayBreakTo: string;
+  @BelongsTo(() => Station)
+  station: Station;
 }

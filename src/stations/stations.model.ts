@@ -9,7 +9,9 @@ import {
   BelongsTo,
   ForeignKey,
   BelongsToMany,
+  HasMany,
 } from 'sequelize-typescript';
+import { Operation } from 'src/operations/operations.model';
 
 @Table({ tableName: 'stations' })
 export class Station extends Model<Station, StationTableColumns> {
@@ -91,4 +93,7 @@ export class Station extends Model<Station, StationTableColumns> {
 
   @BelongsToMany(() => Account, () => StationAccount)
   accounts: Account[];
+
+  @HasMany(() => Operation)
+  operations: Operation[];
 }

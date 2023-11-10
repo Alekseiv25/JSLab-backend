@@ -48,48 +48,13 @@ export interface StationTableColumns {
 }
 
 export interface OperationTableColumns {
-  sunday: boolean;
-  sundayFrom: string;
-  sundayTo: string;
-  sundayBreakClosed: boolean;
-  sundayBreakFrom: string;
-  sundayBreakTo: string;
-  monday: boolean;
-  mondayFrom: string;
-  mondayTo: string;
-  mondayBreakClosed: boolean;
-  mondayBreakFrom: string;
-  mondayBreakTo: string;
-  tuesday: boolean;
-  tuesdayFrom: string;
-  tuesdayTo: string;
-  tuesdayBreakClosed: boolean;
-  tuesdayBreakFrom: string;
-  tuesdayBreakTo: string;
-  wednesday: boolean;
-  wednesdayFrom: string;
-  wednesdayTo: string;
-  wednesdayBreakClosed: boolean;
-  wednesdayBreakFrom: string;
-  wednesdayBreakTo: string;
-  thursday: boolean;
-  thursdayTo: string;
-  thursdayFrom: string;
-  thursdayBreakClosed: boolean;
-  thursdayBreakFrom: string;
-  thursdayBreakTo: string;
-  friday: boolean;
-  fridayFrom: string;
-  fridayTo: string;
-  fridayBreakClosed: boolean;
-  fridayBreakFrom: string;
-  fridayBreakTo: string;
-  saturday: boolean;
-  saturdayFrom: string;
-  saturdayTo: string;
-  saturdayBreakClosed: boolean;
-  saturdayBreakFrom: string;
-  saturdayBreakTo: string;
+  day: string;
+  isOpen: boolean;
+  timeFrom: string;
+  timeTo: string;
+  isBreak: boolean;
+  timeBreakFrom: string;
+  timeBreakTo: string;
 }
 
 export interface AccountTableColumns {
