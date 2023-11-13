@@ -1,5 +1,6 @@
 export class CreateOperationDto {
   day: string;
+  readonly id?: number;
   readonly isOpen: boolean;
   readonly timeFrom: string;
   readonly timeTo: string;

@@ -68,15 +68,35 @@ export class OperationsService {
     return operations;
   }
 
-  async updateOperation(id: number, dto: CreateOperationDto): Promise<IBasicOperationResponse> {
-    const operation: Operation | null = await this.operationRepository.findOne({ where: { id } });
+  async updateOperations(
+    stationId: number,
+    updatedData: CreateOperationDto[],
+  ): Promise<IBasicOperationResponse[]> {
+    const operations: Operation[] = await this.operationRepository.findAll({
+      where: { stationId },
+    });
 
-    if (!operation) {
-      throw new HttpException(makeNotFoundMessage('Operation'), HttpStatus.NOT_FOUND);
+    if (operations.length === 0) {
+      throw new HttpException(makeNotFoundMessage('Operations'), HttpStatus.NOT_FOUND);
     }
 
-    const updatedOperation: Operation = await operation.update(dto);
-    const response: IBasicOperationResponse = { status: HttpStatus.OK, data: updatedOperation };
+    const updatedOperations: Operation[] = await Promise.all(
+      operations.map(async (operation) => {
+        const updatedOperationData = updatedData.find((item) => item.id === operation.id);
+        if (updatedOperationData) {
+          const updatedOperation: Operation = await operation.update(updatedOperationData);
+          return updatedOperation;
+        } else {
+          return operation;
+        }
+      }),
+    );
+
+    const response: IBasicOperationResponse[] = updatedOperations.map((operation) => ({
+      status: HttpStatus.OK,
+      data: operation,
+    }));
+
     return response;
   }
 }

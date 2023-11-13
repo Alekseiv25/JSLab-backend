@@ -24,11 +24,11 @@ export class OperationsController {
     return this.operationsService.getOperationById(id);
   }
 
-  @Put(':id')
-  updateOperationData(
-    @Param('id') id: number,
-    @Body() updatedData: CreateOperationDto,
-  ): Promise<IBasicOperationResponse> {
-    return this.operationsService.updateOperation(id, updatedData);
+  @Put(':stationId')
+  updateOperationsData(
+    @Param('stationId') stationId: number,
+    @Body() updatedData: CreateOperationDto[],
+  ): Promise<IBasicOperationResponse[]> {
+    return this.operationsService.updateOperations(stationId, updatedData);
   }
 }
