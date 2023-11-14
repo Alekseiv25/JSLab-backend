@@ -25,3 +25,8 @@ export class CreateStationDto {
   readonly showers: boolean;
   readonly POS: string;
 }
+
+export class stationAccountDataDto {
+  readonly stationId: number;
+  readonly accountId: number;
+}

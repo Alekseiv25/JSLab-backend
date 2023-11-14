@@ -6,21 +6,40 @@ import {
   IDeleteAccountResponse,
   IGetAllAccountsResponse,
 } from 'src/types/responses/accounts';
+import { Account } from './accounts.model';
+import { StationsService } from 'src/stations/stations.service';
 
 @Controller('accounts')
 export class AccountsController {
-  constructor(private accountsService: AccountsService) {}
+  constructor(
+    private accountsService: AccountsService,
+    private stationsService: StationsService,
+  ) {}
 
   @Get()
   getAllAccounts() {
     return this.accountsService.getAllAccounts();
   }
 
-  @Get(':businessId')
+  @Get(':id')
+  getAccountById(@Param('id') id: number): Promise<Account | null> {
+    return this.accountsService.getAccountById(id);
+  }
+
+  @Get('businessId/:businessId')
   getAccountsByBusinessId(
     @Param('businessId') businessId: number,
   ): Promise<IGetAllAccountsResponse> {
     return this.accountsService.getAccountsByBusinessId(businessId);
+  }
+
+  @Post(':accountId/station')
+  async assignStationToAccount(
+    @Param('accountId') accountId: number,
+    @Body('stationId') stationId: number,
+  ) {
+    const response = await this.stationsService.assignStationToAccount(stationId, accountId);
+    return response;
   }
 
   @Post()

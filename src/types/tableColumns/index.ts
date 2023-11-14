@@ -48,6 +48,16 @@ export interface StationTableColumns {
   POS: string;
 }
 
+export interface OperationTableColumns {
+  day: string;
+  isOpen: boolean;
+  timeFrom: string;
+  timeTo: string;
+  isBreak: boolean;
+  timeBreakFrom: string;
+  timeBreakTo: string;
+}
+
 export interface AccountTableColumns {
   stationId: number;
   businessId: number;
