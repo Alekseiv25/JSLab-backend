@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 import {
   IBasicUserResponse,
   ICheckUserEmailResponse,
@@ -8,6 +8,17 @@ import {
   IGetAllUsersResponse,
   IValidateUserPasswordResponse,
 } from 'src/types/responses/users';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  HttpCode,
+  UseGuards,
+} from '@nestjs/common';
 
 @Controller('users')
 export class UsersController {
@@ -19,6 +30,7 @@ export class UsersController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   getUserByID(@Param('id') id: number): Promise<IBasicUserResponse> {
     return this.userService.getUserByID(id);
   }
@@ -39,6 +51,7 @@ export class UsersController {
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard)
   updateUserByID(
     @Param('id') id: number,
     @Body() updatedData: CreateUserDto,
@@ -47,6 +60,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   deleteUserByID(@Param('id') id: number): Promise<IDeleteUserResponse> {
     return this.userService.deleteUserByID(id);
   }

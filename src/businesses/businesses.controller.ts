@@ -1,3 +1,12 @@
+import { BusinessesService } from './businesses.service';
+import { CreateBusinessDto } from './dto/create-business.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
+import {
+  IBasicBusinessResponse,
+  ICheckBusinessNameResponse,
+  IDeleteBusinessResponse,
+  IGetAllBusinessResponse,
+} from 'src/types/responses/businesses';
 import {
   Controller,
   Body,
@@ -9,15 +18,6 @@ import {
   HttpCode,
   UseGuards,
 } from '@nestjs/common';
-import { BusinessesService } from './businesses.service';
-import { CreateBusinessDto } from './dto/create-business.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
-import {
-  IBasicBusinessResponse,
-  ICheckBusinessNameResponse,
-  IDeleteBusinessResponse,
-  IGetAllBusinessResponse,
-} from 'src/types/responses/businesses';
 
 @Controller('businesses')
 export class BusinessesController {
