@@ -1,6 +1,17 @@
-import { Controller, Body, Param, Get, Post, Put, Delete, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Param,
+  Get,
+  Post,
+  Put,
+  Delete,
+  HttpCode,
+  UseGuards,
+} from '@nestjs/common';
 import { BusinessesService } from './businesses.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 import {
   IBasicBusinessResponse,
   ICheckBusinessNameResponse,
@@ -18,6 +29,7 @@ export class BusinessesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   getBusinessByID(@Param('id') id: number): Promise<IBasicBusinessResponse> {
     return this.businessesService.getBusinessByID(id);
   }
@@ -38,6 +50,7 @@ export class BusinessesController {
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard)
   updateBusiness(
     @Param('id') id: number,
     @Body() updatedData: CreateBusinessDto,
@@ -46,6 +59,7 @@ export class BusinessesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   deleteBusiness(@Param('id') id: number): Promise<IDeleteBusinessResponse> {
     return this.businessesService.deleteBusiness(id);
   }
