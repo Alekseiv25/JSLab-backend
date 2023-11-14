@@ -18,6 +18,8 @@ import {
   IGetAllStationsResponse,
 } from 'src/types/responses/stations';
 import { decrypt } from 'src/utils/crypto';
+import { Operation } from 'src/operations/operations.model';
+import { OperationsService } from 'src/operations/operations.service';
 
 @Injectable()
 export class StationsService {
@@ -26,6 +28,7 @@ export class StationsService {
   constructor(
     @InjectModel(Station) private stationRepository: typeof Station,
     @InjectModel(StationAccount) private stationAccountRepository: typeof StationAccount,
+    private operationsService: OperationsService,
   ) {
     const { key32, key16 } = this.loadEncryptionKeys();
     this.key32 = key32;
@@ -64,7 +67,7 @@ export class StationsService {
 
   async getAllStations(): Promise<IGetAllStationsResponse> {
     const stations: Station[] | [] = await this.stationRepository.findAll({
-      include: ['accounts'],
+      include: [{ model: Account }, { model: Operation }],
     });
 
     if (stations.length === 0) {
@@ -77,7 +80,12 @@ export class StationsService {
 
   async getStationById(id: number): Promise<IBasicStationResponse> {
     const station: Station | null = await this.stationRepository.findByPk(id, {
-      include: { model: Account },
+      include: [
+        {
+          model: Account,
+        },
+        { model: Operation, separate: true },
+      ],
     });
 
     if (!station) {
@@ -115,7 +123,7 @@ export class StationsService {
       return uniquenessResponse;
     }
     const newStation: Station = await this.stationRepository.create(dto);
-
+    await this.operationsService.createNewOperation(newStation.id);
     await this.assignStationToAccount(newStation.id, dto.accountId);
 
     const response: IBasicStationResponse = { status: HttpStatus.OK, data: newStation };
