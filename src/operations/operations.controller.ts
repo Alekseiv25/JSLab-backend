@@ -12,7 +12,7 @@ export class OperationsController {
     return this.operationsService.getAllOperations();
   }
 
-  @Get('stationId/:stationId')
+  @Get('stations/:stationId')
   getOperationsByStationId(
     @Param('stationId') stationId: number,
   ): Promise<IGetAllOperationsResponse> {
