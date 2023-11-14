@@ -12,6 +12,7 @@ import {
   HasMany,
 } from 'sequelize-typescript';
 import { Operation } from 'src/operations/operations.model';
+import { FuelPrice } from 'src/fuel_prices/fuel_prices.model';
 
 @Table({ tableName: 'stations' })
 export class Station extends Model<Station, StationTableColumns> {
@@ -96,4 +97,7 @@ export class Station extends Model<Station, StationTableColumns> {
 
   @HasMany(() => Operation)
   operations: Operation[];
+
+  @HasMany(() => FuelPrice)
+  fuelPrices: FuelPrice[];
 }
