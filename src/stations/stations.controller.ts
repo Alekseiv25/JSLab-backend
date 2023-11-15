@@ -24,6 +24,7 @@ export class StationsController {
   constructor(private stationsService: StationsService) {}
 
   @Get()
+  @UseGuards(AuthGuard)
   getAllStations(): Promise<IGetAllStationsResponse> {
     return this.stationsService.getAllStations();
   }
