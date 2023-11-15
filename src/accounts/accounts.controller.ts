@@ -1,6 +1,7 @@
-import { Controller, Body, Param, Get, Post, Put, Delete } from '@nestjs/common';
+import { Controller, Body, Param, Get, Post, Put, Delete, UseGuards } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto } from './dto/create-account.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 import {
   IBasicAccountResponse,
   IDeleteAccountResponse,
@@ -22,11 +23,13 @@ export class AccountsController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   getAccountById(@Param('id') id: number): Promise<Account | null> {
     return this.accountsService.getAccountById(id);
   }
 
   @Get('businessId/:businessId')
+  @UseGuards(AuthGuard)
   getAccountsByBusinessId(
     @Param('businessId') businessId: number,
   ): Promise<IGetAllAccountsResponse> {
@@ -43,12 +46,14 @@ export class AccountsController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   createNewAccount(@Body() accountDto: CreateAccountDto): Promise<IBasicAccountResponse> {
     console.log(accountDto);
     return this.accountsService.createNewAccount(accountDto);
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard)
   updateAccount(
     @Param('id') id: number,
     @Body() updatedData: CreateAccountDto,
@@ -57,6 +62,7 @@ export class AccountsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   delete(@Param('id') id: number): Promise<IDeleteAccountResponse> {
     return this.accountsService.deleteAccount(id);
   }

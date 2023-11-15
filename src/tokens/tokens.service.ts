@@ -6,7 +6,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Token } from './tokens.model';
 import { JwtPayload } from 'jsonwebtoken';
 
-const ACCESS_TOKEN_EXPIRES_IN = '30min';
+const ACCESS_TOKEN_EXPIRES_IN = '5min';
 const REFRESH_TOKEN_EXPIRES_IN = '7d';
 
 export interface IAccessToken {

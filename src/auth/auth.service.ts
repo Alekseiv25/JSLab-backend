@@ -2,10 +2,10 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.model';
-import * as bcrypt from 'bcrypt';
 import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
 import { ILoginUserData } from 'src/types/requests/users';
 import { Token } from 'src/tokens/tokens.model';
+import * as bcrypt from 'bcrypt';
 import {
   makeNotCorrectDataMessage,
   makeNotFoundMessage,
