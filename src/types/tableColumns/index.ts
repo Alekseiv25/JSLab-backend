@@ -21,6 +21,16 @@ export interface BusinessTableColumns {
   zip: number;
 }
 
+export interface FuelPricesColumns {
+  fuelType: string;
+  grade: string;
+  displayName: string;
+  rate: string;
+  price: number;
+  minDiscount: number;
+  maxDiscount: number;
+}
+
 export interface StationTableColumns {
   businessId: number;
   type: string;
