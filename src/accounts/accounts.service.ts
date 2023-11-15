@@ -73,6 +73,24 @@ export class AccountsService {
     return decryptedAccounts;
   }
 
+  async getAccountById(id: number): Promise<Account | null> {
+    const account: Account | null = await this.accountRepository.findByPk(id);
+
+    if (!account) {
+      throw new HttpException(makeNotFoundMessage('Account'), HttpStatus.NOT_FOUND);
+    }
+
+    const decryptedRoutingNumber = decrypt(account.routingNumber, this.key32, this.key16);
+    const decryptedAccountNumber = decrypt(account.accountNumber, this.key32, this.key16);
+    const decryptedAccount = Account.build({
+      ...account.toJSON(),
+      routingNumber: decryptedRoutingNumber,
+      accountNumber: decryptedAccountNumber,
+    });
+
+    return decryptedAccount;
+  }
+
   async getAccountsByBusinessId(businessId: number): Promise<IGetAllAccountsResponse> {
     const accounts: Account[] | null = await this.accountRepository.findAll({
       where: {

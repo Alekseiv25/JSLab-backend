@@ -12,6 +12,10 @@ import { AccountsModule } from './accounts/accounts.module';
 import { AuthModule } from './auth/auth.module';
 import { TokensModule } from './tokens/tokens.module';
 import { Token } from './tokens/tokens.model';
+import { Operation } from './operations/operations.model';
+import { OperationsModule } from './operations/operations.module';
+import { FuelPrice } from './fuel_prices/fuel_prices.model';
+import { FuelPricesModule } from './fuel_prices/fuel_prices.module';
 
 @Module({
   controllers: [],
@@ -27,7 +31,7 @@ import { Token } from './tokens/tokens.model';
       username: process.env.USER,
       password: process.env.PASSWORD,
       database: process.env.DB,
-      models: [User, Business, Station, Account, Token, StationAccount],
+      models: [User, Business, Station, Account, Token, StationAccount, Operation, FuelPrice],
       autoLoadModels: true,
     }),
     UsersModule,
@@ -36,6 +40,8 @@ import { Token } from './tokens/tokens.model';
     AccountsModule,
     AuthModule,
     TokensModule,
+    OperationsModule,
+    FuelPricesModule,
   ],
 })
 export class AppModule {}

@@ -8,7 +8,11 @@ type nameVariants =
   | 'Account'
   | 'Accounts'
   | 'Email'
-  | 'Name';
+  | 'Name'
+  | 'Operations'
+  | 'Operation'
+  | 'Fuel Prices'
+  | 'Fuel Price';
 
 export function makeDeleteMessage(name: nameVariants): string {
   return `${name} was delete from the database!`;

@@ -21,6 +21,16 @@ export interface BusinessTableColumns {
   zip: number;
 }
 
+export interface FuelPricesColumns {
+  fuelType: string;
+  grade: string;
+  displayName: string;
+  rate: string;
+  price: number;
+  minDiscount: number;
+  maxDiscount: number;
+}
+
 export interface StationTableColumns {
   businessId: number;
   type: string;
@@ -46,6 +56,16 @@ export interface StationTableColumns {
   overnightParking: boolean;
   showers: boolean;
   POS: string;
+}
+
+export interface OperationTableColumns {
+  day: string;
+  isOpen: boolean;
+  timeFrom: string;
+  timeTo: string;
+  isBreak: boolean;
+  timeBreakFrom: string;
+  timeBreakTo: string;
 }
 
 export interface AccountTableColumns {
