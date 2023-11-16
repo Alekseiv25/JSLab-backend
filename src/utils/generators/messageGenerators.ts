@@ -12,10 +12,11 @@ type nameVariants =
   | 'Operations'
   | 'Operation'
   | 'Fuel Prices'
-  | 'Fuel Price';
+  | 'Fuel Price'
+  | 'Token';
 
 export function makeDeleteMessage(name: nameVariants): string {
-  return `${name} was delete from the database!`;
+  return `${name} was deleted from the database!`;
 }
 
 export function makeNotFoundMessage(name: nameVariants): string {

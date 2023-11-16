@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ITokensCreationResponse } from 'src/auth/auth.service';
 import { User } from 'src/users/users.model';
 import * as jwt from 'jsonwebtoken';
 import { InjectModel } from '@nestjs/sequelize';
 import { Token } from './tokens.model';
 import { JwtPayload } from 'jsonwebtoken';
+import { makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
 
 const ACCESS_TOKEN_EXPIRES_IN = '5min';
 const REFRESH_TOKEN_EXPIRES_IN = '7d';
@@ -54,6 +55,18 @@ export class TokensService {
     const token = await this.tokenRepository.create({ userId: userId, refreshToken: refreshToken });
 
     return token;
+  }
+
+  async removeRefreshToken(refreshToken: string): Promise<number> {
+    try {
+      const tokenInDB: Token = await this.findTokenInDB(refreshToken);
+      const removedTokenID: number = await this.tokenRepository.destroy({
+        where: { id: tokenInDB.id },
+      });
+      return removedTokenID;
+    } catch (e) {
+      throw new HttpException(makeNotFoundMessage('Token'), HttpStatus.NOT_FOUND);
+    }
   }
 
   async findTokenInDB(refreshToken: string): Promise<Token> {
