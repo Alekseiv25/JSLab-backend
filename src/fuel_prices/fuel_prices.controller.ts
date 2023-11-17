@@ -47,7 +47,7 @@ export class FuelPricesController {
     return this.fuelPricesService.deleteFuelPrice(id);
   }
 
-  @Post('delete')
+  @Delete()
   deleteFuelPrices(@Body() ids: number[]): Promise<IDeleteFuelPricesResponse> {
     return this.fuelPricesService.deleteFuelPrices(ids);
   }
