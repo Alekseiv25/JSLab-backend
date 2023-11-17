@@ -3,6 +3,7 @@ import { FuelPricesService } from './fuel_prices.service';
 import {
   IBasicFuelPriceResponse,
   IDeleteFuelPriceResponse,
+  IDeleteFuelPricesResponse,
   IGetAllFuelPricesResponse,
 } from 'src/types/responses/fuel_prices';
 import { CreateFuelPriceDto } from './dto/fuel-price.dto';
@@ -44,5 +45,10 @@ export class FuelPricesController {
   @Delete(':id')
   deleteFuelPrice(@Param('id') id: number): Promise<IDeleteFuelPriceResponse> {
     return this.fuelPricesService.deleteFuelPrice(id);
+  }
+
+  @Post('delete')
+  deleteFuelPrices(@Body() ids: number[]): Promise<IDeleteFuelPricesResponse> {
+    return this.fuelPricesService.deleteFuelPrices(ids);
   }
 }

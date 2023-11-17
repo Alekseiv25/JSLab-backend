@@ -4,6 +4,7 @@ import { FuelPrice } from './fuel_prices.model';
 import {
   IBasicFuelPriceResponse,
   IDeleteFuelPriceResponse,
+  IDeleteFuelPricesResponse,
   IGetAllFuelPricesResponse,
 } from 'src/types/responses/fuel_prices';
 import { makeDeleteMessage, makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
@@ -83,6 +84,36 @@ export class FuelPricesService {
       message: makeDeleteMessage('Fuel Price'),
       data: fuelPrice,
     };
+    return response;
+  }
+
+  async deleteFuelPrices(ids: number[]): Promise<IDeleteFuelPricesResponse> {
+    const fuelPrices: FuelPrice[] = await this.fuelPriceRepository.findAll({
+      where: {
+        id: {
+          [Op.in]: ids,
+        },
+      },
+    });
+
+    if (fuelPrices.length === 0) {
+      throw new HttpException(makeNotFoundMessage('Fuel Prices'), HttpStatus.NOT_FOUND);
+    }
+
+    await this.fuelPriceRepository.destroy({
+      where: {
+        id: {
+          [Op.in]: ids,
+        },
+      },
+    });
+
+    const response: IDeleteFuelPricesResponse = {
+      status: HttpStatus.OK,
+      message: makeDeleteMessage('Fuel Prices'),
+      data: fuelPrices,
+    };
+
     return response;
   }
 }

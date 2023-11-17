@@ -15,3 +15,9 @@ export interface IDeleteFuelPriceResponse {
   message: string;
   data: FuelPrice;
 }
+
+export interface IDeleteFuelPricesResponse {
+  status: number;
+  message: string;
+  data: FuelPrice[];
+}

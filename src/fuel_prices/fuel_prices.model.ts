@@ -20,14 +20,14 @@ export class FuelPrice extends Model<FuelPrice, FuelPricesColumns> {
   @Column({ type: DataType.STRING, allowNull: false })
   rate: string;
 
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  price: number;
+  @Column({ type: DataType.STRING, allowNull: false })
+  price: string;
 
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  minDiscount: number;
+  @Column({ type: DataType.STRING, allowNull: false })
+  minDiscount: string;
 
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  maxDiscount: number;
+  @Column({ type: DataType.STRING, allowNull: false })
+  maxDiscount: string;
 
   @BelongsTo(() => Station, 'stationId')
   stations: Station;
