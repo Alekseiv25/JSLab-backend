@@ -7,11 +7,14 @@ import { StationAccount } from 'src/accounts/accounts.model';
 import { TokensModule } from 'src/tokens/tokens.module';
 import { OperationsService } from 'src/operations/operations.service';
 import { Operation } from 'src/operations/operations.model';
+import { Transaction } from 'src/transactions/transactions.model';
 
 @Module({
   controllers: [StationsController],
   providers: [StationsService, OperationsService],
-  imports: [SequelizeModule.forFeature([Station, StationAccount, Operation]), TokensModule],
+  imports: [
+    SequelizeModule.forFeature([Station, StationAccount, Operation, Transaction]),
+    TokensModule,
+  ],
 })
-
 export class StationsModule {}

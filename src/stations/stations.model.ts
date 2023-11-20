@@ -13,6 +13,7 @@ import {
 } from 'sequelize-typescript';
 import { Operation } from 'src/operations/operations.model';
 import { FuelPrice } from 'src/fuel_prices/fuel_prices.model';
+import { Transaction } from 'src/transactions/transactions.model';
 
 @Table({ tableName: 'stations' })
 export class Station extends Model<Station, StationTableColumns> {
@@ -94,6 +95,9 @@ export class Station extends Model<Station, StationTableColumns> {
 
   @BelongsToMany(() => Account, () => StationAccount)
   accounts: Account[];
+
+  @HasMany(() => Transaction)
+  transactions: Transaction[];
 
   @HasMany(() => Operation)
   operations: Operation[];
