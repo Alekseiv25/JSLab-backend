@@ -7,6 +7,7 @@ import { ILoginUserData } from 'src/types/requests/users';
 import { Token } from 'src/tokens/tokens.model';
 import * as bcrypt from 'bcrypt';
 import {
+  makeDeleteMessage,
   makeNotCorrectDataMessage,
   makeNotFoundMessage,
   makeUnauthorizedMessage,
@@ -16,6 +17,7 @@ import {
   IRefreshResponseJWT,
   IRegistrationResponseJWT,
   ILoginResponse,
+  ILogoutResponse,
 } from 'src/types/responses/users';
 
 export interface ITokensCreationResponse {
@@ -101,6 +103,17 @@ export class AuthService {
     const response: ILoginResponse = {
       status: HttpStatus.OK,
       data: { ...tokens, userData: user },
+    };
+
+    return response;
+  }
+
+  async logout(refreshToken: string): Promise<ILogoutResponse> {
+    await this.tokensService.removeRefreshToken(refreshToken);
+
+    const response: ILogoutResponse = {
+      status: HttpStatus.OK,
+      message: makeDeleteMessage('Token'),
     };
 
     return response;

@@ -58,3 +58,8 @@ export interface ILoginResponse {
   status: number;
   data: LoginResponseData;
 }
+
+export interface ILogoutResponse {
+  status: number;
+  message: string;
+}
