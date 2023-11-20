@@ -4,6 +4,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import {
   IBasicTransactionResponse,
   IDeleteTransactionsResponse,
+  IGetAllTransactionsResponse,
 } from 'src/types/responses/transactions';
 import { CreateTransactionDto } from './dto/transactions.dto';
 
@@ -21,6 +22,14 @@ export class TransactionsController {
   @UseGuards(AuthGuard)
   getFuelTransactionById(@Param('id') id: number): Promise<IBasicTransactionResponse> {
     return this.transactionsService.GetTransactionById(id);
+  }
+
+  @Get('stations/:stationId')
+  @UseGuards(AuthGuard)
+  getTransactionsByStationId(
+    @Param('stationId') stationId: number,
+  ): Promise<IGetAllTransactionsResponse> {
+    return this.transactionsService.getTransactionsByStationId(stationId);
   }
 
   @Post()

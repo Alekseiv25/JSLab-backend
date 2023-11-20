@@ -24,6 +24,22 @@ export class TransactionsService {
     return response;
   }
 
+  async getTransactionsByStationId(stationId: number): Promise<IGetAllTransactionsResponse> {
+    const transactions: Transaction[] | null = await this.transactionsRepository.findAll({
+      where: {
+        stationId: {
+          [Op.in]: [stationId],
+        },
+      },
+    });
+    if (transactions.length === 0) {
+      throw new HttpException(makeNotFoundMessage('Transactions'), HttpStatus.NOT_FOUND);
+    }
+
+    const response: IGetAllTransactionsResponse = { status: HttpStatus.OK, data: transactions };
+    return response;
+  }
+
   async GetTransactionById(id: number): Promise<IBasicTransactionResponse> {
     const transaction: Transaction | null = await this.transactionsRepository.findByPk(id);
 
