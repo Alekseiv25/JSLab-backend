@@ -4,7 +4,7 @@ export class CreateFuelPriceDto {
   readonly grade: string;
   readonly displayName: string;
   readonly rate: string;
-  readonly price: number;
-  readonly minDiscount: number;
-  readonly maxDiscount: number;
+  readonly price: string;
+  readonly minDiscount: string;
+  readonly maxDiscount: string;
 }

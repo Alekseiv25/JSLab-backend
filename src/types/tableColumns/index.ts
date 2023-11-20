@@ -26,9 +26,9 @@ export interface FuelPricesColumns {
   grade: string;
   displayName: string;
   rate: string;
-  price: number;
-  minDiscount: number;
-  maxDiscount: number;
+  price: string;
+  minDiscount: string;
+  maxDiscount: string;
 }
 
 export interface StationTableColumns {
