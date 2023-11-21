@@ -31,6 +31,15 @@ export interface FuelPricesColumns {
   maxDiscount: string;
 }
 
+export interface TransactionsColumns {
+  customerName: string;
+  fuelType: string;
+  rate: string;
+  costs: string;
+  discount: string;
+  amount: string;
+}
+
 export interface StationTableColumns {
   businessId: number;
   type: string;
