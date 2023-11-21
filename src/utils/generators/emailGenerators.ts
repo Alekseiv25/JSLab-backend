@@ -17,8 +17,8 @@ export function generateHTMLForEmailToSupport(
   const HTMLForEmail = `
   <html>
     <head></head>
-    <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #EBF0F4;">
-      <div style="max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+    <body style="font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif; margin: 0; padding: 40px 40px 40px 40px; background-color: #EBF0F4;">
+      <div style="max-width: 600px; width: 100%; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
           <h1 style="color: #14151A; font-size: 24px; font-style: normal; font-weight: 600; line-height: 34px; margin-bottom: 20px; border-bottom: 1px solid #E1E5ED">New Support Request</h1>
           <div style="border-bottom: 1px solid #E1E5ED; padding-bottom: 10px; margin-bottom: 10px;">
               <p style="font-size: 16px; font-style: normal; font-weight: 400; line-height: 24px; margin-bottom: 8px; color: #50576B;"><strong>User ID:</strong> ${information.userID}</p>
@@ -40,8 +40,8 @@ export function generateHTMLForEmailToUser(information: IUserEmailGeneratorArgum
   const HTMLForEmail = `
   <html>
     <head></head>
-    <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; padding: 0; padding-top: 20px; padding-bottom: 20px; background-color: #EBF0F4;">
-      <div style="max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+    <body style="font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif; margin: 0; padding: 40px 0 40px 0; background-color: #EBF0F4;">
+      <div style="max-width: 600px; width: 100%; margin: 20px auto; padding: 20px; background-color: #fff; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
           <h1 style="color: #14151A; font-size: 24px; font-style: normal; font-weight: 600; line-height: 34px; margin-bottom: 20px; border-bottom: 1px solid #E1E5ED">Support Request</h1>
           <div style="border-bottom: 1px solid #E1E5ED; padding-bottom: 10px; margin-bottom: 10px;">
               <p style="font-size: 16px; font-style: normal; font-weight: 400; line-height: 24px; margin-bottom: 8px; color: #14151A;"><strong>Hello, ${information.userFirstName}! We received a message from you:</p>
