@@ -3,7 +3,10 @@ import * as nodemailer from 'nodemailer';
 import { ISupportResponse } from 'src/types/responses/support';
 import { User } from 'src/users/users.model';
 import { UsersService } from 'src/users/users.service';
-import { makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
+import {
+  makeNotFoundMessage,
+  makeSuccessSendingMessage,
+} from 'src/utils/generators/messageGenerators';
 import {
   ISupportEmailGeneratorArguments,
   IUserEmailGeneratorArguments,
@@ -62,7 +65,7 @@ export class SupportService {
 
     const response: ISupportResponse = {
       status: 200,
-      message: '',
+      message: makeSuccessSendingMessage(),
     };
 
     return response;

@@ -46,3 +46,7 @@ export function makeNotValidPasswordMessage(): string {
 export function makeValidPasswordMessage(): string {
   return `Password is correct.`;
 }
+
+export function makeSuccessSendingMessage(): string {
+  return `Successfully sent.`;
+}
