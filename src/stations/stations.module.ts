@@ -13,5 +13,4 @@ import { Operation } from 'src/operations/operations.model';
   providers: [StationsService, OperationsService],
   imports: [SequelizeModule.forFeature([Station, StationAccount, Operation]), TokensModule],
 })
-
 export class StationsModule {}

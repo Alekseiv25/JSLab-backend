@@ -1,46 +1,70 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import { ISuccessfulSupportResponse } from 'src/types/responses/support';
+import { ISupportResponse } from 'src/types/responses/support';
 import { User } from 'src/users/users.model';
 import { UsersService } from 'src/users/users.service';
+import { makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
+import {
+  ISupportEmailGeneratorArguments,
+  IUserEmailGeneratorArguments,
+  generateHTMLForEmailToSupport,
+  generateHTMLForEmailToUser,
+} from 'src/utils/generators/emailGenerators';
 
 @Injectable()
 export class SupportService {
   constructor(private userService: UsersService) {}
 
-  async sendEmails(userID: number, userMessage: string): Promise<ISuccessfulSupportResponse> {
+  async sendEmails(userID: number, userMessage: string): Promise<ISupportResponse> {
     const userInformation: User | null = await this.userService.findUserByID(userID);
 
+    if (!userInformation) {
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
+    }
+
+    const userInformationForSupportEmail: ISupportEmailGeneratorArguments = {
+      userID: userID,
+      userEmailAddress: userInformation.email,
+      userFirstName: userInformation.firstName,
+      userLastName: userInformation.lastName,
+      userMessage: userMessage,
+    };
+
+    const informationForUserEmail: IUserEmailGeneratorArguments = {
+      userMessage: userMessage,
+      userFirstName: userInformation.firstName,
+    };
+
     const transporter = nodemailer.createTransport({
-      service: 'mail.ru',
+      service: process.env.SUPPORT_EMAIL_SERVICE_NAME,
       auth: {
-        user: 'supprtmailjslab@mail.ru',
-        pass: 'CVNHGLN2GgFj2Tct1Rts',
+        user: process.env.SUPPORT_EMAIL,
+        pass: process.env.SUPPORT_EMAIL_PASSWORD,
       },
     });
 
     const mailOptionsForSupportEmail = {
-      from: 'supprtmailjslab@mail.ru',
-      to: 'supprtmailjslab@mail.ru',
+      from: process.env.SUPPORT_EMAIL,
+      to: process.env.SUPPORT_EMAIL,
       subject: 'New Support Request',
-      text: `Hello, ${userInformation.firstName}!\nWe received your message: ${userMessage}.\nWe will come back as soon as possible.`,
+      html: generateHTMLForEmailToSupport(userInformationForSupportEmail),
     };
 
     const mailOptionsForUserEmail = {
-      from: 'supprtmailjslab@mail.ru',
+      from: process.env.SUPPORT_EMAIL,
       to: `${userInformation.email}`,
       subject: 'Support Request',
-      text: `Hello, ${userInformation.firstName}!\nWe received your message: ${userMessage}.\nWe will come back as soon as possible.`,
+      html: generateHTMLForEmailToUser(informationForUserEmail),
     };
 
-    const responseOfSendingEmailToSupport = await transporter.sendMail(mailOptionsForSupportEmail);
-    const responseOfSendingEmailToUser = await transporter.sendMail(mailOptionsForUserEmail);
+    await transporter.sendMail(mailOptionsForSupportEmail);
+    await transporter.sendMail(mailOptionsForUserEmail);
 
-    if (responseOfSendingEmailToSupport && responseOfSendingEmailToUser) {
-      return {
-        status: 200,
-        message: '',
-      };
-    }
+    const response: ISupportResponse = {
+      status: 200,
+      message: '',
+    };
+
+    return response;
   }
 }

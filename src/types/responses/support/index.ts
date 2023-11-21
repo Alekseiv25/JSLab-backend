@@ -1,4 +1,4 @@
-export interface ISuccessfulSupportResponse {
+export interface ISupportResponse {
   status: number;
   message: string;
 }

@@ -12,7 +12,9 @@ import { Operation } from 'src/operations/operations.model';
 @Module({
   controllers: [AccountsController],
   providers: [AccountsService, StationsService, OperationsService],
-  imports: [SequelizeModule.forFeature([Account, StationAccount, Station, Operation]), TokensModule],
+  imports: [
+    SequelizeModule.forFeature([Account, StationAccount, Station, Operation]),
+    TokensModule,
+  ],
 })
-
 export class AccountsModule {}
