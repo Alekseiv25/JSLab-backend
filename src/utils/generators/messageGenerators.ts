@@ -13,7 +13,9 @@ type nameVariants =
   | 'Operation'
   | 'Fuel Prices'
   | 'Fuel Price'
-  | 'Token';
+  | 'Token'
+  | 'Transactions'
+  | 'Transaction';
 
 export function makeDeleteMessage(name: nameVariants): string {
   return `${name} was deleted from the database!`;

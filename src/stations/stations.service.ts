@@ -21,6 +21,7 @@ import { decrypt } from 'src/utils/crypto';
 import { Operation } from 'src/operations/operations.model';
 import { OperationsService } from 'src/operations/operations.service';
 import { FuelPrice } from 'src/fuel_prices/fuel_prices.model';
+import { Transaction } from 'src/transactions/transactions.model';
 
 @Injectable()
 export class StationsService {
@@ -68,7 +69,12 @@ export class StationsService {
 
   async getAllStations(): Promise<IGetAllStationsResponse> {
     const stations: Station[] | [] = await this.stationRepository.findAll({
-      include: [{ model: Account }, { model: Operation }, { model: FuelPrice }],
+      include: [
+        { model: Account },
+        { model: Operation },
+        { model: FuelPrice },
+        { model: Transaction },
+      ],
     });
 
     if (stations.length === 0) {
@@ -87,6 +93,7 @@ export class StationsService {
         },
         { model: Operation, separate: true },
         { model: FuelPrice },
+        { model: Transaction },
       ],
     });
 

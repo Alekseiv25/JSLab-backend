@@ -17,6 +17,8 @@ import { OperationsModule } from './operations/operations.module';
 import { FuelPrice } from './fuel_prices/fuel_prices.model';
 import { FuelPricesModule } from './fuel_prices/fuel_prices.module';
 import { SupportModule } from './support/support.module';
+import { Transaction } from './transactions/transactions.model';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   controllers: [],
@@ -32,7 +34,17 @@ import { SupportModule } from './support/support.module';
       username: process.env.USER,
       password: process.env.PASSWORD,
       database: process.env.DB,
-      models: [User, Business, Station, Account, Token, StationAccount, Operation, FuelPrice],
+      models: [
+        User,
+        Business,
+        Station,
+        Account,
+        Token,
+        StationAccount,
+        Operation,
+        FuelPrice,
+        Transaction,
+      ],
       autoLoadModels: true,
     }),
     UsersModule,
@@ -44,6 +56,7 @@ import { SupportModule } from './support/support.module';
     OperationsModule,
     FuelPricesModule,
     SupportModule,
+    TransactionsModule,
   ],
 })
 export class AppModule {}
