@@ -139,7 +139,7 @@ export class UsersService {
     return user;
   }
 
-  private async findUserByID(userID: number): Promise<User | null> {
+  async findUserByID(userID: number): Promise<User | null> {
     const user: User | null = await this.userRepository.findByPk(userID);
     return user;
   }

@@ -16,6 +16,7 @@ import { Operation } from './operations/operations.model';
 import { OperationsModule } from './operations/operations.module';
 import { FuelPrice } from './fuel_prices/fuel_prices.model';
 import { FuelPricesModule } from './fuel_prices/fuel_prices.module';
+import { SupportModule } from './support/support.module';
 
 @Module({
   controllers: [],
@@ -42,6 +43,7 @@ import { FuelPricesModule } from './fuel_prices/fuel_prices.module';
     TokensModule,
     OperationsModule,
     FuelPricesModule,
+    SupportModule,
   ],
 })
 export class AppModule {}
