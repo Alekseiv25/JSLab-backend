@@ -30,6 +30,9 @@ export class Station extends Model<Station, StationTableColumns> {
   @Column({ type: DataType.STRING, allowNull: false, unique: true })
   name: string;
 
+  @Column({ type: DataType.STRING })
+  imageUrl: string;
+
   @Column({ type: DataType.STRING, allowNull: false })
   address: string;
 

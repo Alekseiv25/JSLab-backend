@@ -45,6 +45,7 @@ export interface StationTableColumns {
   type: string;
   brand: string;
   name: string;
+  imgUrl: string;
   address: string;
   lat: string;
   lng: string;

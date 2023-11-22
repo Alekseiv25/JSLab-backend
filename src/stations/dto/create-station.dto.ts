@@ -4,6 +4,7 @@ export class CreateStationDto {
   readonly type: string;
   readonly brand: string;
   readonly name: string;
+  readonly imgUrl: string;
   readonly address: string;
   readonly lat: string;
   readonly lng: string;
