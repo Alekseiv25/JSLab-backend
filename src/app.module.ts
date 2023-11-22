@@ -16,6 +16,7 @@ import { Operation } from './operations/operations.model';
 import { OperationsModule } from './operations/operations.module';
 import { FuelPrice } from './fuel_prices/fuel_prices.model';
 import { FuelPricesModule } from './fuel_prices/fuel_prices.module';
+import { SupportModule } from './support/support.module';
 import { Transaction } from './transactions/transactions.model';
 import { TransactionsModule } from './transactions/transactions.module';
 
@@ -54,6 +55,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     TokensModule,
     OperationsModule,
     FuelPricesModule,
+    SupportModule,
     TransactionsModule,
   ],
 })
