@@ -1,5 +1,15 @@
-import { Column, DataType, Model, Table, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import {
+  Column,
+  DataType,
+  Model,
+  Table,
+  ForeignKey,
+  BelongsTo,
+  TableOptions,
+  BelongsToMany,
+} from 'sequelize-typescript';
 import { Business } from 'src/businesses/businesses.model';
+import { Station } from 'src/stations/stations.model';
 import { UserTableColumns } from 'src/types/tableColumns';
 
 @Table({ tableName: 'users' })
@@ -37,4 +47,24 @@ export class User extends Model<User, UserTableColumns> {
 
   @BelongsTo(() => Business)
   business: Business;
+
+  @BelongsToMany(() => Station, () => UsersStations)
+  stations: Station[];
+}
+
+@Table({ tableName: 'UsersStations', timestamps: false } as TableOptions)
+export class UsersStations extends Model<UsersStations> {
+  @ForeignKey(() => User)
+  @Column
+  userId: number;
+
+  @ForeignKey(() => Station)
+  @Column
+  stationId: number;
+
+  @BelongsTo(() => User)
+  user: User;
+
+  @BelongsTo(() => Station)
+  station: Station;
 }
