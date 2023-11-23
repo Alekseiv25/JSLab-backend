@@ -1,10 +1,12 @@
+export type UserStatusTypes = 'Invited' | 'Active' | 'Suspended';
+
 export interface UserTableColumns {
   businessId?: number;
   firstName: string;
   lastName: string;
   email: string;
   password: string;
-  status: 'Invited' | 'Active' | 'Suspended';
+  status: UserStatusTypes;
   isAdmin?: boolean;
   suspensionReason?: string;
   isFinishedTutorial: boolean;

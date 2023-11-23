@@ -1,3 +1,4 @@
+import { UserStatusTypes } from 'src/types/tableColumns';
 import { User } from 'src/users/users.model';
 
 export interface IBasicUserResponse {
@@ -62,4 +63,37 @@ export interface ILoginResponse {
 export interface ILogoutResponse {
   status: number;
   message: string;
+}
+
+export interface IUserGeneralInformationForAdmin {
+  id: number;
+  firstName: string;
+  lastName: string | null;
+  email: string;
+}
+
+export interface IUserParamsInformationForAdmin {
+  lastActiveDate: string;
+  lastActiveTime: string;
+  permissionLevel: 'Admin' | 'Member';
+  status: UserStatusTypes;
+  statusChangeDate: string;
+}
+
+export interface IUserAssignedInformationForAdmin {
+  stationId: number;
+  stationName: string;
+  stationMerchantId: string;
+  stationStoreId: string;
+}
+
+export interface IUserInformationForAdmin {
+  general: IUserGeneralInformationForAdmin;
+  params: IUserParamsInformationForAdmin;
+  assigned: IUserAssignedInformationForAdmin[];
+}
+
+export interface IUserInformationForAdminResponse {
+  status: number;
+  data: IUserInformationForAdmin[];
 }

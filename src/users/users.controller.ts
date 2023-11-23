@@ -6,6 +6,7 @@ import {
   ICheckUserEmailResponse,
   IDeleteUserResponse,
   IGetAllUsersResponse,
+  IUserInformationForAdminResponse,
   IValidateUserPasswordResponse,
 } from 'src/types/responses/users';
 import {
@@ -27,6 +28,11 @@ export class UsersController {
   @Get()
   getAll(): Promise<IGetAllUsersResponse> {
     return this.userService.getAllUsers();
+  }
+
+  @Get('admin/users-information')
+  getUsersInformationForAdmin(): Promise<IUserInformationForAdminResponse> {
+    return this.userService.getUsersInformationForAdmin();
   }
 
   @Get(':id')
