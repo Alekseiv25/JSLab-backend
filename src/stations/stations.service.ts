@@ -131,11 +131,24 @@ export class StationsService {
     if (uniquenessResponse.status !== 200) {
       return uniquenessResponse;
     }
-    const newStation: Station = await this.stationRepository.create(dto);
-    await this.operationsService.createNewOperation(newStation.id);
-    await this.assignStationToAccount(newStation.id, dto.accountId);
 
-    const response: IBasicStationResponse = { status: HttpStatus.OK, data: newStation };
+    const newStation: Station = await this.stationRepository.create(dto);
+
+    const createdAt: Date = new Date(newStation.createdAt);
+    const yearOfCreation: string = createdAt.getFullYear().toString();
+    const merchantId: string = `${newStation.name}-${newStation.id}`;
+    const storeId: string = `${yearOfCreation}-${newStation.id}`;
+
+    const station: Station = await newStation.update({
+      ...dto,
+      merchantId: merchantId,
+      storeId: storeId,
+    });
+
+    await this.operationsService.createNewOperation(station.id);
+    await this.assignStationToAccount(station.id, dto.accountId);
+
+    const response: IBasicStationResponse = { status: HttpStatus.OK, data: station };
     return response;
   }
 

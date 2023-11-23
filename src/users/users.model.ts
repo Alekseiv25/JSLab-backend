@@ -52,7 +52,7 @@ export class User extends Model<User, UserTableColumns> {
   stations: Station[];
 }
 
-@Table({ tableName: 'UsersStations', timestamps: false } as TableOptions)
+@Table({ tableName: 'users_stations', timestamps: false } as TableOptions)
 export class UsersStations extends Model<UsersStations> {
   @ForeignKey(() => User)
   @Column

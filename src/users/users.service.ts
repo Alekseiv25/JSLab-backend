@@ -44,9 +44,7 @@ export class UsersService {
   }
 
   async getUsersInformationForAdmin(): Promise<IUserInformationForAdminResponse> {
-    const users: User[] | [] = await this.userRepository.findAll({
-      include: [{ model: Business, include: [Station] }],
-    });
+    const users = await this.userRepository.findAll({ include: Station });
 
     if (!users) {
       throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
@@ -198,18 +196,17 @@ export class UsersService {
 
     const assignedInfo: IUserAssignedInformationForAdmin[] = [];
 
-    for (const station of user.business.stations) {
-      const createdAt: Date = new Date(station.createdAt);
-      const stationYear: string = createdAt.getFullYear().toString();
+    if (user.stations.length > 0) {
+      for (const station of user.stations) {
+        const assignedStation: IUserAssignedInformationForAdmin = {
+          stationId: station.id,
+          stationName: station.name,
+          stationMerchantId: station.merchantId,
+          stationStoreId: station.storeId,
+        };
 
-      const assignedStation: IUserAssignedInformationForAdmin = {
-        stationId: station.id,
-        stationName: station.name,
-        stationMerchantId: `${station.name}-${station.id}`,
-        stationStoreId: `${stationYear}-${station.id}`,
-      };
-
-      assignedInfo.push(assignedStation);
+        assignedInfo.push(assignedStation);
+      }
     }
 
     return {

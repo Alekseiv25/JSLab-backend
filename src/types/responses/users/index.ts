@@ -90,7 +90,7 @@ export interface IUserAssignedInformationForAdmin {
 export interface IUserInformationForAdmin {
   general: IUserGeneralInformationForAdmin;
   params: IUserParamsInformationForAdmin;
-  assigned: IUserAssignedInformationForAdmin[];
+  assigned: IUserAssignedInformationForAdmin[] | [];
 }
 
 export interface IUserInformationForAdminResponse {

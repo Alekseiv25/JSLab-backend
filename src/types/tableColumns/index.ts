@@ -67,6 +67,9 @@ export interface StationTableColumns {
   overnightParking: boolean;
   showers: boolean;
   POS: string;
+  merchantId: string;
+  storeId: string;
+  isOnline: boolean;
 }
 
 export interface OperationTableColumns {

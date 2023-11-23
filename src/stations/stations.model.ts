@@ -91,6 +91,15 @@ export class Station extends Model<Station, StationTableColumns> {
   @Column({ type: DataType.STRING, allowNull: false })
   POS: string;
 
+  @Column({ type: DataType.STRING, defaultValue: null })
+  merchantId: string;
+
+  @Column({ type: DataType.STRING, defaultValue: null })
+  storeId: string;
+
+  @Column({ type: DataType.BOOLEAN, defaultValue: true })
+  isOnline: boolean;
+
   @BelongsTo(() => Business)
   owner: Business;
 
