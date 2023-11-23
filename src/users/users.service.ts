@@ -56,8 +56,6 @@ export class UsersService {
 
     for (const user of users) {
       if (user.id !== requesterId) {
-        console.log(user.id, requesterId);
-
         const transformedUser: IUserInformationForAdmin =
           await this.transformUsersDataForAdmin(user);
         transformedUsers.push(transformedUser);
