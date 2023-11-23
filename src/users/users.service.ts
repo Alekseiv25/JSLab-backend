@@ -43,7 +43,9 @@ export class UsersService {
     return response;
   }
 
-  async getUsersInformationForAdmin(): Promise<IUserInformationForAdminResponse> {
+  async getUsersInformationForAdmin(
+    requesterId: number,
+  ): Promise<IUserInformationForAdminResponse> {
     const users = await this.userRepository.findAll({ include: Station });
 
     if (!users) {
@@ -53,8 +55,13 @@ export class UsersService {
     const transformedUsers: IUserInformationForAdmin[] = [];
 
     for (const user of users) {
-      const transformedUser: IUserInformationForAdmin = await this.transformUsersDataForAdmin(user);
-      transformedUsers.push(transformedUser);
+      if (user.id !== requesterId) {
+        console.log(user.id, requesterId);
+
+        const transformedUser: IUserInformationForAdmin =
+          await this.transformUsersDataForAdmin(user);
+        transformedUsers.push(transformedUser);
+      }
     }
 
     const response: IUserInformationForAdminResponse = {

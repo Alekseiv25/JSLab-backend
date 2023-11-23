@@ -19,6 +19,7 @@ import {
   Param,
   HttpCode,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 
 @Controller('users')
@@ -31,8 +32,10 @@ export class UsersController {
   }
 
   @Get('admin/users-information')
-  getUsersInformationForAdmin(): Promise<IUserInformationForAdminResponse> {
-    return this.userService.getUsersInformationForAdmin();
+  getUsersInformationForAdmin(
+    @Query('requesterId') requesterId: string,
+  ): Promise<IUserInformationForAdminResponse> {
+    return this.userService.getUsersInformationForAdmin(Number(requesterId));
   }
 
   @Get(':id')
