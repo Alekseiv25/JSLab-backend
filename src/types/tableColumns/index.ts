@@ -1,13 +1,13 @@
 export interface UserTableColumns {
+  businessId?: number;
   firstName: string;
   lastName: string;
   email: string;
   password: string;
+  status: 'Invited' | 'Active' | 'Suspended';
   isAdmin?: boolean;
-  isSuspended?: boolean;
   suspensionReason?: string;
   isFinishedTutorial: boolean;
-  businessId?: number;
 }
 
 export interface BusinessTableColumns {
