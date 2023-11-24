@@ -1,4 +1,5 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
+import { Business } from 'src/businesses/businesses.model';
 import { Station } from 'src/stations/stations.model';
 import { TransactionsColumns } from 'src/types/tableColumns';
 
@@ -7,6 +8,9 @@ export class Transaction extends Model<Transaction, TransactionsColumns> {
   @ForeignKey(() => Station)
   @Column({ field: 'stationId', type: DataType.INTEGER, allowNull: false })
   stationId: number;
+  @ForeignKey(() => Business)
+  @Column({ field: 'businessId', type: DataType.INTEGER, allowNull: false })
+  businessId: number;
 
   @Column({ type: DataType.STRING, allowNull: false })
   customerName: string;
@@ -28,4 +32,7 @@ export class Transaction extends Model<Transaction, TransactionsColumns> {
 
   @BelongsTo(() => Station, 'stationId')
   stations: Station;
+
+  @BelongsTo(() => Business, 'businessId')
+  businesses: Business;
 }

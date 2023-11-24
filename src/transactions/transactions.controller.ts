@@ -24,6 +24,14 @@ export class TransactionsController {
     return this.transactionsService.GetTransactionById(id);
   }
 
+  @Get('businesses/:businessId')
+  @UseGuards(AuthGuard)
+  getTransactionsByBusinessId(
+    @Param('businessId') businessId: number,
+  ): Promise<IGetAllTransactionsResponse> {
+    return this.transactionsService.getTransactionsByBusinessId(businessId);
+  }
+
   @Get('stations/:stationId')
   @UseGuards(AuthGuard)
   getTransactionsByStationId(
