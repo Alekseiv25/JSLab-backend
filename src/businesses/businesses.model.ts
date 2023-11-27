@@ -1,6 +1,7 @@
 import { Column, DataType, Model, Table, HasMany } from 'sequelize-typescript';
 import { Account } from 'src/accounts/accounts.model';
 import { Station } from 'src/stations/stations.model';
+import { Transaction } from 'src/transactions/transactions.model';
 import { BusinessTableColumns } from 'src/types/tableColumns';
 import { User } from 'src/users/users.model';
 
@@ -38,4 +39,7 @@ export class Business extends Model<Business, BusinessTableColumns> {
 
   @HasMany(() => Account)
   accounts: Account[];
+
+  @HasMany(() => Transaction)
+  transactions: Transaction[];
 }
