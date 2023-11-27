@@ -12,6 +12,16 @@ export interface UserTableColumns {
   isFinishedTutorial: boolean;
 }
 
+export interface UsersParamsTableColumns {
+  userId: number;
+  status: 'Invited' | 'Active' | 'Suspended';
+  statusChangeDate: string;
+  isAdmin: boolean;
+  suspensionReason: string;
+  isFinishedTutorial: boolean;
+  lastActivityDate: string;
+}
+
 export interface BusinessTableColumns {
   legalName: string;
   yearsOfOperation: string;

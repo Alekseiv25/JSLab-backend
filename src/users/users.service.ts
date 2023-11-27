@@ -18,13 +18,9 @@ import {
   ICheckUserEmailResponse,
   IDeleteUserResponse,
   IGetAllUsersResponse,
-  IUserAssignedInformationForAdmin,
-  IUserGeneralInformationForAdmin,
-  IUserInformationForAdmin,
-  IUserInformationForAdminResponse,
-  IUserParamsInformationForAdmin,
   IValidateUserPasswordResponse,
 } from 'src/types/responses/users';
+import { UsersParams } from 'src/users_params/users_params.model';
 
 @Injectable()
 export class UsersService {
@@ -32,7 +28,7 @@ export class UsersService {
 
   async getAllUsers(): Promise<IGetAllUsersResponse> {
     const users: User[] | [] = await this.userRepository.findAll({
-      include: [{ model: Business, include: [Station] }],
+      include: [{ model: UsersParams }, { model: Business, include: [Station] }],
     });
 
     if (users.length === 0) {
@@ -43,32 +39,32 @@ export class UsersService {
     return response;
   }
 
-  async getUsersInformationForAdmin(
-    requesterId: number,
-  ): Promise<IUserInformationForAdminResponse> {
-    const users = await this.userRepository.findAll({ include: Station });
+  // async getUsersInformationForAdmin(
+  //   requesterId: number,
+  // ): Promise<IUserInformationForAdminResponse> {
+  //   const users = await this.userRepository.findAll({ include: Station });
 
-    if (!users) {
-      throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
-    }
+  //   if (!users) {
+  //     throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
+  //   }
 
-    const transformedUsers: IUserInformationForAdmin[] = [];
+  //   const transformedUsers: IUserInformationForAdmin[] = [];
 
-    for (const user of users) {
-      if (user.id !== requesterId) {
-        const transformedUser: IUserInformationForAdmin =
-          await this.transformUsersDataForAdmin(user);
-        transformedUsers.push(transformedUser);
-      }
-    }
+  //   for (const user of users) {
+  //     if (user.id !== requesterId) {
+  //       const transformedUser: IUserInformationForAdmin =
+  //         await this.transformUsersDataForAdmin(user);
+  //       transformedUsers.push(transformedUser);
+  //     }
+  //   }
 
-    const response: IUserInformationForAdminResponse = {
-      status: HttpStatus.OK,
-      data: transformedUsers,
-    };
+  //   const response: IUserInformationForAdminResponse = {
+  //     status: HttpStatus.OK,
+  //     data: transformedUsers,
+  //   };
 
-    return response;
-  }
+  //   return response;
+  // }
 
   async getUserByID(id: number): Promise<IBasicUserResponse> {
     const user: User | null = await this.userRepository.findByPk(id, {
@@ -181,43 +177,43 @@ export class UsersService {
     return hashPassword;
   }
 
-  private async transformUsersDataForAdmin(user: User): Promise<IUserInformationForAdmin> {
-    const today = new Date().toISOString().split('T')[0];
+  // private async transformUsersDataForAdmin(user: User): Promise<IUserInformationForAdmin> {
+  //   const today = new Date().toISOString().split('T')[0];
 
-    const generalInfo: IUserGeneralInformationForAdmin = {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName || null,
-      email: user.email,
-    };
+  //   const generalInfo: IUserGeneralInformationForAdmin = {
+  //     id: user.id,
+  //     firstName: user.firstName,
+  //     lastName: user.lastName || null,
+  //     email: user.email,
+  //   };
 
-    const paramsInfo: IUserParamsInformationForAdmin = {
-      lastActiveDate: today,
-      lastActiveTime: '',
-      permissionLevel: user.isAdmin ? 'Admin' : 'Member',
-      status: user.status,
-      statusChangeDate: today,
-    };
+  //   const paramsInfo: IUserParamsInformationForAdmin = {
+  //     lastActiveDate: today,
+  //     lastActiveTime: '',
+  //     permissionLevel: user.isAdmin ? 'Admin' : 'Member',
+  //     status: user.status,
+  //     statusChangeDate: today,
+  //   };
 
-    const assignedInfo: IUserAssignedInformationForAdmin[] = [];
+  //   const assignedInfo: IUserAssignedInformationForAdmin[] = [];
 
-    if (user.stations.length > 0) {
-      for (const station of user.stations) {
-        const assignedStation: IUserAssignedInformationForAdmin = {
-          stationId: station.id,
-          stationName: station.name,
-          stationMerchantId: station.merchantId,
-          stationStoreId: station.storeId,
-        };
+  //   if (user.stations.length > 0) {
+  //     for (const station of user.stations) {
+  //       const assignedStation: IUserAssignedInformationForAdmin = {
+  //         stationId: station.id,
+  //         stationName: station.name,
+  //         stationMerchantId: station.merchantId,
+  //         stationStoreId: station.storeId,
+  //       };
 
-        assignedInfo.push(assignedStation);
-      }
-    }
+  //       assignedInfo.push(assignedStation);
+  //     }
+  //   }
 
-    return {
-      general: generalInfo,
-      params: paramsInfo,
-      assigned: assignedInfo,
-    };
-  }
+  //   return {
+  //     general: generalInfo,
+  //     params: paramsInfo,
+  //     assigned: assignedInfo,
+  //   };
+  // }
 }

@@ -1,5 +1,4 @@
 import { Body, Controller, Get, HttpStatus, Post, Req, Res } from '@nestjs/common';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { CookieOptions, Request, Response } from 'express';
 import { ILoginUserData } from 'src/types/requests/users';
@@ -10,6 +9,7 @@ import {
   IRefreshResponseJWT,
   IRegistrationResponseJWT,
 } from 'src/types/responses/users';
+import { CreateNewUserDto } from './dto/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -41,7 +41,7 @@ export class AuthController {
 
   @Post('/registration')
   async registration(
-    @Body() userDto: CreateUserDto,
+    @Body() userDto: CreateNewUserDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<IRegistrationResponseJWT | ICheckUserEmailResponse> {
     const response: IRegistrationResponseJWT | ICheckUserEmailResponse =

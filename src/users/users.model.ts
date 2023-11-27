@@ -1,3 +1,7 @@
+import { Business } from 'src/businesses/businesses.model';
+import { Station } from 'src/stations/stations.model';
+import { UserTableColumns } from 'src/types/tableColumns';
+import { UsersParams } from 'src/users_params/users_params.model';
 import {
   Column,
   DataType,
@@ -7,12 +11,10 @@ import {
   BelongsTo,
   TableOptions,
   BelongsToMany,
+  HasOne,
 } from 'sequelize-typescript';
-import { Business } from 'src/businesses/businesses.model';
-import { Station } from 'src/stations/stations.model';
-import { UserTableColumns } from 'src/types/tableColumns';
 
-@Table({ tableName: 'users' })
+@Table({ tableName: 'users', timestamps: false })
 export class User extends Model<User, UserTableColumns> {
   @ForeignKey(() => Business)
   @Column({ type: DataType.INTEGER })
@@ -33,23 +35,14 @@ export class User extends Model<User, UserTableColumns> {
   @Column({ type: DataType.STRING, allowNull: false })
   password: string;
 
-  @Column({ type: DataType.STRING, defaultValue: 'Active' })
-  status: 'Invited' | 'Active' | 'Suspended';
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: true })
-  isAdmin: boolean;
-
-  @Column({ type: DataType.STRING, defaultValue: null })
-  suspensionReason: string;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  isFinishedTutorial: boolean;
-
   @BelongsTo(() => Business)
   business: Business;
 
   @BelongsToMany(() => Station, () => UsersStations)
   stations: Station[];
+
+  @HasOne(() => UsersParams)
+  parameters: UsersParams;
 }
 
 @Table({ tableName: 'users_stations', timestamps: false } as TableOptions)
