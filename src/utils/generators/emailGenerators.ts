@@ -21,7 +21,6 @@ export function generateHTMLForEmailToSupport(
       <div style="max-width: 600px; width: 100%; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
           <h1 style="color: #14151A; font-size: 24px; font-style: normal; font-weight: 600; line-height: 34px; margin-bottom: 20px; border-bottom: 1px solid #E1E5ED">New Support Request</h1>
           <div style="border-bottom: 1px solid #E1E5ED; padding-bottom: 10px; margin-bottom: 10px;">
-              <p style="font-size: 16px; font-style: normal; font-weight: 400; line-height: 24px; margin-bottom: 8px; color: #50576B;"><strong>User ID:</strong> ${information.userID}</p>
               <p style="font-size: 16px; font-style: normal; font-weight: 400; line-height: 24px; margin-bottom: 8px; color: #50576B;"><strong>User First Name:</strong> ${information.userFirstName}</p>
               <p style="font-size: 16px; font-style: normal; font-weight: 400; line-height: 24px; margin-bottom: 8px; color: #50576B;"><strong>User Last Name:</strong> ${information.userLastName}</p>
               <p style="font-size: 16px; font-style: normal; font-weight: 400; line-height: 24px; margin-bottom: 8px; color: #50576B;"><strong>User Email Address:</strong> ${information.userEmailAddress}</p>

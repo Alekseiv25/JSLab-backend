@@ -18,6 +18,11 @@ import {
   ICheckUserEmailResponse,
   IDeleteUserResponse,
   IGetAllUsersResponse,
+  IUserAssignedInformationForAdmin,
+  IUserGeneralInformationForAdmin,
+  IUserInformationForAdmin,
+  IUserInformationForAdminResponse,
+  IUserParamsInformationForAdmin,
   IValidateUserPasswordResponse,
 } from 'src/types/responses/users';
 
@@ -35,6 +40,33 @@ export class UsersService {
     }
 
     const response: IGetAllUsersResponse = { status: HttpStatus.OK, data: users };
+    return response;
+  }
+
+  async getUsersInformationForAdmin(
+    requesterId: number,
+  ): Promise<IUserInformationForAdminResponse> {
+    const users = await this.userRepository.findAll({ include: Station });
+
+    if (!users) {
+      throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
+    }
+
+    const transformedUsers: IUserInformationForAdmin[] = [];
+
+    for (const user of users) {
+      if (user.id !== requesterId) {
+        const transformedUser: IUserInformationForAdmin =
+          await this.transformUsersDataForAdmin(user);
+        transformedUsers.push(transformedUser);
+      }
+    }
+
+    const response: IUserInformationForAdminResponse = {
+      status: HttpStatus.OK,
+      data: transformedUsers,
+    };
+
     return response;
   }
 
@@ -147,5 +179,45 @@ export class UsersService {
   private async hashUserPassword(password: string): Promise<string> {
     const hashPassword: string = await bcrypt.hash(password, 10);
     return hashPassword;
+  }
+
+  private async transformUsersDataForAdmin(user: User): Promise<IUserInformationForAdmin> {
+    const today = new Date().toISOString().split('T')[0];
+
+    const generalInfo: IUserGeneralInformationForAdmin = {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName || null,
+      email: user.email,
+    };
+
+    const paramsInfo: IUserParamsInformationForAdmin = {
+      lastActiveDate: today,
+      lastActiveTime: '',
+      permissionLevel: user.isAdmin ? 'Admin' : 'Member',
+      status: user.status,
+      statusChangeDate: today,
+    };
+
+    const assignedInfo: IUserAssignedInformationForAdmin[] = [];
+
+    if (user.stations.length > 0) {
+      for (const station of user.stations) {
+        const assignedStation: IUserAssignedInformationForAdmin = {
+          stationId: station.id,
+          stationName: station.name,
+          stationMerchantId: station.merchantId,
+          stationStoreId: station.storeId,
+        };
+
+        assignedInfo.push(assignedStation);
+      }
+    }
+
+    return {
+      general: generalInfo,
+      params: paramsInfo,
+      assigned: assignedInfo,
+    };
   }
 }

@@ -1,13 +1,15 @@
+export type UserStatusTypes = 'Invited' | 'Active' | 'Suspended';
+
 export interface UserTableColumns {
+  businessId?: number;
   firstName: string;
   lastName: string;
   email: string;
   password: string;
+  status: UserStatusTypes;
   isAdmin?: boolean;
-  isSuspended?: boolean;
   suspensionReason?: string;
   isFinishedTutorial: boolean;
-  businessId?: number;
 }
 
 export interface BusinessTableColumns {
@@ -66,6 +68,9 @@ export interface StationTableColumns {
   overnightParking: boolean;
   showers: boolean;
   POS: string;
+  merchantId: string;
+  storeId: string;
+  isOnline: boolean;
 }
 
 export interface OperationTableColumns {

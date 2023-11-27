@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
-import { User } from './users/users.model';
+import { User, UsersStations } from './users/users.model';
 import { BusinessesModule } from './businesses/businesses.module';
 import { Business } from './businesses/businesses.model';
 import { StationsModule } from './stations/stations.module';
@@ -36,6 +36,7 @@ import { TransactionsModule } from './transactions/transactions.module';
       database: process.env.DB,
       models: [
         User,
+        UsersStations,
         Business,
         Station,
         Account,

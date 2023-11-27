@@ -25,6 +25,9 @@ export class CreateStationDto {
   readonly overnightParking: boolean;
   readonly showers: boolean;
   readonly POS: string;
+  readonly isOnline?: boolean;
+  merchantId: string;
+  storeId: string;
 }
 
 export class stationAccountDataDto {

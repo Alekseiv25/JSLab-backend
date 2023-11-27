@@ -14,6 +14,7 @@ import {
 import { Operation } from 'src/operations/operations.model';
 import { FuelPrice } from 'src/fuel_prices/fuel_prices.model';
 import { Transaction } from 'src/transactions/transactions.model';
+import { User, UsersStations } from 'src/users/users.model';
 
 @Table({ tableName: 'stations' })
 export class Station extends Model<Station, StationTableColumns> {
@@ -93,8 +94,20 @@ export class Station extends Model<Station, StationTableColumns> {
   @Column({ type: DataType.STRING, allowNull: false })
   POS: string;
 
+  @Column({ type: DataType.STRING, defaultValue: null })
+  merchantId: string;
+
+  @Column({ type: DataType.STRING, defaultValue: null })
+  storeId: string;
+
+  @Column({ type: DataType.BOOLEAN, defaultValue: true })
+  isOnline: boolean;
+
   @BelongsTo(() => Business)
   owner: Business;
+
+  @BelongsToMany(() => User, () => UsersStations)
+  users: User[];
 
   @BelongsToMany(() => Account, () => StationAccount)
   accounts: Account[];

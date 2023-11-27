@@ -1,10 +1,11 @@
 export class CreateUserDto {
-  readonly email: string;
-  password: string;
+  readonly businessId?: number;
   readonly firstName: string;
   readonly lastName: string;
-  readonly phone: string;
+  readonly email: string;
+  password: string;
+  readonly status: 'Invited' | 'Active' | 'Suspended';
   readonly isAdmin?: boolean;
+  readonly suspensionReason?: string;
   readonly isFinishedTutorial: boolean;
-  readonly businessId?: number;
 }
