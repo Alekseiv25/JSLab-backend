@@ -52,3 +52,7 @@ export function makeValidPasswordMessage(): string {
 export function makeSuccessSendingMessage(): string {
   return `Successfully sent.`;
 }
+
+export function makeSuccessUpdatingMessage(): string {
+  return `Successfully updated.`;
+}

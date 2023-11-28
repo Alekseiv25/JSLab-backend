@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpStatus, Post, Req, Res } from '@nestjs/commo
 import { AuthService } from './auth.service';
 import { CookieOptions, Request, Response } from 'express';
 import { ILoginUserData } from 'src/types/requests/users';
+import { CreateNewUserDto } from './dto/create-user.dto';
 import {
   ICheckUserEmailResponse,
   ILoginResponse,
@@ -9,7 +10,6 @@ import {
   IRefreshResponseJWT,
   IRegistrationResponseJWT,
 } from 'src/types/responses/users';
-import { CreateNewUserDto } from './dto/create-user.dto';
 
 @Controller('auth')
 export class AuthController {

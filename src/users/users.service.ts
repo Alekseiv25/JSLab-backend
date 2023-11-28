@@ -18,13 +18,19 @@ import {
   ICheckUserEmailResponse,
   IDeleteUserResponse,
   IGetAllUsersResponse,
+  IUserParamsUpdateResponse,
   IValidateUserPasswordResponse,
 } from 'src/types/responses/users';
 import { UsersParams } from 'src/users_params/users_params.model';
+import { UsersParamsService } from 'src/users_params/users_params.service';
+import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User) private userRepository: typeof User) {}
+  constructor(
+    @InjectModel(User) private userRepository: typeof User,
+    private userParamsService: UsersParamsService,
+  ) {}
 
   async getAllUsers(): Promise<IGetAllUsersResponse> {
     const users: User[] | [] = await this.userRepository.findAll({
@@ -107,6 +113,15 @@ export class UsersService {
 
     const response: IBasicUserResponse = { status: HttpStatus.OK, data: updatedUser };
     return response;
+  }
+
+  async updateUserTutorialStatus(
+    id: number,
+    updatedUserParams: CreateUserParamsDto,
+  ): Promise<IUserParamsUpdateResponse> {
+    const changeStatusResponse: IUserParamsUpdateResponse =
+      await this.userParamsService.updateUserParams(id, updatedUserParams);
+    return changeStatusResponse;
   }
 
   async deleteUserByID(id: number): Promise<IDeleteUserResponse> {

@@ -1,5 +1,6 @@
 import { UserStatusTypes } from 'src/types/tableColumns';
 import { User } from 'src/users/users.model';
+import { UsersParams } from 'src/users_params/users_params.model';
 
 export interface IBasicUserResponse {
   status: number;
@@ -96,4 +97,9 @@ export interface IUserInformationForAdmin {
 export interface IUserInformationForAdminResponse {
   status: number;
   data: IUserInformationForAdmin[];
+}
+
+export interface IUserParamsUpdateResponse {
+  status: number;
+  updatedUserParams: UsersParams;
 }
