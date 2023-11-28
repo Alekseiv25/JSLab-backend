@@ -50,10 +50,26 @@ export interface IRefreshResponseJWT {
   data: BasicRefreshResponseJWT;
 }
 
-type LoginResponseData = {
-  userData: User;
+interface ILoginUserData {
+  id: number;
+  userBusinessId: number;
+  firstName: string;
+  lastName: string;
+}
+
+interface ILoginUserParams {
+  isFinishedTutorial: boolean;
+}
+
+interface ILoginUserTokens {
   accessToken: string;
   refreshToken: string;
+}
+
+type LoginResponseData = {
+  userData: ILoginUserData;
+  userParams: ILoginUserParams;
+  tokens: ILoginUserTokens;
 };
 
 export interface ILoginResponse {

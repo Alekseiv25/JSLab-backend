@@ -91,6 +91,7 @@ export class AuthService {
 
   async login(userData: ILoginUserData): Promise<ILoginResponse> {
     const user: User | null = await this.userService.findUserByEmail(userData.email);
+    const userParams: UsersParams | null = await this.userParamsService.getUserParams(user.id);
 
     if (!user) {
       throw new HttpException(makeNotCorrectDataMessage(), HttpStatus.UNAUTHORIZED);
@@ -107,7 +108,20 @@ export class AuthService {
 
     const response: ILoginResponse = {
       status: HttpStatus.OK,
-      data: { ...tokens, userData: user },
+      data: {
+        userData: {
+          id: user.id,
+          userBusinessId: user.businessId,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        },
+        userParams: {
+          isFinishedTutorial: userParams.isFinishedTutorial,
+        },
+        tokens: {
+          ...tokens,
+        },
+      },
     };
 
     return response;

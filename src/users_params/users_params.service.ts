@@ -12,6 +12,12 @@ export class UsersParamsService {
     private usersParamsModel: typeof UsersParams,
   ) {}
 
+  async getUserParams(userId: number): Promise<UsersParams> {
+    const userParams: UsersParams = await this.findUserParamsByID(userId);
+    await this.updateUserLastActivityTimestamp(userId);
+    return userParams;
+  }
+
   async createParamsForNewUser(params: CreateUserParamsDto): Promise<UsersParams> {
     const newUser: UsersParams = await this.usersParamsModel.create(params);
     return newUser;
