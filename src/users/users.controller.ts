@@ -69,11 +69,12 @@ export class UsersController {
   }
 
   @Put('tutorial-status/:id')
-  updateUserTutorialStatus(
+  @UseGuards(AuthGuard)
+  updateUserParams(
     @Param('id') id: number,
     @Body() updatedUserParams: CreateUserParamsDto,
   ): Promise<IUserParamsUpdateResponse> {
-    return this.userService.updateUserTutorialStatus(id, updatedUserParams);
+    return this.userService.updateUserParams(id, updatedUserParams);
   }
 
   @Delete(':id')

@@ -115,7 +115,7 @@ export class UsersService {
     return response;
   }
 
-  async updateUserTutorialStatus(
+  async updateUserParams(
     id: number,
     updatedUserParams: CreateUserParamsDto,
   ): Promise<IUserParamsUpdateResponse> {

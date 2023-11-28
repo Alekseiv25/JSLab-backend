@@ -21,18 +21,35 @@ export class UsersParamsService {
     userId: number,
     newUserParams: CreateUserParamsDto,
   ): Promise<IUserParamsUpdateResponse> {
+    const userParams: UsersParams = await this.findUserParamsByID(userId);
+    const updatedUserParams: UsersParams = await userParams.update({ ...newUserParams });
+    await this.updateUserLastActivityTimestamp(userId);
+
+    const response: IUserParamsUpdateResponse = {
+      status: HttpStatus.OK,
+      updatedUserParams: updatedUserParams,
+    };
+    return response;
+  }
+
+  async updateUserLastActivityTimestamp(userId: number): Promise<void> {
+    const userParams: UsersParams = await this.findUserParamsByID(userId);
+    const currentTimestamp: string = await this.getCurrentTimestamp();
+    await userParams.update({ lastActivityDate: currentTimestamp });
+  }
+
+  private async findUserParamsByID(userId: number): Promise<UsersParams> {
     const userParams: UsersParams = await this.usersParamsModel.findByPk(userId);
 
     if (!userParams) {
       throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
     }
 
-    const updatedUserParams: UsersParams = await userParams.update({ ...newUserParams });
-    const response: IUserParamsUpdateResponse = {
-      status: HttpStatus.OK,
-      updatedUserParams: updatedUserParams,
-    };
+    return userParams;
+  }
 
-    return response;
+  private async getCurrentTimestamp(): Promise<string> {
+    const currentTimestamp: string = String(new Date().getTime());
+    return currentTimestamp;
   }
 }
