@@ -29,7 +29,7 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<IRefreshResponseJWT> {
-    const refreshToken: string = req.cookies;
+    const refreshToken: string = req.cookies.refreshToken;
     const response: IRefreshResponseJWT = await this.authService.refresh(refreshToken);
 
     if ('refreshToken' in response.data) {
