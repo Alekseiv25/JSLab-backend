@@ -29,7 +29,7 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<IRefreshResponseJWT> {
-    const refreshToken: string = req.cookies.refreshToken;
+    const refreshToken: string = req.cookies;
     const response: IRefreshResponseJWT = await this.authService.refresh(refreshToken);
 
     if ('refreshToken' in response.data) {
@@ -61,8 +61,12 @@ export class AuthController {
   ): Promise<ILoginResponse> {
     const response: ILoginResponse = await this.authService.login(userData);
 
-    if ('refreshToken' in response.data) {
-      res.cookie('refreshToken', response.data.refreshToken, this.createRefreshTokenOptions());
+    if ('data' in response && 'refreshToken' in response.data.tokens) {
+      res.cookie(
+        'refreshToken',
+        response.data.tokens.refreshToken,
+        this.createRefreshTokenOptions(),
+      );
     }
 
     return response;
