@@ -1,5 +1,6 @@
 import { UserStatusTypes } from 'src/types/tableColumns';
 import { User } from 'src/users/users.model';
+import { UsersParams } from 'src/users_params/users_params.model';
 
 export interface IBasicUserResponse {
   status: number;
@@ -49,10 +50,26 @@ export interface IRefreshResponseJWT {
   data: BasicRefreshResponseJWT;
 }
 
-type LoginResponseData = {
-  userData: User;
+interface ILoginUserData {
+  id: number;
+  userBusinessId: number;
+  firstName: string;
+  lastName: string;
+}
+
+interface ILoginUserParams {
+  isFinishedTutorial: boolean;
+}
+
+interface ILoginUserTokens {
   accessToken: string;
   refreshToken: string;
+}
+
+type LoginResponseData = {
+  userData: ILoginUserData;
+  userParams: ILoginUserParams;
+  tokens: ILoginUserTokens;
 };
 
 export interface ILoginResponse {
@@ -73,8 +90,7 @@ export interface IUserGeneralInformationForAdmin {
 }
 
 export interface IUserParamsInformationForAdmin {
-  lastActiveDate: string;
-  lastActiveTime: string;
+  lastActiveTimestamp: string;
   permissionLevel: 'Admin' | 'Member';
   status: UserStatusTypes;
   statusChangeDate: string;
@@ -96,4 +112,9 @@ export interface IUserInformationForAdmin {
 export interface IUserInformationForAdminResponse {
   status: number;
   data: IUserInformationForAdmin[];
+}
+
+export interface IUserParamsUpdateResponse {
+  status: number;
+  updatedUserParams: UsersParams;
 }

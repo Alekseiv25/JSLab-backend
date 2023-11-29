@@ -1,3 +1,4 @@
+import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -7,6 +8,7 @@ import {
   IDeleteUserResponse,
   IGetAllUsersResponse,
   IUserInformationForAdminResponse,
+  IUserParamsUpdateResponse,
   IValidateUserPasswordResponse,
 } from 'src/types/responses/users';
 import {
@@ -66,6 +68,15 @@ export class UsersController {
     @Body() updatedData: CreateUserDto,
   ): Promise<IBasicUserResponse> {
     return this.userService.updateUserByID(id, updatedData);
+  }
+
+  @Put('tutorial-status/:id')
+  @UseGuards(AuthGuard)
+  updateUserParams(
+    @Param('id') id: number,
+    @Body() updatedUserParams: CreateUserParamsDto,
+  ): Promise<IUserParamsUpdateResponse> {
+    return this.userService.updateUserParams(id, updatedUserParams);
   }
 
   @Delete(':id')

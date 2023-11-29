@@ -19,6 +19,8 @@ import { FuelPricesModule } from './fuel_prices/fuel_prices.module';
 import { SupportModule } from './support/support.module';
 import { Transaction } from './transactions/transactions.model';
 import { TransactionsModule } from './transactions/transactions.module';
+import { UsersParamsModule } from './users_params/users_params.module';
+import { UsersParams } from './users_params/users_params.model';
 
 @Module({
   controllers: [],
@@ -37,6 +39,7 @@ import { TransactionsModule } from './transactions/transactions.module';
       models: [
         User,
         UsersStations,
+        UsersParams,
         Business,
         Station,
         Account,
@@ -58,6 +61,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     FuelPricesModule,
     SupportModule,
     TransactionsModule,
+    UsersParamsModule,
   ],
 })
 export class AppModule {}

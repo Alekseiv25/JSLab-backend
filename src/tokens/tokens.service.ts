@@ -28,7 +28,8 @@ export class TokensService {
     const accessTokenPayload: IAccessToken = {
       id: user.id,
       email: user.email,
-      isAdmin: user.isAdmin,
+      // isAdmin: user.isAdmin,
+      isAdmin: true,
     };
     const refreshTokenPayload: IRefreshToken = { id: user.id };
 

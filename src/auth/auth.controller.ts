@@ -1,8 +1,8 @@
 import { Body, Controller, Get, HttpStatus, Post, Req, Res } from '@nestjs/common';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { CookieOptions, Request, Response } from 'express';
 import { ILoginUserData } from 'src/types/requests/users';
+import { CreateNewUserDto } from './dto/create-user.dto';
 import {
   ICheckUserEmailResponse,
   ILoginResponse,
@@ -41,7 +41,7 @@ export class AuthController {
 
   @Post('/registration')
   async registration(
-    @Body() userDto: CreateUserDto,
+    @Body() userDto: CreateNewUserDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<IRegistrationResponseJWT | ICheckUserEmailResponse> {
     const response: IRegistrationResponseJWT | ICheckUserEmailResponse =
@@ -61,8 +61,12 @@ export class AuthController {
   ): Promise<ILoginResponse> {
     const response: ILoginResponse = await this.authService.login(userData);
 
-    if ('refreshToken' in response.data) {
-      res.cookie('refreshToken', response.data.refreshToken, this.createRefreshTokenOptions());
+    if ('data' in response && 'refreshToken' in response.data.tokens) {
+      res.cookie(
+        'refreshToken',
+        response.data.tokens.refreshToken,
+        this.createRefreshTokenOptions(),
+      );
     }
 
     return response;

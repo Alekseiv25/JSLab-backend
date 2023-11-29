@@ -5,6 +5,9 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { Business } from 'src/businesses/businesses.model';
 import { Station } from 'src/stations/stations.model';
 import * as bcrypt from 'bcrypt';
+import { UsersParams } from 'src/users_params/users_params.model';
+import { UsersParamsService } from 'src/users_params/users_params.service';
+import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
 import {
   makeAvailableMessage,
   makeConflictMessage,
@@ -23,16 +26,20 @@ import {
   IUserInformationForAdmin,
   IUserInformationForAdminResponse,
   IUserParamsInformationForAdmin,
+  IUserParamsUpdateResponse,
   IValidateUserPasswordResponse,
 } from 'src/types/responses/users';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User) private userRepository: typeof User) {}
+  constructor(
+    @InjectModel(User) private userRepository: typeof User,
+    private userParamsService: UsersParamsService,
+  ) {}
 
   async getAllUsers(): Promise<IGetAllUsersResponse> {
     const users: User[] | [] = await this.userRepository.findAll({
-      include: [{ model: Business, include: [Station] }],
+      include: [{ model: UsersParams }, { model: Business, include: [Station] }],
     });
 
     if (users.length === 0) {
@@ -113,6 +120,15 @@ export class UsersService {
     return response;
   }
 
+  async updateUserParams(
+    id: number,
+    updatedUserParams: CreateUserParamsDto,
+  ): Promise<IUserParamsUpdateResponse> {
+    const changeStatusResponse: IUserParamsUpdateResponse =
+      await this.userParamsService.updateUserParams(id, updatedUserParams);
+    return changeStatusResponse;
+  }
+
   async deleteUserByID(id: number): Promise<IDeleteUserResponse> {
     const user: User | null = await this.userRepository.findByPk(id);
 
@@ -182,7 +198,7 @@ export class UsersService {
   }
 
   private async transformUsersDataForAdmin(user: User): Promise<IUserInformationForAdmin> {
-    const today = new Date().toISOString().split('T')[0];
+    const userParams: UsersParams = await this.userParamsService.getUserParams(user.id);
 
     const generalInfo: IUserGeneralInformationForAdmin = {
       id: user.id,
@@ -192,11 +208,10 @@ export class UsersService {
     };
 
     const paramsInfo: IUserParamsInformationForAdmin = {
-      lastActiveDate: today,
-      lastActiveTime: '',
-      permissionLevel: user.isAdmin ? 'Admin' : 'Member',
-      status: user.status,
-      statusChangeDate: today,
+      lastActiveTimestamp: userParams.lastActivityDate,
+      permissionLevel: userParams.isAdmin ? 'Admin' : 'Member',
+      status: userParams.status,
+      statusChangeDate: userParams.statusChangeDate,
     };
 
     const assignedInfo: IUserAssignedInformationForAdmin[] = [];

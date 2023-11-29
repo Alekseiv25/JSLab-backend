@@ -5,11 +5,16 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { User, UsersStations } from './users.model';
 import { Business } from 'src/businesses/businesses.model';
 import { TokensModule } from 'src/tokens/tokens.module';
+import { UsersParamsModule } from 'src/users_params/users_params.module';
 
 @Module({
   controllers: [UsersController],
   providers: [UsersService],
-  imports: [SequelizeModule.forFeature([User, Business, UsersStations]), TokensModule],
+  imports: [
+    SequelizeModule.forFeature([User, Business, UsersStations]),
+    TokensModule,
+    UsersParamsModule,
+  ],
   exports: [UsersService],
 })
 export class UsersModule {}
