@@ -21,6 +21,8 @@ import { Transaction } from './transactions/transactions.model';
 import { TransactionsModule } from './transactions/transactions.module';
 import { UsersParamsModule } from './users_params/users_params.module';
 import { UsersParams } from './users_params/users_params.model';
+import { Payment } from './payments/payments.model';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   controllers: [],
@@ -48,6 +50,7 @@ import { UsersParams } from './users_params/users_params.model';
         Operation,
         FuelPrice,
         Transaction,
+        Payment,
       ],
       autoLoadModels: true,
     }),
@@ -62,6 +65,7 @@ import { UsersParams } from './users_params/users_params.model';
     SupportModule,
     TransactionsModule,
     UsersParamsModule,
+    PaymentsModule,
   ],
 })
 export class AppModule {}

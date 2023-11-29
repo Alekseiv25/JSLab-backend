@@ -22,6 +22,7 @@ import { Operation } from 'src/operations/operations.model';
 import { OperationsService } from 'src/operations/operations.service';
 import { FuelPrice } from 'src/fuel_prices/fuel_prices.model';
 import { Transaction } from 'src/transactions/transactions.model';
+import { Payment } from 'src/payments/payments.model';
 
 @Injectable()
 export class StationsService {
@@ -74,6 +75,7 @@ export class StationsService {
         { model: Operation },
         { model: FuelPrice },
         { model: Transaction },
+        { model: Payment },
       ],
     });
 
@@ -94,6 +96,7 @@ export class StationsService {
         { model: Operation, separate: true },
         { model: FuelPrice },
         { model: Transaction },
+        { model: Payment },
       ],
     });
 

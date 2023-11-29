@@ -52,6 +52,13 @@ export interface TransactionsColumns {
   amount: string;
 }
 
+export interface PaymentsColumns {
+  stationId: number;
+  businessId: number;
+  accountId: number;
+  paymentAmount: string;
+}
+
 export interface StationTableColumns {
   businessId: number;
   type: string;
