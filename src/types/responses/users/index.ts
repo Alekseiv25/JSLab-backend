@@ -90,8 +90,7 @@ export interface IUserGeneralInformationForAdmin {
 }
 
 export interface IUserParamsInformationForAdmin {
-  lastActiveDate: string;
-  lastActiveTime: string;
+  lastActiveTimestamp: string;
   permissionLevel: 'Admin' | 'Member';
   status: UserStatusTypes;
   statusChangeDate: string;

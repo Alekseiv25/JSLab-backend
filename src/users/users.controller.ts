@@ -7,6 +7,7 @@ import {
   ICheckUserEmailResponse,
   IDeleteUserResponse,
   IGetAllUsersResponse,
+  IUserInformationForAdminResponse,
   IUserParamsUpdateResponse,
   IValidateUserPasswordResponse,
 } from 'src/types/responses/users';
@@ -20,6 +21,7 @@ import {
   Param,
   HttpCode,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 
 @Controller('users')
@@ -31,12 +33,12 @@ export class UsersController {
     return this.userService.getAllUsers();
   }
 
-  // @Get('admin/users-information')
-  // getUsersInformationForAdmin(
-  //   @Query('requesterId') requesterId: string,
-  // ): Promise<IUserInformationForAdminResponse> {
-  //   return this.userService.getUsersInformationForAdmin(Number(requesterId));
-  // }
+  @Get('admin/users-information')
+  getUsersInformationForAdmin(
+    @Query('requesterId') requesterId: string,
+  ): Promise<IUserInformationForAdminResponse> {
+    return this.userService.getUsersInformationForAdmin(Number(requesterId));
+  }
 
   @Get(':id')
   @UseGuards(AuthGuard)
