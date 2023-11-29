@@ -22,6 +22,7 @@ import { Operation } from 'src/operations/operations.model';
 import { OperationsService } from 'src/operations/operations.service';
 import { FuelPrice } from 'src/fuel_prices/fuel_prices.model';
 import { Transaction } from 'src/transactions/transactions.model';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class StationsService {
@@ -69,6 +70,29 @@ export class StationsService {
 
   async getAllStations(): Promise<IGetAllStationsResponse> {
     const stations: Station[] | [] = await this.stationRepository.findAll({
+      include: [
+        { model: Account },
+        { model: Operation },
+        { model: FuelPrice },
+        { model: Transaction },
+      ],
+    });
+
+    if (stations.length === 0) {
+      throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
+    }
+
+    const response: IGetAllStationsResponse = { status: HttpStatus.OK, data: stations };
+    return response;
+  }
+
+  async getStationsByBusinessId(businessId: number): Promise<IGetAllStationsResponse> {
+    const stations: Station[] | null = await this.stationRepository.findAll({
+      where: {
+        businessId: {
+          [Op.in]: [businessId],
+        },
+      },
       include: [
         { model: Account },
         { model: Operation },
