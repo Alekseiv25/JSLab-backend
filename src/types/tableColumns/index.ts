@@ -56,6 +56,7 @@ export interface PaymentsColumns {
   stationId: number;
   businessId: number;
   accountId: number;
+  paymentName: string;
   paymentAmount: string;
 }
 
@@ -109,6 +110,7 @@ export interface AccountTableColumns {
   accountType: string;
   routingNumber: string;
   accountNumber: string;
+  payments?: PaymentsColumns[];
 }
 
 export interface TokenTableColumns {

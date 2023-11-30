@@ -9,6 +9,7 @@ export class Payment extends Model<Payment, PaymentsColumns> {
   @ForeignKey(() => Station)
   @Column({ field: 'stationId', type: DataType.INTEGER, allowNull: false })
   stationId: number;
+
   @ForeignKey(() => Business)
   @Column({ field: 'businessId', type: DataType.INTEGER, allowNull: false })
   businessId: number;
@@ -16,6 +17,9 @@ export class Payment extends Model<Payment, PaymentsColumns> {
   @ForeignKey(() => Account)
   @Column({ field: 'accountId', type: DataType.INTEGER, allowNull: false })
   accountId: number;
+
+  @Column({ type: DataType.STRING, allowNull: false })
+  paymentName: string;
 
   @Column({ type: DataType.STRING, allowNull: false })
   paymentAmount: string;
@@ -27,5 +31,5 @@ export class Payment extends Model<Payment, PaymentsColumns> {
   businesses: Business;
 
   @BelongsTo(() => Account, 'accountId')
-  account: Account;
+  accounts: Account;
 }

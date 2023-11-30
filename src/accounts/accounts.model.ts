@@ -4,7 +4,7 @@ import {
   Column,
   DataType,
   ForeignKey,
-  HasOne,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
@@ -43,8 +43,8 @@ export class Account extends Model<Account, AccountTableColumns> {
   @BelongsTo(() => Business, 'businessId')
   businesses: Business;
 
-  @HasOne(() => Payment)
-  payment: Payment;
+  @HasMany(() => Payment)
+  payments: Payment[];
 }
 
 @Table({ tableName: 'station_accounts' })

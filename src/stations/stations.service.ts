@@ -108,11 +108,14 @@ export class StationsService {
       station.accounts.map(async (account) => {
         const decryptedRoutingNumber = decrypt(account.routingNumber, this.key32, this.key16);
         const decryptedAccountNumber = decrypt(account.accountNumber, this.key32, this.key16);
-
+        const decryptedPayment = account.payments
+          ? JSON.parse(JSON.stringify(account.payments))
+          : null;
         const decryptedAccount = Account.build({
           ...account.get({ plain: true }),
           routingNumber: decryptedRoutingNumber,
           accountNumber: decryptedAccountNumber,
+          payments: decryptedPayment,
         });
         decryptedAccount.isNewRecord = false;
         return decryptedAccount;
