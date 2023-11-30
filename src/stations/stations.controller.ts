@@ -29,6 +29,14 @@ export class StationsController {
     return this.stationsService.getAllStations();
   }
 
+  @Get('businesses/:businessId')
+  @UseGuards(AuthGuard)
+  getStationsByBusinessId(
+    @Param('businessId') businessId: number,
+  ): Promise<IGetAllStationsResponse> {
+    return this.stationsService.getStationsByBusinessId(businessId);
+  }
+
   @Get(':id')
   @UseGuards(AuthGuard)
   getStationById(@Param('id') id: number): Promise<IBasicStationResponse> {
