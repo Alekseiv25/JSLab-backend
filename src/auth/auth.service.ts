@@ -8,6 +8,7 @@ import { UsersParamsService } from 'src/users_params/users_params.service';
 import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
 import { UsersParams } from 'src/users_params/users_params.model';
 import { ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
+import { IBasicResponse } from 'src/types/responses';
 import { Token } from 'src/tokens/tokens.model';
 import * as bcrypt from 'bcrypt';
 import {
@@ -24,7 +25,6 @@ import {
   ILoginResponse,
   ILogoutResponse,
 } from 'src/types/responses/users';
-import { IBasicResponse } from 'src/types/responses';
 
 export interface ITokensCreationResponse {
   accessToken: string;
@@ -71,11 +71,7 @@ export class AuthService {
   async registration(
     userDto: CreateNewUserDto,
   ): Promise<IRegistrationResponseJWT | ICheckUserEmailResponse> {
-    const userWithSuchEmail: User | null = await this.userService.findUserByEmail(userDto.email);
-
-    if (userWithSuchEmail) {
-      throw new HttpException(makeConflictMessage('Email'), HttpStatus.CONFLICT);
-    }
+    await this.checkEmailUniqueness(userDto.email);
 
     const hashPassword: string = await bcrypt.hash(userDto.password, 10);
     const newUser: User = await this.createNewUser(userDto, hashPassword);
@@ -141,18 +137,19 @@ export class AuthService {
   }
 
   async invite(invitedUserData: IUserInvitationRequest): Promise<IBasicResponse> {
-    const userWithSuchEmail: User | null = await this.userService.findUserByEmail(
-      invitedUserData.invitedUserData.emailAddress,
-    );
-
-    if (userWithSuchEmail) {
-      throw new HttpException(makeConflictMessage('Email'), HttpStatus.CONFLICT);
-    }
+    await this.checkEmailUniqueness(invitedUserData.invitedUserData.emailAddress);
 
     return {
       statusCode: HttpStatus.OK,
       message: 'OK',
     };
+  }
+
+  private async checkEmailUniqueness(emailAddress: string): Promise<void> {
+    const userWithSuchEmail: User | null = await this.userService.findUserByEmail(emailAddress);
+    if (userWithSuchEmail) {
+      throw new HttpException(makeConflictMessage('Email'), HttpStatus.CONFLICT);
+    }
   }
 
   private async createNewUser(userDto: CreateNewUserDto, hashPassword: string): Promise<User> {
