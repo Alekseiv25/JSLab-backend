@@ -7,10 +7,11 @@ import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dt
 import { UsersParamsService } from 'src/users_params/users_params.service';
 import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
 import { UsersParams } from 'src/users_params/users_params.model';
-import { ILoginUserData } from 'src/types/requests/users';
+import { ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
 import { Token } from 'src/tokens/tokens.model';
 import * as bcrypt from 'bcrypt';
 import {
+  makeConflictMessage,
   makeDeleteMessage,
   makeNotCorrectDataMessage,
   makeNotFoundMessage,
@@ -23,6 +24,7 @@ import {
   ILoginResponse,
   ILogoutResponse,
 } from 'src/types/responses/users';
+import { IBasicResponse } from 'src/types/responses';
 
 export interface ITokensCreationResponse {
   accessToken: string;
@@ -69,10 +71,10 @@ export class AuthService {
   async registration(
     userDto: CreateNewUserDto,
   ): Promise<IRegistrationResponseJWT | ICheckUserEmailResponse> {
-    const emailUniqueResponse: ICheckUserEmailResponse =
-      await this.userService.checkUniquenessOfEmail(userDto.email);
-    if (emailUniqueResponse.status !== 200) {
-      return emailUniqueResponse;
+    const userWithSuchEmail: User | null = await this.userService.findUserByEmail(userDto.email);
+
+    if (userWithSuchEmail) {
+      throw new HttpException(makeConflictMessage('Email'), HttpStatus.CONFLICT);
     }
 
     const hashPassword: string = await bcrypt.hash(userDto.password, 10);
@@ -136,6 +138,21 @@ export class AuthService {
     };
 
     return response;
+  }
+
+  async invite(invitedUserData: IUserInvitationRequest): Promise<IBasicResponse> {
+    const userWithSuchEmail: User | null = await this.userService.findUserByEmail(
+      invitedUserData.invitedUserData.emailAddress,
+    );
+
+    if (userWithSuchEmail) {
+      throw new HttpException(makeConflictMessage('Email'), HttpStatus.CONFLICT);
+    }
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'OK',
+    };
   }
 
   private async createNewUser(userDto: CreateNewUserDto, hashPassword: string): Promise<User> {

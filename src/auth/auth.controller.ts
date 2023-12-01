@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpStatus, Post, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CookieOptions, Request, Response } from 'express';
-import { ILoginUserData } from 'src/types/requests/users';
+import { ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
 import { CreateNewUserDto } from './dto/create-user.dto';
 import {
   ICheckUserEmailResponse,
@@ -10,6 +10,7 @@ import {
   IRefreshResponseJWT,
   IRegistrationResponseJWT,
 } from 'src/types/responses/users';
+import { IBasicResponse } from 'src/types/responses';
 
 @Controller('auth')
 export class AuthController {
@@ -51,6 +52,12 @@ export class AuthController {
       res.cookie('refreshToken', response.data.refreshToken, this.createRefreshTokenOptions());
     }
 
+    return response;
+  }
+
+  @Post('/invite')
+  async invite(@Body() invitedUserData: IUserInvitationRequest): Promise<IBasicResponse> {
+    const response: IBasicResponse = await this.authService.invite(invitedUserData);
     return response;
   }
 
