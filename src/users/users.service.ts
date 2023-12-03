@@ -220,7 +220,7 @@ export class UsersService {
 
     const paramsInfo: IUserParamsInformationForAdmin = {
       lastActiveTimestamp: userParams.lastActivityDate,
-      permissionLevel: userParams.isAdmin ? 'Admin' : 'Member',
+      permissionLevel: userParams.isBusinessAdmin ? 'Admin' : 'Member',
       status: userParams.status,
       statusChangeDate: userParams.statusChangeDate,
     };

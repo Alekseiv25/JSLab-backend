@@ -13,10 +13,11 @@ export interface UsersParamsTableColumns {
   userId: number;
   status: UserStatusTypes;
   statusChangeDate: string;
-  isAdmin: boolean;
+  isBusinessAdmin: boolean;
   suspensionReason: string;
   isFinishedTutorial: boolean;
   lastActivityDate: string;
+  inviteLink: string;
 }
 
 export interface BusinessTableColumns {

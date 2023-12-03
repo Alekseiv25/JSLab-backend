@@ -9,5 +9,6 @@ import { TokensModule } from 'src/tokens/tokens.module';
   controllers: [BusinessesController],
   providers: [BusinessesService],
   imports: [SequelizeModule.forFeature([Business]), TokensModule],
+  exports: [BusinessesService],
 })
 export class BusinessesModule {}

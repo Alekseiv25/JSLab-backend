@@ -3,16 +3,23 @@ import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dt
 import { ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
 import { UsersParamsService } from 'src/users_params/users_params.service';
 import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
+import { BusinessesService } from 'src/businesses/businesses.service';
 import { UsersParams } from 'src/users_params/users_params.model';
 import { User, UserStationRole } from 'src/users/users.model';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserStationRoleTypes } from 'src/types/tableColumns';
+import { Business } from 'src/businesses/businesses.model';
 import { CreateNewUserDto } from './dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { Station } from 'src/stations/stations.model';
 import { IBasicResponse } from 'src/types/responses';
 import { Token } from 'src/tokens/tokens.model';
+import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcrypt';
+import {
+  IUserInviteGeneratorArguments,
+  generateHTMLForEmailToInviteUser,
+} from 'src/utils/generators/emailGenerators';
 import {
   makeConflictMessage,
   makeDeleteMessage,
@@ -39,6 +46,7 @@ export class AuthService {
   constructor(
     private userService: UsersService,
     private userParamsService: UsersParamsService,
+    private businessService: BusinessesService,
     private tokensService: TokensService,
   ) {}
 
@@ -139,29 +147,39 @@ export class AuthService {
     return response;
   }
 
-  async invite(userData: IUserInvitationRequest): Promise<IBasicResponse> {
-    await this.checkEmailUniqueness(userData.invitedUserData.emailAddress);
+  async invite(requestData: IUserInvitationRequest): Promise<IBasicResponse> {
+    await this.userParamsService.updateUserLastActivityTimestamp(requestData.inviterId);
+    await this.checkEmailUniqueness(requestData.invitedUserData.emailAddress);
 
     const userDataForCreation: CreateNewUserDto = {
-      businessId: userData.inviterBusinessId,
-      firstName: userData.invitedUserData.firstName,
+      businessId: requestData.inviterBusinessId,
+      firstName: requestData.invitedUserData.firstName,
       lastName: null,
-      email: userData.invitedUserData.emailAddress,
+      email: requestData.invitedUserData.emailAddress,
       password: null,
     };
 
     const newUser: User = await this.createNewUser(userDataForCreation);
-    await this.createNewUserParams(newUser.id, true);
+    const inviteLink: string = await bcrypt.hash(newUser.email, 10);
+    await this.createNewUserParams(newUser.id, true, inviteLink);
 
-    if (userData.assignmentToStationAsAdmin.length > 0) {
-      await this.assignUserWithStations(userData.assignmentToStationAsAdmin, newUser.id, 'Admin');
+    if (requestData.assignmentToStationAsAdmin?.length > 0) {
+      await this.assignUserWithStations(
+        requestData.assignmentToStationAsAdmin,
+        newUser.id,
+        'Admin',
+      );
     }
 
-    if (userData.assignmentToStationAsMember.length > 0) {
-      await this.assignUserWithStations(userData.assignmentToStationAsMember, newUser.id, 'Member');
+    if (requestData.assignmentToStationAsMember?.length > 0) {
+      await this.assignUserWithStations(
+        requestData.assignmentToStationAsMember,
+        newUser.id,
+        'Member',
+      );
     }
 
-    // send invite to user email
+    await this.sendInvite(requestData, inviteLink);
 
     const response: IBasicResponse = {
       statusCode: HttpStatus.OK,
@@ -170,11 +188,43 @@ export class AuthService {
     return response;
   }
 
+  private async sendInvite(inviteData: IUserInvitationRequest, inviteLink: string): Promise<void> {
+    const inviterData: User = await this.userService.findUserByID(inviteData.inviterId);
+    const inviterBusiness: Business = await this.businessService.findBusinessByID(
+      inviteData.inviterBusinessId,
+    );
+
+    const informationForInviteEmail: IUserInviteGeneratorArguments = {
+      businessName: inviterBusiness.legalName,
+      invitedUserFirstName: inviteData.invitedUserData.firstName,
+      inviterUserFirstName: inviterData.firstName,
+      inviterUserLastName: inviterData.lastName,
+      inviteLink: `${process.env.INVITE_ROUTE}${inviteLink}`,
+    };
+
+    const transporter = nodemailer.createTransport({
+      service: process.env.SUPPORT_EMAIL_SERVICE_NAME,
+      auth: {
+        user: process.env.SUPPORT_EMAIL,
+        pass: process.env.SUPPORT_EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptionsForInviteEmail = {
+      from: process.env.SUPPORT_EMAIL,
+      to: inviteData.invitedUserData.emailAddress,
+      subject: 'Invitation',
+      html: generateHTMLForEmailToInviteUser(informationForInviteEmail),
+    };
+
+    await transporter.sendMail(mailOptionsForInviteEmail);
+  }
+
   private async assignUserWithStations(
     stationsIDs: number[],
     userID: number,
     role: UserStationRoleTypes,
-  ) {
+  ): Promise<void> {
     for (const stationId of stationsIDs) {
       const station: Station | null = await Station.findByPk(stationId);
       if (station) {
@@ -206,16 +256,21 @@ export class AuthService {
     return newUser;
   }
 
-  private async createNewUserParams(newUserId: number, isInvited: boolean): Promise<UsersParams> {
+  private async createNewUserParams(
+    newUserId: number,
+    isInvited: boolean,
+    inviteLink?: string,
+  ): Promise<UsersParams> {
     const currentTimestamp: string = String(new Date().getTime());
     const newUserParamsData: CreateUserParamsDto = {
       userId: newUserId,
-      isAdmin: isInvited ? false : true,
+      isBusinessAdmin: isInvited ? false : true,
       status: isInvited ? 'Invited' : 'Active',
       statusChangeDate: currentTimestamp,
       lastActivityDate: currentTimestamp,
       isFinishedTutorial: false,
       suspensionReason: null,
+      inviteLink: inviteLink || null,
     };
     const newUserParams: UsersParams =
       await this.userParamsService.createParamsForNewUser(newUserParamsData);
