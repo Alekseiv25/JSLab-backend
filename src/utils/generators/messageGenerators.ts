@@ -56,3 +56,7 @@ export function makeSuccessSendingMessage(): string {
 export function makeSuccessUpdatingMessage(): string {
   return `Successfully updated.`;
 }
+
+export function makeSuccessInvitingMessage(): string {
+  return `Successfully invited.`;
+}

@@ -1,13 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
-import { User } from 'src/users/users.model';
-import { CreateNewUserDto } from './dto/create-user.dto';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
+import { ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
 import { UsersParamsService } from 'src/users_params/users_params.service';
 import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
 import { UsersParams } from 'src/users_params/users_params.model';
-import { ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
+import { User, UserStationRole } from 'src/users/users.model';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UserStationRoleTypes } from 'src/types/tableColumns';
+import { CreateNewUserDto } from './dto/create-user.dto';
+import { UsersService } from 'src/users/users.service';
+import { Station } from 'src/stations/stations.model';
 import { IBasicResponse } from 'src/types/responses';
 import { Token } from 'src/tokens/tokens.model';
 import * as bcrypt from 'bcrypt';
@@ -16,6 +18,7 @@ import {
   makeDeleteMessage,
   makeNotCorrectDataMessage,
   makeNotFoundMessage,
+  makeSuccessInvitingMessage,
   makeUnauthorizedMessage,
 } from 'src/utils/generators/messageGenerators';
 import {
@@ -75,7 +78,7 @@ export class AuthService {
 
     const hashPassword: string = await bcrypt.hash(userDto.password, 10);
     const newUser: User = await this.createNewUser(userDto, hashPassword);
-    await this.createNewUserParams(newUser.id);
+    await this.createNewUserParams(newUser.id, false);
 
     const tokens: ITokensCreationResponse = await this.tokensService.generateToken(newUser);
     await this.tokensService.saveToken(newUser.id, tokens.refreshToken);
@@ -136,13 +139,52 @@ export class AuthService {
     return response;
   }
 
-  async invite(invitedUserData: IUserInvitationRequest): Promise<IBasicResponse> {
-    await this.checkEmailUniqueness(invitedUserData.invitedUserData.emailAddress);
+  async invite(userData: IUserInvitationRequest): Promise<IBasicResponse> {
+    await this.checkEmailUniqueness(userData.invitedUserData.emailAddress);
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'OK',
+    const userDataForCreation: CreateNewUserDto = {
+      businessId: userData.inviterBusinessId,
+      firstName: userData.invitedUserData.firstName,
+      lastName: null,
+      email: userData.invitedUserData.emailAddress,
+      password: null,
     };
+
+    const newUser: User = await this.createNewUser(userDataForCreation);
+    await this.createNewUserParams(newUser.id, true);
+
+    if (userData.assignmentToStationAsAdmin.length > 0) {
+      await this.assignUserWithStations(userData.assignmentToStationAsAdmin, newUser.id, 'Admin');
+    }
+
+    if (userData.assignmentToStationAsMember.length > 0) {
+      await this.assignUserWithStations(userData.assignmentToStationAsMember, newUser.id, 'Member');
+    }
+
+    // send invite to user email
+
+    const response: IBasicResponse = {
+      statusCode: HttpStatus.OK,
+      message: makeSuccessInvitingMessage(),
+    };
+    return response;
+  }
+
+  private async assignUserWithStations(
+    stationsIDs: number[],
+    userID: number,
+    role: UserStationRoleTypes,
+  ) {
+    for (const stationId of stationsIDs) {
+      const station: Station | null = await Station.findByPk(stationId);
+      if (station) {
+        await UserStationRole.create({
+          userId: userID,
+          stationId: station.id,
+          role: role,
+        });
+      }
+    }
   }
 
   private async checkEmailUniqueness(emailAddress: string): Promise<void> {
@@ -152,24 +194,24 @@ export class AuthService {
     }
   }
 
-  private async createNewUser(userDto: CreateNewUserDto, hashPassword: string): Promise<User> {
+  private async createNewUser(userDto: CreateNewUserDto, hashPassword?: string): Promise<User> {
     const newUserData: CreateUserDto = {
       businessId: userDto.businessId,
       firstName: userDto.firstName,
       lastName: userDto.lastName,
       email: userDto.email,
-      password: hashPassword,
+      password: hashPassword ? hashPassword : null,
     };
     const newUser: User = await this.userService.createUser(newUserData);
     return newUser;
   }
 
-  private async createNewUserParams(newUserId: number): Promise<UsersParams> {
+  private async createNewUserParams(newUserId: number, isInvited: boolean): Promise<UsersParams> {
     const currentTimestamp: string = String(new Date().getTime());
     const newUserParamsData: CreateUserParamsDto = {
       userId: newUserId,
-      isAdmin: true,
-      status: 'Active',
+      isAdmin: isInvited ? false : true,
+      status: isInvited ? 'Invited' : 'Active',
       statusChangeDate: currentTimestamp,
       lastActivityDate: currentTimestamp,
       isFinishedTutorial: false,

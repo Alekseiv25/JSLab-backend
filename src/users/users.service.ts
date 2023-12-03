@@ -39,7 +39,18 @@ export class UsersService {
 
   async getAllUsers(): Promise<IGetAllUsersResponse> {
     const users: User[] | [] = await this.userRepository.findAll({
-      include: [{ model: UsersParams }, { model: Business, include: [Station] }],
+      include: [
+        {
+          model: UsersParams,
+          as: 'parameters',
+        },
+        {
+          model: Station,
+          through: {
+            attributes: ['role'],
+          },
+        },
+      ],
     });
 
     if (users.length === 0) {

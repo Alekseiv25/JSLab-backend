@@ -14,7 +14,7 @@ import {
 import { Operation } from 'src/operations/operations.model';
 import { FuelPrice } from 'src/fuel_prices/fuel_prices.model';
 import { Transaction } from 'src/transactions/transactions.model';
-import { User, UsersStations } from 'src/users/users.model';
+import { User, UserStationRole } from 'src/users/users.model';
 
 @Table({ tableName: 'stations' })
 export class Station extends Model<Station, StationTableColumns> {
@@ -106,7 +106,7 @@ export class Station extends Model<Station, StationTableColumns> {
   @BelongsTo(() => Business)
   owner: Business;
 
-  @BelongsToMany(() => User, () => UsersStations)
+  @BelongsToMany(() => User, () => UserStationRole)
   users: User[];
 
   @BelongsToMany(() => Account, () => StationAccount)
