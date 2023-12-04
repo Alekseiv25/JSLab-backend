@@ -1,5 +1,5 @@
 import { Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
-import { UsersParamsTableColumns } from 'src/types/tableColumns';
+import { UserStatusTypes, UsersParamsTableColumns } from 'src/types/tableColumns';
 import { User } from 'src/users/users.model';
 
 @Table({ tableName: 'users_params', timestamps: false })
@@ -9,13 +9,13 @@ export class UsersParams extends Model<UsersParams, UsersParamsTableColumns> {
   userId: number;
 
   @Column({ type: DataType.STRING, allowNull: false })
-  status: 'Invited' | 'Active' | 'Suspended';
+  status: UserStatusTypes;
 
   @Column({ type: DataType.STRING, allowNull: false })
   statusChangeDate: string;
 
   @Column({ type: DataType.BOOLEAN, allowNull: false })
-  isAdmin: boolean;
+  isBusinessAdmin: boolean;
 
   @Column({ type: DataType.STRING, allowNull: true, defaultValue: null })
   suspensionReason: string | null;
@@ -25,4 +25,7 @@ export class UsersParams extends Model<UsersParams, UsersParamsTableColumns> {
 
   @Column({ type: DataType.STRING, allowNull: false })
   lastActivityDate: string;
+
+  @Column({ type: DataType.STRING, allowNull: true, defaultValue: null })
+  inviteLink: string;
 }

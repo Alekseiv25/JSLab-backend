@@ -105,4 +105,16 @@ export class BusinessesService {
     };
     return response;
   }
+
+  async findBusinessByID(businessID: number): Promise<Business> {
+    const business: Business | null = await this.businessRepository.findOne({
+      where: { id: businessID },
+    });
+
+    if (!business) {
+      throw new HttpException(makeNotFoundMessage('Business'), HttpStatus.NOT_FOUND);
+    }
+
+    return business;
+  }
 }

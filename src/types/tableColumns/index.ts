@@ -1,25 +1,23 @@
 export type UserStatusTypes = 'Invited' | 'Active' | 'Suspended';
+export type UserStationRoleTypes = 'Admin' | 'Member';
 
 export interface UserTableColumns {
-  businessId?: number;
+  businessId: number;
   firstName: string;
-  lastName: string;
+  lastName: string | null;
   email: string;
-  password: string;
-  status: UserStatusTypes;
-  isAdmin?: boolean;
-  suspensionReason?: string;
-  isFinishedTutorial: boolean;
+  password: string | null;
 }
 
 export interface UsersParamsTableColumns {
   userId: number;
-  status: 'Invited' | 'Active' | 'Suspended';
+  status: UserStatusTypes;
   statusChangeDate: string;
-  isAdmin: boolean;
+  isBusinessAdmin: boolean;
   suspensionReason: string;
   isFinishedTutorial: boolean;
   lastActivityDate: string;
+  inviteLink: string;
 }
 
 export interface BusinessTableColumns {

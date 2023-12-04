@@ -17,7 +17,7 @@ import {
 @Table({ tableName: 'users', timestamps: false })
 export class User extends Model<User, UserTableColumns> {
   @ForeignKey(() => Business)
-  @Column({ type: DataType.INTEGER })
+  @Column({ type: DataType.INTEGER, allowNull: false })
   businessId: number;
 
   @Column({ type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true })
@@ -26,27 +26,27 @@ export class User extends Model<User, UserTableColumns> {
   @Column({ type: DataType.STRING, allowNull: false })
   firstName: string;
 
-  @Column({ type: DataType.STRING, allowNull: false })
-  lastName: string;
+  @Column({ type: DataType.STRING, allowNull: true, defaultValue: null })
+  lastName: string | null;
 
   @Column({ type: DataType.STRING, unique: true, allowNull: false })
   email: string;
 
-  @Column({ type: DataType.STRING, allowNull: false })
-  password: string;
+  @Column({ type: DataType.STRING, allowNull: true, defaultValue: null })
+  password: string | null;
 
   @BelongsTo(() => Business)
   business: Business;
 
-  @BelongsToMany(() => Station, () => UsersStations)
+  @BelongsToMany(() => Station, () => UserStationRole)
   stations: Station[];
 
   @HasOne(() => UsersParams)
   parameters: UsersParams;
 }
 
-@Table({ tableName: 'users_stations', timestamps: false } as TableOptions)
-export class UsersStations extends Model<UsersStations> {
+@Table({ tableName: 'user_station_role', timestamps: false } as TableOptions)
+export class UserStationRole extends Model<UserStationRole> {
   @ForeignKey(() => User)
   @Column
   userId: number;
@@ -54,6 +54,9 @@ export class UsersStations extends Model<UsersStations> {
   @ForeignKey(() => Station)
   @Column
   stationId: number;
+
+  @Column({ type: DataType.STRING, allowNull: false })
+  role: string;
 
   @BelongsTo(() => User)
   user: User;
