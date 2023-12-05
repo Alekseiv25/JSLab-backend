@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
@@ -21,6 +21,14 @@ import { Transaction } from './transactions/transactions.model';
 import { TransactionsModule } from './transactions/transactions.module';
 import { UsersParamsModule } from './users_params/users_params.module';
 import { UsersParams } from './users_params/users_params.model';
+import { UserIdMiddleware } from './middleware/userId.middleware';
+import { AccountsController } from './accounts/accounts.controller';
+import { BusinessesController } from './businesses/businesses.controller';
+import { FuelPricesController } from './fuel_prices/fuel_prices.controller';
+import { OperationsController } from './operations/operations.controller';
+import { StationsController } from './stations/stations.controller';
+import { SupportController } from './support/support.controller';
+import { TransactionsController } from './transactions/transactions.controller';
 
 @Module({
   controllers: [],
@@ -64,4 +72,22 @@ import { UsersParams } from './users_params/users_params.model';
     UsersParamsModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(UserIdMiddleware)
+      .exclude({ path: 'businesses', method: RequestMethod.POST })
+      .forRoutes(
+        AccountsController,
+        BusinessesController,
+        FuelPricesController,
+        OperationsController,
+        StationsController,
+        SupportController,
+        TransactionsController,
+        { path: 'users/:id', method: RequestMethod.PUT },
+        { path: 'users/admin/users-information', method: RequestMethod.GET },
+        { path: 'users/:id', method: RequestMethod.DELETE },
+      );
+  }
+}
