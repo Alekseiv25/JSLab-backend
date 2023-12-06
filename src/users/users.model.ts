@@ -56,7 +56,7 @@ export class UserStationRole extends Model<UserStationRole> {
   stationId: number;
 
   @Column({ type: DataType.STRING, allowNull: false })
-  role: string;
+  role: 'Admin' | 'Member';
 
   @BelongsTo(() => User)
   user: User;
