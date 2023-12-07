@@ -16,6 +16,7 @@ import { IBasicResponse } from 'src/types/responses';
 import { Token } from 'src/tokens/tokens.model';
 import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
 import {
   IUserInviteGeneratorArguments,
   generateHTMLForEmailToInviteUser,
@@ -160,7 +161,7 @@ export class AuthService {
     };
 
     const newUser: User = await this.createNewUser(userDataForCreation);
-    const inviteLink: string = await bcrypt.hash(newUser.email, 10);
+    const inviteLink: string = uuidv4();
     await this.createNewUserParams(newUser.id, true, inviteLink);
 
     if (requestData.assignmentToStationAsAdmin?.length > 0) {
