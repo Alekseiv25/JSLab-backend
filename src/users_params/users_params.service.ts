@@ -29,7 +29,7 @@ export class UsersParamsService {
 
   async updateUserParams(
     userId: number,
-    newUserParams: CreateUserParamsDto,
+    newUserParams: Partial<CreateUserParamsDto>,
   ): Promise<IUserParamsUpdateResponse> {
     const userParams: UsersParams = await this.findUserParamsByID(userId);
     const updatedUserParams: UsersParams = await userParams.update({ ...newUserParams });

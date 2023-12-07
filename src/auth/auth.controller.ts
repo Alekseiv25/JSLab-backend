@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpStatus, Post, Query, Req, Res } from '@nestj
 import { AuthService } from './auth.service';
 import { CookieOptions, Request, Response } from 'express';
 import { ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
-import { CreateNewUserDto } from './dto/create-user.dto';
+import { ActivateUserDto, CreateNewUserDto } from './dto/create-user.dto';
 import {
   IBasicUserResponse,
   ICheckUserEmailResponse,
@@ -59,6 +59,21 @@ export class AuthController {
   ): Promise<IRegistrationResponseJWT | ICheckUserEmailResponse> {
     const response: IRegistrationResponseJWT | ICheckUserEmailResponse =
       await this.authService.registration(userDto);
+
+    if ('data' in response && 'refreshToken' in response.data) {
+      res.cookie('refreshToken', response.data.refreshToken, this.createRefreshTokenOptions());
+    }
+
+    return response;
+  }
+
+  @Post('/invited')
+  async activateInvitedUserAccount(
+    @Body() userDto: ActivateUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const response: IRegistrationResponseJWT =
+      await this.authService.activateInvitedUserAccount(userDto);
 
     if ('data' in response && 'refreshToken' in response.data) {
       res.cookie('refreshToken', response.data.refreshToken, this.createRefreshTokenOptions());

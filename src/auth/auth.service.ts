@@ -9,7 +9,7 @@ import { User, UserStationRole } from 'src/users/users.model';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserStationRoleTypes } from 'src/types/tableColumns';
 import { Business } from 'src/businesses/businesses.model';
-import { CreateNewUserDto } from './dto/create-user.dto';
+import { ActivateUserDto, CreateNewUserDto } from './dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { Station } from 'src/stations/stations.model';
 import { IBasicResponse } from 'src/types/responses';
@@ -35,6 +35,8 @@ import {
   IRegistrationResponseJWT,
   ILoginResponse,
   ILogoutResponse,
+  IBasicUserResponse,
+  IUserParamsUpdateResponse,
 } from 'src/types/responses/users';
 
 export interface ITokensCreationResponse {
@@ -95,6 +97,21 @@ export class AuthService {
     const response: IRegistrationResponseJWT = {
       status: HttpStatus.CREATED,
       data: { ...tokens, createdUser: newUser },
+    };
+    return response;
+  }
+
+  async activateInvitedUserAccount(userDto: ActivateUserDto): Promise<IRegistrationResponseJWT> {
+    const hashPassword: string = await bcrypt.hash(userDto.userData.password, 10);
+    const activatedUser: User = await this.updateInvitedUser(userDto, hashPassword);
+    await this.updateInvitedUserParams(activatedUser.id);
+
+    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(activatedUser);
+    await this.tokensService.saveToken(activatedUser.id, tokens.refreshToken);
+
+    const response: IRegistrationResponseJWT = {
+      status: HttpStatus.CREATED,
+      data: { ...tokens, createdUser: activatedUser },
     };
     return response;
   }
@@ -245,6 +262,22 @@ export class AuthService {
     }
   }
 
+  private async updateInvitedUser(
+    invitedUserDto: ActivateUserDto,
+    hashPassword: string,
+  ): Promise<User> {
+    const userDataForUpdate: Partial<CreateUserDto> = {
+      lastName: invitedUserDto.userData.lastName,
+      password: hashPassword,
+    };
+
+    const invitedUser: IBasicUserResponse = await this.userService.updateUserByID(
+      invitedUserDto.userID,
+      userDataForUpdate,
+    );
+    return invitedUser.data;
+  }
+
   private async createNewUser(userDto: CreateNewUserDto, hashPassword?: string): Promise<User> {
     const newUserData: CreateUserDto = {
       businessId: userDto.businessId,
@@ -276,5 +309,20 @@ export class AuthService {
     const newUserParams: UsersParams =
       await this.userParamsService.createParamsForNewUser(newUserParamsData);
     return newUserParams;
+  }
+
+  private async updateInvitedUserParams(invitedUserId: number) {
+    const currentTimestamp: string = String(new Date().getTime());
+
+    const dataForUpdatingUserParams: Partial<CreateUserParamsDto> = {
+      isFinishedTutorial: true,
+      lastActivityDate: currentTimestamp,
+      status: 'Active',
+      statusChangeDate: currentTimestamp,
+    };
+
+    const updatedUserParams: IUserParamsUpdateResponse =
+      await this.userParamsService.updateUserParams(invitedUserId, dataForUpdatingUserParams);
+    return updatedUserParams.updatedUserParams;
   }
 }

@@ -112,7 +112,10 @@ export class UsersService {
     return newUser;
   }
 
-  async updateUserByID(id: number, updatedUserDto: CreateUserDto): Promise<IBasicUserResponse> {
+  async updateUserByID(
+    id: number,
+    updatedUserDto: Partial<CreateUserDto>,
+  ): Promise<IBasicUserResponse> {
     const user: User | null = await this.userRepository.findByPk(id);
 
     if (!user) {
