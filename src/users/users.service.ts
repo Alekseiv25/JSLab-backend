@@ -204,6 +204,21 @@ export class UsersService {
     return user;
   }
 
+  async findUserByInviteLink(inviteLink: string): Promise<IBasicUserResponse> {
+    const userParams: UsersParams =
+      await this.userParamsService.getUserParamsByInviteLink(inviteLink);
+    const user: User | null = await this.findUserByID(userParams.userId);
+
+    if (!user) {
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: user,
+    };
+  }
+
   private async hashUserPassword(password: string): Promise<string> {
     const hashPassword: string = await bcrypt.hash(password, 10);
     return hashPassword;

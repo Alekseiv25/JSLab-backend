@@ -17,6 +17,11 @@ export class UsersParamsService {
     return userParams;
   }
 
+  async getUserParamsByInviteLink(inviteLink: string): Promise<UsersParams> {
+    const userParams: UsersParams = await this.findUserParamsByInviteLink(inviteLink);
+    return userParams;
+  }
+
   async createParamsForNewUser(params: CreateUserParamsDto): Promise<UsersParams> {
     const newUser: UsersParams = await this.usersParamsModel.create(params);
     return newUser;
@@ -45,6 +50,18 @@ export class UsersParamsService {
 
   private async findUserParamsByID(userId: number): Promise<UsersParams> {
     const userParams: UsersParams = await this.usersParamsModel.findByPk(userId);
+
+    if (!userParams) {
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
+    }
+
+    return userParams;
+  }
+
+  private async findUserParamsByInviteLink(inviteLink: string): Promise<UsersParams> {
+    const userParams: UsersParams | null = await this.usersParamsModel.findOne({
+      where: { inviteLink: inviteLink },
+    });
 
     if (!userParams) {
       throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
