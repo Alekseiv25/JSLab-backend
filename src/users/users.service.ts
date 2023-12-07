@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { User } from './users.model';
+import { User, UserStationRole } from './users.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Business } from 'src/businesses/businesses.model';
 import { Station } from 'src/stations/stations.model';
@@ -64,21 +64,22 @@ export class UsersService {
   async getUsersInformationForAdmin(
     requesterId: number,
   ): Promise<IUserInformationForAdminResponse> {
-    const users = await this.userRepository.findAll({ include: Station });
+    const requester: User = await this.findUserByID(requesterId);
+    const usersRelatedToRequesterBusiness: User[] = await this.userRepository.findAll({
+      where: { businessId: requester.businessId },
+    });
 
-    if (!users) {
+    if (!usersRelatedToRequesterBusiness) {
       throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
     }
 
-    const transformedUsers: IUserInformationForAdmin[] = [];
+    const transformedUsersPromises: Promise<IUserInformationForAdmin>[] =
+      usersRelatedToRequesterBusiness
+        .filter((user) => user.id !== requesterId)
+        .map((user) => this.transformUsersDataForAdmin(user));
 
-    for (const user of users) {
-      if (user.id !== requesterId) {
-        const transformedUser: IUserInformationForAdmin =
-          await this.transformUsersDataForAdmin(user);
-        transformedUsers.push(transformedUser);
-      }
-    }
+    const transformedUsers: IUserInformationForAdmin[] =
+      await Promise.all(transformedUsersPromises);
 
     const response: IUserInformationForAdminResponse = {
       status: HttpStatus.OK,
@@ -210,39 +211,35 @@ export class UsersService {
 
   private async transformUsersDataForAdmin(user: User): Promise<IUserInformationForAdmin> {
     const userParams: UsersParams = await this.userParamsService.getUserParams(user.id);
+    const userStations: UserStationRole[] = await UserStationRole.findAll({
+      where: { userId: user.id },
+      include: [{ model: Station }],
+    });
 
-    const generalInfo: IUserGeneralInformationForAdmin = {
+    const generalInformationAboutUser: IUserGeneralInformationForAdmin = {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName || null,
       email: user.email,
     };
 
-    const paramsInfo: IUserParamsInformationForAdmin = {
+    const paramsInformationAboutUser: IUserParamsInformationForAdmin = {
       lastActiveTimestamp: userParams.lastActivityDate,
-      permissionLevel: userParams.isBusinessAdmin ? 'Admin' : 'Member',
       status: userParams.status,
       statusChangeDate: userParams.statusChangeDate,
     };
 
-    const assignedInfo: IUserAssignedInformationForAdmin[] = [];
-
-    if (user.stations.length > 0) {
-      for (const station of user.stations) {
-        const assignedStation: IUserAssignedInformationForAdmin = {
-          stationId: station.id,
-          stationName: station.name,
-          stationMerchantId: station.merchantId,
-          stationStoreId: station.storeId,
-        };
-
-        assignedInfo.push(assignedStation);
-      }
-    }
+    const assignedInfo: IUserAssignedInformationForAdmin[] = userStations.map((userStation) => ({
+      stationId: userStation.station.id,
+      stationName: userStation.station.name,
+      stationMerchantId: userStation.station.merchantId,
+      stationStoreId: userStation.station.storeId,
+      userRole: userStation.role,
+    }));
 
     return {
-      general: generalInfo,
-      params: paramsInfo,
+      general: generalInformationAboutUser,
+      params: paramsInformationAboutUser,
       assigned: assignedInfo,
     };
   }

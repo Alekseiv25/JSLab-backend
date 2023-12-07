@@ -91,7 +91,6 @@ export interface IUserGeneralInformationForAdmin {
 
 export interface IUserParamsInformationForAdmin {
   lastActiveTimestamp: string;
-  permissionLevel: 'Admin' | 'Member';
   status: UserStatusTypes;
   statusChangeDate: string;
 }
@@ -101,6 +100,7 @@ export interface IUserAssignedInformationForAdmin {
   stationName: string;
   stationMerchantId: string;
   stationStoreId: string;
+  userRole: 'Admin' | 'Member';
 }
 
 export interface IUserInformationForAdmin {

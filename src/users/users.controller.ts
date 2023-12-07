@@ -34,6 +34,7 @@ export class UsersController {
   }
 
   @Get('admin/users-information')
+  @UseGuards(AuthGuard)
   getUsersInformationForAdmin(
     @Query('requesterId') requesterId: string,
   ): Promise<IUserInformationForAdminResponse> {

@@ -14,7 +14,6 @@ export class UsersParamsService {
 
   async getUserParams(userId: number): Promise<UsersParams> {
     const userParams: UsersParams = await this.findUserParamsByID(userId);
-    await this.updateUserLastActivityTimestamp(userId);
     return userParams;
   }
 
