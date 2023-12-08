@@ -1,9 +1,10 @@
-import { Body, Controller, Get, HttpStatus, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Query, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CookieOptions, Request, Response } from 'express';
 import { ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
-import { CreateNewUserDto } from './dto/create-user.dto';
+import { ActivateUserDto, CreateNewUserDto } from './dto/create-user.dto';
 import {
+  IBasicUserResponse,
   ICheckUserEmailResponse,
   ILoginResponse,
   ILogoutResponse,
@@ -11,10 +12,14 @@ import {
   IRegistrationResponseJWT,
 } from 'src/types/responses/users';
 import { IBasicResponse } from 'src/types/responses';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private userService: UsersService,
+  ) {}
 
   private createRefreshTokenOptions(): CookieOptions {
     const options: CookieOptions = {
@@ -23,6 +28,13 @@ export class AuthController {
     };
 
     return options;
+  }
+
+  @Get('/invited')
+  async invitedUserInformtion(
+    @Query('inviteLink') inviteLink: string,
+  ): Promise<IBasicUserResponse> {
+    return await this.userService.findUserByInviteLink(inviteLink);
   }
 
   @Get('/refresh')
@@ -47,6 +59,21 @@ export class AuthController {
   ): Promise<IRegistrationResponseJWT | ICheckUserEmailResponse> {
     const response: IRegistrationResponseJWT | ICheckUserEmailResponse =
       await this.authService.registration(userDto);
+
+    if ('data' in response && 'refreshToken' in response.data) {
+      res.cookie('refreshToken', response.data.refreshToken, this.createRefreshTokenOptions());
+    }
+
+    return response;
+  }
+
+  @Post('/invited')
+  async activateInvitedUserAccount(
+    @Body() userDto: ActivateUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const response: IRegistrationResponseJWT =
+      await this.authService.activateInvitedUserAccount(userDto);
 
     if ('data' in response && 'refreshToken' in response.data) {
       res.cookie('refreshToken', response.data.refreshToken, this.createRefreshTokenOptions());

@@ -112,7 +112,10 @@ export class UsersService {
     return newUser;
   }
 
-  async updateUserByID(id: number, updatedUserDto: CreateUserDto): Promise<IBasicUserResponse> {
+  async updateUserByID(
+    id: number,
+    updatedUserDto: Partial<CreateUserDto>,
+  ): Promise<IBasicUserResponse> {
     const user: User | null = await this.userRepository.findByPk(id);
 
     if (!user) {
@@ -202,6 +205,21 @@ export class UsersService {
   async findUserByID(userID: number): Promise<User | null> {
     const user: User | null = await this.userRepository.findByPk(userID);
     return user;
+  }
+
+  async findUserByInviteLink(inviteLink: string): Promise<IBasicUserResponse> {
+    const userParams: UsersParams =
+      await this.userParamsService.getUserParamsByInviteLink(inviteLink);
+    const user: User | null = await this.findUserByID(userParams.userId);
+
+    if (!user) {
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: user,
+    };
   }
 
   private async hashUserPassword(password: string): Promise<string> {
