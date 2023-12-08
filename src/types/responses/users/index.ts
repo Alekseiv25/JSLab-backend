@@ -118,3 +118,8 @@ export interface IUserParamsUpdateResponse {
   status: number;
   updatedUserParams: UsersParams;
 }
+
+export interface IInvitedUserDataResponse {
+  status: number;
+  invitedUserData: Pick<User, 'id' | 'firstName' | 'email'>;
+}

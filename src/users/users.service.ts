@@ -9,6 +9,7 @@ import { UsersParams } from 'src/users_params/users_params.model';
 import { UsersParamsService } from 'src/users_params/users_params.service';
 import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
 import {
+  makeAlreadyActivatedMessage,
   makeAvailableMessage,
   makeConflictMessage,
   makeDeleteMessage,
@@ -21,6 +22,7 @@ import {
   ICheckUserEmailResponse,
   IDeleteUserResponse,
   IGetAllUsersResponse,
+  IInvitedUserDataResponse,
   IUserAssignedInformationForAdmin,
   IUserGeneralInformationForAdmin,
   IUserInformationForAdmin,
@@ -197,6 +199,29 @@ export class UsersService {
     return response;
   }
 
+  async getUserInformationByInviteLink(inviteLink: string): Promise<IInvitedUserDataResponse> {
+    const userParams: UsersParams =
+      await this.userParamsService.getUserParamsByInviteLink(inviteLink);
+
+    if (userParams.status !== 'Invited') {
+      throw new HttpException(makeAlreadyActivatedMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    const user: User = await this.findUserByID(userParams.userId);
+    const invitedUserInformation: Pick<User, 'id' | 'firstName' | 'email'> = {
+      id: user.id,
+      firstName: user.firstName,
+      email: user.email,
+    };
+
+    const response: IInvitedUserDataResponse = {
+      status: HttpStatus.OK,
+      invitedUserData: invitedUserInformation,
+    };
+
+    return response;
+  }
+
   async findUserByEmail(email: string): Promise<User | null> {
     const user: User | null = await this.userRepository.findOne({ where: { email } });
     return user;
@@ -204,22 +229,12 @@ export class UsersService {
 
   async findUserByID(userID: number): Promise<User | null> {
     const user: User | null = await this.userRepository.findByPk(userID);
-    return user;
-  }
-
-  async findUserByInviteLink(inviteLink: string): Promise<IBasicUserResponse> {
-    const userParams: UsersParams =
-      await this.userParamsService.getUserParamsByInviteLink(inviteLink);
-    const user: User | null = await this.findUserByID(userParams.userId);
 
     if (!user) {
       throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
     }
 
-    return {
-      status: HttpStatus.OK,
-      data: user,
-    };
+    return user;
   }
 
   private async hashUserPassword(password: string): Promise<string> {
