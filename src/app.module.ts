@@ -21,10 +21,11 @@ import { Transaction } from './transactions/transactions.model';
 import { TransactionsModule } from './transactions/transactions.module';
 import { UsersParamsModule } from './users_params/users_params.module';
 import { UsersParams } from './users_params/users_params.model';
+import { SocketService } from './socket/socket.service';
 
 @Module({
   controllers: [],
-  providers: [],
+  providers: [SocketService],
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
