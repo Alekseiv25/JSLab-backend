@@ -1,13 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
+import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
+import { UsersParamsService } from 'src/users_params/users_params.service';
+import { UsersParams } from 'src/users_params/users_params.model';
 import { User, UserStationRole } from './users.model';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Business } from 'src/businesses/businesses.model';
 import { Station } from 'src/stations/stations.model';
+import { IBasicResponse } from 'src/types/responses';
+import { InjectModel } from '@nestjs/sequelize';
 import * as bcrypt from 'bcrypt';
-import { UsersParams } from 'src/users_params/users_params.model';
-import { UsersParamsService } from 'src/users_params/users_params.service';
-import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
 import {
   makeAlreadyActivatedMessage,
   makeAvailableMessage,
@@ -19,7 +19,6 @@ import {
 } from 'src/utils/generators/messageGenerators';
 import {
   IBasicUserResponse,
-  ICheckUserEmailResponse,
   IDeleteUserResponse,
   IGetAllUsersResponse,
   IInvitedUserDataResponse,
@@ -29,7 +28,6 @@ import {
   IUserInformationForAdminResponse,
   IUserParamsInformationForAdmin,
   IUserParamsUpdateResponse,
-  IValidateUserPasswordResponse,
 } from 'src/types/responses/users';
 
 @Injectable()
@@ -63,50 +61,26 @@ export class UsersService {
     return response;
   }
 
-  async getUsersInformationForAdmin(
-    requesterId: number,
-  ): Promise<IUserInformationForAdminResponse> {
+  async getUserByID(id: number): Promise<IBasicUserResponse> {
+    const userData: User = await this.findUserByID(id);
+    const response: IBasicUserResponse = { status: HttpStatus.OK, data: userData };
+    return response;
+  }
+
+  async getUsersInfoForAdminTable(requesterId: number): Promise<IUserInformationForAdminResponse> {
     const requester: User = await this.findUserByID(requesterId);
-    const usersRelatedToRequesterBusiness: User[] = await this.userRepository.findAll({
-      where: { businessId: requester.businessId },
-    });
+    const usersRelatedToRequesterBusiness: User[] = await this.findAllUsersRelatedToBusiness(
+      requester.id,
+    );
 
-    if (!usersRelatedToRequesterBusiness) {
-      throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
-    }
-
-    const transformedUsersPromises: Promise<IUserInformationForAdmin>[] =
+    const transformedUsersInfoPromises: Promise<IUserInformationForAdmin>[] =
       usersRelatedToRequesterBusiness
         .filter((user) => user.id !== requesterId)
         .map((user) => this.transformUsersDataForAdmin(user));
+    const usersInfo: IUserInformationForAdmin[] = await Promise.all(transformedUsersInfoPromises);
 
-    const transformedUsers: IUserInformationForAdmin[] =
-      await Promise.all(transformedUsersPromises);
-
-    const response: IUserInformationForAdminResponse = {
-      status: HttpStatus.OK,
-      data: transformedUsers,
-    };
-
+    const response: IUserInformationForAdminResponse = { status: HttpStatus.OK, data: usersInfo };
     return response;
-  }
-
-  async getUserByID(id: number): Promise<IBasicUserResponse> {
-    const user: User | null = await this.userRepository.findByPk(id, {
-      include: [{ model: Business, include: [Station] }],
-    });
-
-    if (!user) {
-      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
-    }
-
-    const response: IBasicUserResponse = { status: HttpStatus.OK, data: user };
-    return response;
-  }
-
-  async getUserInformation(id: number): Promise<User | null> {
-    const user: User | null = await this.userRepository.findByPk(id);
-    return user;
   }
 
   async createUser(dto: CreateUserDto) {
@@ -116,21 +90,16 @@ export class UsersService {
 
   async updateUserByID(
     id: number,
-    updatedUserDto: Partial<CreateUserDto>,
+    updatedData: Partial<CreateUserDto>,
   ): Promise<IBasicUserResponse> {
-    const user: User | null = await this.userRepository.findByPk(id);
-
-    if (!user) {
-      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
-    }
+    const user: User = await this.findUserByID(id);
 
     let updatedUser: User | null = null;
-
-    if (updatedUserDto.hasOwnProperty('password')) {
-      const hashPassword: string = await this.hashUserPassword(updatedUserDto.password);
-      updatedUser = await user.update({ ...updatedUserDto, password: hashPassword });
+    if (updatedData.hasOwnProperty('password')) {
+      const hashPassword: string = await bcrypt.hash(updatedData.password, 10);
+      updatedUser = await user.update({ ...updatedData, password: hashPassword });
     } else {
-      updatedUser = await user.update({ ...updatedUserDto });
+      updatedUser = await user.update({ ...updatedData });
     }
 
     const response: IBasicUserResponse = { status: HttpStatus.OK, data: updatedUser };
@@ -139,21 +108,20 @@ export class UsersService {
 
   async updateUserParams(
     id: number,
-    updatedUserParams: CreateUserParamsDto,
+    newParams: CreateUserParamsDto,
   ): Promise<IUserParamsUpdateResponse> {
-    const changeStatusResponse: IUserParamsUpdateResponse =
-      await this.userParamsService.updateUserParams(id, updatedUserParams);
-    return changeStatusResponse;
+    const updatedParams: UsersParams = await this.userParamsService.updateUserParams(id, newParams);
+    const response: IUserParamsUpdateResponse = {
+      status: HttpStatus.OK,
+      updatedUserParams: updatedParams,
+    };
+    return response;
   }
 
   async deleteUserByID(id: number): Promise<IDeleteUserResponse> {
-    const user: User | null = await this.userRepository.findByPk(id);
-
-    if (!user) {
-      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
-    }
-
+    const user: User = await this.findUserByID(id);
     await user.destroy();
+
     const response: IDeleteUserResponse = {
       status: HttpStatus.OK,
       message: makeDeleteMessage('User'),
@@ -162,39 +130,16 @@ export class UsersService {
     return response;
   }
 
-  async checkUniquenessOfEmail(email: string): Promise<ICheckUserEmailResponse> {
-    const userWithThisEmail: User | null = await this.findUserByEmail(email);
+  async checkUniquenessOfEmail(email: string): Promise<IBasicResponse> {
+    const isEmailUnique: boolean = await this.checkIsEmailUnique(email);
 
-    if (userWithThisEmail) {
+    if (!isEmailUnique) {
       throw new HttpException(makeConflictMessage('Email'), HttpStatus.CONFLICT);
     }
 
-    const response: ICheckUserEmailResponse = {
+    const response: IBasicResponse = {
       status: HttpStatus.OK,
       message: makeAvailableMessage('Email'),
-    };
-    return response;
-  }
-
-  async validatePassword(
-    userID: number,
-    userPassword: string,
-  ): Promise<IValidateUserPasswordResponse> {
-    const user: User | null = await this.findUserByID(userID);
-
-    if (!user) {
-      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
-    }
-
-    const isPasswordsEquals: boolean = await bcrypt.compare(userPassword, user.password);
-
-    if (!isPasswordsEquals) {
-      throw new HttpException(makeNotValidPasswordMessage(), HttpStatus.BAD_REQUEST);
-    }
-
-    const response: IValidateUserPasswordResponse = {
-      status: HttpStatus.OK,
-      message: makeValidPasswordMessage(),
     };
     return response;
   }
@@ -222,12 +167,34 @@ export class UsersService {
     return response;
   }
 
+  async checkIsEmailUnique(emailToCheck: string): Promise<boolean> {
+    const user: User | null = await this.findUserByEmail(emailToCheck);
+
+    if (user) {
+      return false;
+    }
+
+    return true;
+  }
+
+  async validatePassword(id: number, password: string): Promise<IBasicResponse> {
+    const user: User = await this.findUserByID(id);
+
+    const isPasswordsEquals: boolean = await bcrypt.compare(password, user.password);
+    if (!isPasswordsEquals) {
+      throw new HttpException(makeNotValidPasswordMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    const response: IBasicResponse = { status: HttpStatus.OK, message: makeValidPasswordMessage() };
+    return response;
+  }
+
   async findUserByEmail(email: string): Promise<User | null> {
     const user: User | null = await this.userRepository.findOne({ where: { email } });
     return user;
   }
 
-  async findUserByID(userID: number): Promise<User | null> {
+  async findUserByID(userID: number): Promise<User> {
     const user: User | null = await this.userRepository.findByPk(userID);
 
     if (!user) {
@@ -237,9 +204,16 @@ export class UsersService {
     return user;
   }
 
-  private async hashUserPassword(password: string): Promise<string> {
-    const hashPassword: string = await bcrypt.hash(password, 10);
-    return hashPassword;
+  private async findAllUsersRelatedToBusiness(businessID: number): Promise<User[]> {
+    const usersRelatedToRequesterBusiness: User[] = await this.userRepository.findAll({
+      where: { businessId: businessID },
+    });
+
+    if (!usersRelatedToRequesterBusiness || usersRelatedToRequesterBusiness.length === 0) {
+      throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
+    }
+
+    return usersRelatedToRequesterBusiness;
   }
 
   private async transformUsersDataForAdmin(user: User): Promise<IUserInformationForAdmin> {
