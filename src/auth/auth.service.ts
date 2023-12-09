@@ -25,7 +25,6 @@ import {
   makeConflictMessage,
   makeDeleteMessage,
   makeNotCorrectDataMessage,
-  makeNotFoundMessage,
   makeSuccessInvitingMessage,
   makeUnauthorizedMessage,
 } from 'src/utils/generators/messageGenerators';
@@ -64,13 +63,7 @@ export class AuthService {
     }
 
     const user: User = await this.userService.findUserByID(userDataFromToken.id);
-
-    if (!user) {
-      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
-    }
-
-    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(user);
-    await this.tokensService.saveToken(user.id, tokens.refreshToken);
+    const tokens: ITokensCreationResponse = await this.generateTokens(user);
 
     const response: IRefreshResponseJWT = {
       status: HttpStatus.OK,
@@ -79,17 +72,13 @@ export class AuthService {
     return response;
   }
 
-  async registration(
-    userDto: CreateNewUserDto,
-  ): Promise<IRegistrationResponseJWT | IBasicResponse> {
+  async registration(userDto: CreateNewUserDto): Promise<IRegistrationResponseJWT> {
     await this.checkEmailUniqueness(userDto.email);
 
     const hashPassword: string = await bcrypt.hash(userDto.password, 10);
     const newUser: User = await this.createNewUser(userDto, hashPassword);
     await this.createNewUserParams(newUser.id, false);
-
-    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(newUser);
-    await this.tokensService.saveToken(newUser.id, tokens.refreshToken);
+    const tokens: ITokensCreationResponse = await this.generateTokens(newUser);
 
     const response: IRegistrationResponseJWT = {
       status: HttpStatus.CREATED,
@@ -102,9 +91,7 @@ export class AuthService {
     const hashPassword: string = await bcrypt.hash(userDto.userData.password, 10);
     const activatedUser: User = await this.updateInvitedUser(userDto, hashPassword);
     await this.updateInvitedUserParams(activatedUser.id);
-
-    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(activatedUser);
-    await this.tokensService.saveToken(activatedUser.id, tokens.refreshToken);
+    const tokens: ITokensCreationResponse = await this.generateTokens(activatedUser);
 
     const response: IRegistrationResponseJWT = {
       status: HttpStatus.CREATED,
@@ -120,15 +107,14 @@ export class AuthService {
       throw new HttpException(makeNotCorrectDataMessage(), HttpStatus.UNAUTHORIZED);
     }
 
-    const userParams: UsersParams | null = await this.userParamsService.getUserParams(user.id);
+    const userParams: UsersParams = await this.userParamsService.getUserParams(user.id);
     const isPasswordsEquals: boolean = await bcrypt.compare(userData.password, user.password);
 
     if (!isPasswordsEquals) {
       throw new HttpException(makeNotCorrectDataMessage(), HttpStatus.UNAUTHORIZED);
     }
 
-    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(user);
-    await this.tokensService.saveToken(user.id, tokens.refreshToken);
+    const tokens: ITokensCreationResponse = await this.generateTokens(user);
 
     const response: ILoginResponse = {
       status: HttpStatus.OK,
@@ -163,7 +149,6 @@ export class AuthService {
   }
 
   async invite(requestData: IUserInvitationRequest): Promise<IBasicResponse> {
-    await this.userParamsService.updateUserLastActivityTimestamp(requestData.inviterId);
     await this.checkEmailUniqueness(requestData.invitedUserData.emailAddress);
 
     const userDataForCreation: CreateNewUserDto = {
@@ -201,6 +186,12 @@ export class AuthService {
       message: makeSuccessInvitingMessage(),
     };
     return response;
+  }
+
+  private async generateTokens(user: User): Promise<ITokensCreationResponse> {
+    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(user);
+    await this.tokensService.saveToken(user.id, tokens.refreshToken);
+    return tokens;
   }
 
   private async sendInvite(inviteData: IUserInvitationRequest, inviteLink: string): Promise<void> {
@@ -253,26 +244,11 @@ export class AuthService {
   }
 
   private async checkEmailUniqueness(emailAddress: string): Promise<void> {
-    const userWithSuchEmail: User | null = await this.userService.findUserByEmail(emailAddress);
-    if (userWithSuchEmail) {
+    const isEmailUnique: boolean = await this.userService.checkIsEmailUnique(emailAddress);
+
+    if (!isEmailUnique) {
       throw new HttpException(makeConflictMessage('Email'), HttpStatus.CONFLICT);
     }
-  }
-
-  private async updateInvitedUser(
-    invitedUserDto: ActivateUserDto,
-    hashPassword: string,
-  ): Promise<User> {
-    const userDataForUpdate: Partial<CreateUserDto> = {
-      lastName: invitedUserDto.userData.lastName,
-      password: hashPassword,
-    };
-
-    const invitedUser: IBasicUserResponse = await this.userService.updateUserByID(
-      invitedUserDto.userID,
-      userDataForUpdate,
-    );
-    return invitedUser.data;
   }
 
   private async createNewUser(userDto: CreateNewUserDto, hashPassword?: string): Promise<User> {
@@ -306,6 +282,22 @@ export class AuthService {
     const newUserParams: UsersParams =
       await this.userParamsService.createParamsForNewUser(newUserParamsData);
     return newUserParams;
+  }
+
+  private async updateInvitedUser(
+    invitedUserDto: ActivateUserDto,
+    hashPassword: string,
+  ): Promise<User> {
+    const userDataForUpdate: Partial<CreateUserDto> = {
+      lastName: invitedUserDto.userData.lastName,
+      password: hashPassword,
+    };
+
+    const invitedUser: IBasicUserResponse = await this.userService.updateUserByID(
+      invitedUserDto.userID,
+      userDataForUpdate,
+    );
+    return invitedUser.data;
   }
 
   private async updateInvitedUserParams(invitedUserId: number) {
