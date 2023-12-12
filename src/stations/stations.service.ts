@@ -88,6 +88,7 @@ export class StationsService {
 
   async getStationsByBusinessId(
     businessId: number,
+    searchQuery?: string,
     name?: string,
     address?: string,
     fromDate?: string,
@@ -101,30 +102,37 @@ export class StationsService {
       },
     };
 
-    if (name) {
-      where.name = {
-        [Op.in]: name.split(','),
-      };
-    }
+    if (searchQuery) {
+      where[Op.or] = [
+        { name: { [Op.like]: `%${searchQuery}%` } },
+        { address: { [Op.like]: `%${searchQuery}%` } },
+      ];
+    } else {
+      if (name) {
+        where.name = {
+          [Op.in]: name.split(','),
+        };
+      }
 
-    if (address) {
-      where.address = {
-        [Op.in]: address.split(','),
-      };
-    }
+      if (address) {
+        where.address = {
+          [Op.in]: address.split(','),
+        };
+      }
 
-    if (fromDate && toDate) {
-      where.updatedAt = {
-        [Op.between]: [new Date(fromDate), new Date(toDate)],
-      };
-    } else if (fromDate) {
-      where.updatedAt = {
-        [Op.gte]: new Date(fromDate),
-      };
-    } else if (toDate) {
-      where.updatedAt = {
-        [Op.lte]: new Date(toDate),
-      };
+      if (fromDate && toDate) {
+        where.updatedAt = {
+          [Op.between]: [new Date(fromDate), new Date(toDate)],
+        };
+      } else if (fromDate) {
+        where.updatedAt = {
+          [Op.gte]: new Date(fromDate),
+        };
+      } else if (toDate) {
+        where.updatedAt = {
+          [Op.lte]: new Date(toDate),
+        };
+      }
     }
 
     const options: FindOptions = {
@@ -135,6 +143,7 @@ export class StationsService {
         { model: FuelPrice },
         { model: Transaction },
       ],
+      order: [['id', 'DESC']],
     };
 
     if (limit) {

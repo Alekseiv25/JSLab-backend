@@ -34,6 +34,7 @@ export class StationsController {
   @UseGuards(AuthGuard)
   getStationsByBusinessId(
     @Param('businessId') businessId: number,
+    @Query('searchQuery') searchQuery?: string,
     @Query('name') name?: string,
     @Query('address') address?: string,
     @Query('fromDate') fromDate?: string,
@@ -43,6 +44,7 @@ export class StationsController {
   ): Promise<IGetAllStationsResponse> {
     return this.stationsService.getStationsByBusinessId(
       businessId,
+      searchQuery,
       name,
       address,
       fromDate,
