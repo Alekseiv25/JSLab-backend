@@ -19,3 +19,8 @@ export interface IUserInvitationRequest {
   assignmentToStationAsAdmin: number[];
   assignmentToStationAsMember: number[];
 }
+
+export interface IUserAssignUpdateRequest {
+  asAdmin: number[];
+  asMember: number[];
+}

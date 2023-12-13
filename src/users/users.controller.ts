@@ -1,4 +1,5 @@
 import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
+import { IUserAssignUpdateRequest } from 'src/types/requests/users';
 import { CreateUserDto } from './dto/create-user.dto';
 import { IBasicResponse } from 'src/types/responses';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -76,6 +77,15 @@ export class UsersController {
     @Body() updatedUserParams: CreateUserParamsDto,
   ): Promise<IUserParamsUpdateResponse> {
     return this.userService.updateUserParams(id, updatedUserParams);
+  }
+
+  @Put('assign/:id')
+  @UseGuards(AuthGuard)
+  updateUserAssign(
+    @Param('id') userID: number,
+    @Body() assignData: IUserAssignUpdateRequest,
+  ): Promise<IBasicResponse> {
+    return this.userService.updateUserAssign(userID, assignData);
   }
 
   @Delete(':id')

@@ -1,7 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
 import { UsersParamsService } from 'src/users_params/users_params.service';
+import { IUserAssignUpdateRequest } from 'src/types/requests/users';
 import { UsersParams } from 'src/users_params/users_params.model';
+import { UserStationRoleTypes } from 'src/types/tableColumns';
 import { User, UserStationRole } from './users.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Station } from 'src/stations/stations.model';
@@ -15,6 +17,7 @@ import {
   makeDeleteMessage,
   makeNotFoundMessage,
   makeNotValidPasswordMessage,
+  makeSuccessUpdatingMessage,
   makeValidPasswordMessage,
 } from 'src/utils/generators/messageGenerators';
 import {
@@ -114,6 +117,30 @@ export class UsersService {
     const response: IUserParamsUpdateResponse = {
       status: HttpStatus.OK,
       updatedUserParams: updatedParams,
+    };
+    return response;
+  }
+
+  async updateUserAssign(
+    id: number,
+    assignData: IUserAssignUpdateRequest,
+  ): Promise<IBasicResponse> {
+    const user: User = await this.findUserByID(id);
+
+    const adminAssigns: number[] = assignData.asAdmin || [];
+    const memberAssigns: number[] = assignData.asMember || [];
+
+    if (adminAssigns?.length > 0) {
+      await this.updateUserStationAssigns(user, 'Admin', adminAssigns);
+    }
+
+    if (memberAssigns?.length > 0) {
+      await this.updateUserStationAssigns(user, 'Member', memberAssigns);
+    }
+
+    const response: IBasicResponse = {
+      status: HttpStatus.OK,
+      message: makeSuccessUpdatingMessage(),
     };
     return response;
   }
@@ -249,5 +276,52 @@ export class UsersService {
       params: paramsInformationAboutUser,
       assigned: assignedInfo,
     };
+  }
+
+  private async updateUserStationAssigns(
+    user: User,
+    role: UserStationRoleTypes,
+    stationIds: number[],
+  ) {
+    const userId: number = user.id;
+
+    const existingUserStationRoles: UserStationRole[] = await UserStationRole.findAll({
+      where: { userId, role },
+    });
+
+    const stationIdsToRemove: number[] = existingUserStationRoles
+      .filter((userStationRole) => !stationIds.includes(userStationRole.stationId))
+      .map((userStationRole) => userStationRole.stationId);
+
+    const stationIdsToAdd: number[] = stationIds.filter(
+      (stationId) =>
+        !existingUserStationRoles.some(
+          (userStationRole) => userStationRole.stationId === stationId,
+        ),
+    );
+
+    await UserStationRole.destroy({
+      where: { userId, role, stationId: stationIdsToRemove },
+    });
+
+    for (const stationId of stationIdsToAdd) {
+      const station: Station | null = await Station.findByPk(stationId);
+      if (station) {
+        await UserStationRole.create({
+          userId,
+          stationId: station.id,
+          role: role,
+        });
+      }
+    }
+
+    await Promise.all(
+      existingUserStationRoles.map(async (userStationRole) => {
+        if (!stationIdsToRemove.includes(userStationRole.stationId)) {
+          userStationRole.role = role;
+          await userStationRole.save();
+        }
+      }),
+    );
   }
 }
