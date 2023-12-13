@@ -127,16 +127,8 @@ export class UsersService {
   ): Promise<IBasicResponse> {
     const user: User = await this.findUserByID(id);
 
-    const adminAssigns: number[] = assignData.asAdmin || [];
-    const memberAssigns: number[] = assignData.asMember || [];
-
-    if (adminAssigns?.length > 0) {
-      await this.updateUserStationAssigns(user, 'Admin', adminAssigns);
-    }
-
-    if (memberAssigns?.length > 0) {
-      await this.updateUserStationAssigns(user, 'Member', memberAssigns);
-    }
+    await this.updateUserStationAssigns(user, 'Admin', assignData.asAdmin || []);
+    await this.updateUserStationAssigns(user, 'Member', assignData.asMember || []);
 
     const response: IBasicResponse = {
       status: HttpStatus.OK,
