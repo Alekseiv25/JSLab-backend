@@ -70,7 +70,7 @@ export class UsersController {
     return this.userService.updateUserByID(id, updatedData);
   }
 
-  @Put('tutorial-status/:id')
+  @Put('parameters/:id')
   @UseGuards(AuthGuard)
   updateUserParams(
     @Param('id') id: number,
