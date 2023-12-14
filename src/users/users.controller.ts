@@ -47,6 +47,15 @@ export class UsersController {
     return this.userService.getUsersInfoForAdminTable(Number(requesterId));
   }
 
+  @Get('invite/a')
+  @UseGuards(AuthGuard)
+  reinviteUser(
+    @Query('invitedUserId') invitedUserId: string,
+    @Query('inviterUserId') inviterUserId: string,
+  ): Promise<IBasicResponse> {
+    return this.userService.reinviteUser(Number(invitedUserId), Number(inviterUserId));
+  }
+
   @Post('email-uniqueness')
   @HttpCode(200)
   async checkEmailUnique(@Body('email') email: string): Promise<IBasicResponse> {

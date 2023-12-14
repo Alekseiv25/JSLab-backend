@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
-import { ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
+import { IInviteDto, ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
 import { UsersParamsService } from 'src/users_params/users_params.service';
 import { ActivateUserDto, CreateNewUserDto } from './dto/create-user.dto';
 import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
@@ -9,18 +9,12 @@ import { UsersParams } from 'src/users_params/users_params.model';
 import { User, UserStationRole } from 'src/users/users.model';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserStationRoleTypes } from 'src/types/tableColumns';
-import { Business } from 'src/businesses/businesses.model';
 import { UsersService } from 'src/users/users.service';
 import { Station } from 'src/stations/stations.model';
 import { IBasicResponse } from 'src/types/responses';
 import { Token } from 'src/tokens/tokens.model';
-import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  IUserInviteGeneratorArguments,
-  generateHTMLForEmailToInviteUser,
-} from 'src/utils/generators/emailGenerators';
 import {
   makeConflictMessage,
   makeDeleteMessage,
@@ -179,7 +173,14 @@ export class AuthService {
       );
     }
 
-    await this.sendInvite(requestData, inviteLink);
+    const dataForInvite: IInviteDto = {
+      inviterId: requestData.inviterId,
+      invitedUserFirstName: newUser.firstName,
+      invitedUserEmail: requestData.invitedUserData.emailAddress,
+      inviteLink: inviteLink,
+    };
+
+    await this.userService.sendInvite(dataForInvite);
 
     const response: IBasicResponse = {
       status: HttpStatus.OK,
@@ -192,38 +193,6 @@ export class AuthService {
     const tokens: ITokensCreationResponse = await this.tokensService.generateToken(user);
     await this.tokensService.saveToken(user.id, tokens.refreshToken);
     return tokens;
-  }
-
-  private async sendInvite(inviteData: IUserInvitationRequest, inviteLink: string): Promise<void> {
-    const inviterData: User = await this.userService.findUserByID(inviteData.inviterId);
-    const inviterBusiness: Business = await this.businessService.findBusinessByID(
-      inviteData.inviterBusinessId,
-    );
-
-    const informationForInviteEmail: IUserInviteGeneratorArguments = {
-      businessName: inviterBusiness.legalName,
-      invitedUserFirstName: inviteData.invitedUserData.firstName,
-      inviterUserFirstName: inviterData.firstName,
-      inviterUserLastName: inviterData.lastName,
-      inviteLink: `${process.env.INVITE_ROUTE}${inviteLink}`,
-    };
-
-    const transporter = nodemailer.createTransport({
-      service: process.env.SUPPORT_EMAIL_SERVICE_NAME,
-      auth: {
-        user: process.env.SUPPORT_EMAIL,
-        pass: process.env.SUPPORT_EMAIL_PASSWORD,
-      },
-    });
-
-    const mailOptionsForInviteEmail = {
-      from: process.env.SUPPORT_EMAIL,
-      to: inviteData.invitedUserData.emailAddress,
-      subject: 'Invitation',
-      html: generateHTMLForEmailToInviteUser(informationForInviteEmail),
-    };
-
-    await transporter.sendMail(mailOptionsForInviteEmail);
   }
 
   private async assignUserWithStations(

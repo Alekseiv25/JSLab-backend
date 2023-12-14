@@ -24,3 +24,10 @@ export interface IUserAssignUpdateRequest {
   asAdmin: number[];
   asMember: number[];
 }
+
+export interface IInviteDto {
+  inviterId: number;
+  invitedUserFirstName: string;
+  invitedUserEmail: string;
+  inviteLink: string;
+}
