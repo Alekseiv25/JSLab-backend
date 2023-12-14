@@ -1,6 +1,6 @@
-import { UserStatusTypes } from 'src/types/tableColumns';
-import { User } from 'src/users/users.model';
+import { UserStationRoleTypes, UserStatusTypes } from 'src/types/tableColumns';
 import { UsersParams } from 'src/users_params/users_params.model';
+import { User } from 'src/users/users.model';
 
 export interface IBasicUserResponse {
   status: number;
@@ -12,23 +12,13 @@ export interface IGetAllUsersResponse {
   data: User[];
 }
 
-export interface ICheckUserEmailResponse {
-  status: number;
-  message: string;
-}
-
-export interface IValidateUserPasswordResponse {
-  status: number;
-  message: string;
-}
-
 export interface IDeleteUserResponse {
   status: number;
   message: string;
   data: User;
 }
 
-type BasicRegistrationResponseJWT = {
+type RegistrationResponseDataType = {
   accessToken: string;
   refreshToken: string;
   createdUser: User;
@@ -36,10 +26,10 @@ type BasicRegistrationResponseJWT = {
 
 export interface IRegistrationResponseJWT {
   status: number;
-  data: BasicRegistrationResponseJWT;
+  data: RegistrationResponseDataType;
 }
 
-type BasicRefreshResponseJWT = {
+type RefreshResponseType = {
   accessToken: string;
   refreshToken: string;
   user: User;
@@ -47,7 +37,7 @@ type BasicRefreshResponseJWT = {
 
 export interface IRefreshResponseJWT {
   status: number;
-  data: BasicRefreshResponseJWT;
+  data: RefreshResponseType;
 }
 
 interface ILoginUserData {
@@ -77,11 +67,6 @@ export interface ILoginResponse {
   data: LoginResponseData;
 }
 
-export interface ILogoutResponse {
-  status: number;
-  message: string;
-}
-
 export interface IUserGeneralInformationForAdmin {
   id: number;
   firstName: string;
@@ -100,7 +85,7 @@ export interface IUserAssignedInformationForAdmin {
   stationName: string;
   stationMerchantId: string;
   stationStoreId: string;
-  userRole: 'Admin' | 'Member';
+  userRole: UserStationRoleTypes;
 }
 
 export interface IUserInformationForAdmin {
@@ -117,4 +102,9 @@ export interface IUserInformationForAdminResponse {
 export interface IUserParamsUpdateResponse {
   status: number;
   updatedUserParams: UsersParams;
+}
+
+export interface IInvitedUserDataResponse {
+  status: number;
+  invitedUserData: Pick<User, 'id' | 'firstName' | 'email'>;
 }

@@ -1,18 +1,16 @@
 import { Body, Controller, Get, HttpStatus, Post, Query, Req, Res } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { CookieOptions, Request, Response } from 'express';
 import { ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
 import { ActivateUserDto, CreateNewUserDto } from './dto/create-user.dto';
+import { CookieOptions, Request, Response } from 'express';
+import { UsersService } from 'src/users/users.service';
+import { IBasicResponse } from 'src/types/responses';
+import { AuthService } from './auth.service';
 import {
-  IBasicUserResponse,
-  ICheckUserEmailResponse,
+  IInvitedUserDataResponse,
   ILoginResponse,
-  ILogoutResponse,
   IRefreshResponseJWT,
   IRegistrationResponseJWT,
 } from 'src/types/responses/users';
-import { IBasicResponse } from 'src/types/responses';
-import { UsersService } from 'src/users/users.service';
 
 @Controller('auth')
 export class AuthController {
@@ -30,11 +28,11 @@ export class AuthController {
     return options;
   }
 
-  @Get('/invited')
-  async invitedUserInformtion(
+  @Get('/invite')
+  async getInvitedUserInformation(
     @Query('inviteLink') inviteLink: string,
-  ): Promise<IBasicUserResponse> {
-    return await this.userService.findUserByInviteLink(inviteLink);
+  ): Promise<IInvitedUserDataResponse> {
+    return await this.userService.getUserInformationByInviteLink(inviteLink);
   }
 
   @Get('/refresh')
@@ -56,8 +54,8 @@ export class AuthController {
   async registration(
     @Body() userDto: CreateNewUserDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<IRegistrationResponseJWT | ICheckUserEmailResponse> {
-    const response: IRegistrationResponseJWT | ICheckUserEmailResponse =
+  ): Promise<IRegistrationResponseJWT | IBasicResponse> {
+    const response: IRegistrationResponseJWT | IBasicResponse =
       await this.authService.registration(userDto);
 
     if ('data' in response && 'refreshToken' in response.data) {
@@ -67,7 +65,7 @@ export class AuthController {
     return response;
   }
 
-  @Post('/invited')
+  @Post('/activate-invite')
   async activateInvitedUserAccount(
     @Body() userDto: ActivateUserDto,
     @Res({ passthrough: true }) res: Response,
@@ -110,9 +108,9 @@ export class AuthController {
   async logout(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<ILogoutResponse> {
+  ): Promise<IBasicResponse> {
     const refreshToken: string = req.cookies.refreshToken;
-    const response: ILogoutResponse = await this.authService.logout(refreshToken);
+    const response: IBasicResponse = await this.authService.logout(refreshToken);
 
     if (response.status === HttpStatus.OK) {
       res.clearCookie('refreshToken');

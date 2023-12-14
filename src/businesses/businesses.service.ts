@@ -1,7 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { CreateBusinessDto } from './dto/create-business.dto';
+import { IBasicResponse } from 'src/types/responses';
 import { InjectModel } from '@nestjs/sequelize';
 import { Business } from './businesses.model';
-import { CreateBusinessDto } from './dto/create-business.dto';
 import {
   makeAvailableMessage,
   makeConflictMessage,
@@ -10,7 +11,6 @@ import {
 } from 'src/utils/generators/messageGenerators';
 import {
   IBasicBusinessResponse,
-  ICheckBusinessNameResponse,
   IDeleteBusinessResponse,
   IGetAllBusinessResponse,
 } from 'src/types/responses/businesses';
@@ -33,27 +33,13 @@ export class BusinessesService {
   }
 
   async getBusinessByID(id: number): Promise<IBasicBusinessResponse> {
-    const business: Business | null = await this.businessRepository.findByPk(id);
-
-    if (!business) {
-      throw new HttpException(makeNotFoundMessage('Business'), HttpStatus.NOT_FOUND);
-    }
-
+    const business: Business = await this.findBusinessByID(id);
     const response: IBasicBusinessResponse = { status: HttpStatus.OK, data: business };
     return response;
   }
 
-  async createNewBusiness(
-    dto: CreateBusinessDto,
-  ): Promise<IBasicBusinessResponse | ICheckBusinessNameResponse> {
-    const uniquenessResponse: ICheckBusinessNameResponse = await this.checkUniquenessOfName(
-      dto.legalName,
-    );
-
-    if (uniquenessResponse.status !== 200) {
-      return uniquenessResponse;
-    }
-
+  async createNewBusiness(dto: CreateBusinessDto): Promise<IBasicBusinessResponse> {
+    await this.checkIsNameUnique(dto.legalName);
     const newBusiness: Business = await this.businessRepository.create(dto);
     const response: IBasicBusinessResponse = { status: HttpStatus.OK, data: newBusiness };
     return response;
@@ -61,26 +47,16 @@ export class BusinessesService {
 
   async updateBusiness(
     id: number,
-    updatedBusinessDto: CreateBusinessDto,
+    updatedData: CreateBusinessDto,
   ): Promise<IBasicBusinessResponse> {
-    const business: Business | null = await this.businessRepository.findOne({ where: { id } });
-
-    if (!business) {
-      throw new HttpException(makeNotFoundMessage('Business'), HttpStatus.NOT_FOUND);
-    }
-
-    const updatedBusiness: Business = await business.update(updatedBusinessDto);
+    const business: Business = await this.findBusinessByID(id);
+    const updatedBusiness: Business = await business.update(updatedData);
     const response: IBasicBusinessResponse = { status: HttpStatus.OK, data: updatedBusiness };
     return response;
   }
 
   async deleteBusiness(id: number): Promise<IDeleteBusinessResponse> {
-    const business: Business | null = await this.businessRepository.findOne({ where: { id } });
-
-    if (!business) {
-      throw new HttpException(makeNotFoundMessage('Business'), HttpStatus.NOT_FOUND);
-    }
-
+    const business: Business = await this.findBusinessByID(id);
     await business.destroy();
     const response: IDeleteBusinessResponse = {
       status: HttpStatus.OK,
@@ -90,26 +66,29 @@ export class BusinessesService {
     return response;
   }
 
-  async checkUniquenessOfName(legalName: string): Promise<ICheckBusinessNameResponse> {
-    const businessWithThisName: Business | null = await this.businessRepository.findOne({
-      where: { legalName },
-    });
-
-    if (businessWithThisName) {
-      throw new HttpException(makeConflictMessage('Name'), HttpStatus.CONFLICT);
-    }
-
-    const response: ICheckBusinessNameResponse = {
+  async checkUniquenessOfName(legalName: string): Promise<IBasicResponse> {
+    await this.checkIsNameUnique(legalName);
+    const response: IBasicResponse = {
       status: HttpStatus.OK,
       message: makeAvailableMessage('Name'),
     };
     return response;
   }
 
-  async findBusinessByID(businessID: number): Promise<Business> {
-    const business: Business | null = await this.businessRepository.findOne({
-      where: { id: businessID },
+  async checkIsNameUnique(businessNameForCheck: string): Promise<boolean> {
+    const businessWithThisName: Business | null = await this.businessRepository.findOne({
+      where: { legalName: businessNameForCheck },
     });
+
+    if (businessWithThisName) {
+      throw new HttpException(makeConflictMessage('Name'), HttpStatus.CONFLICT);
+    }
+
+    return true;
+  }
+
+  async findBusinessByID(businessID: number): Promise<Business> {
+    const business: Business | null = await this.businessRepository.findByPk(businessID);
 
     if (!business) {
       throw new HttpException(makeNotFoundMessage('Business'), HttpStatus.NOT_FOUND);

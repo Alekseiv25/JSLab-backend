@@ -60,3 +60,7 @@ export function makeSuccessUpdatingMessage(): string {
 export function makeSuccessInvitingMessage(): string {
   return `Successfully invited.`;
 }
+
+export function makeAlreadyActivatedMessage(): string {
+  return `Account already activated.`;
+}

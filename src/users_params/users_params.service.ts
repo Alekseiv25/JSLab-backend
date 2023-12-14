@@ -3,7 +3,6 @@ import { makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
 import { CreateUserParamsDto } from './dto/create-users_params.dto';
 import { UsersParams } from './users_params.model';
 import { InjectModel } from '@nestjs/sequelize';
-import { IUserParamsUpdateResponse } from 'src/types/responses/users';
 
 @Injectable()
 export class UsersParamsService {
@@ -30,16 +29,10 @@ export class UsersParamsService {
   async updateUserParams(
     userId: number,
     newUserParams: Partial<CreateUserParamsDto>,
-  ): Promise<IUserParamsUpdateResponse> {
+  ): Promise<UsersParams> {
     const userParams: UsersParams = await this.findUserParamsByID(userId);
     const updatedUserParams: UsersParams = await userParams.update({ ...newUserParams });
-    await this.updateUserLastActivityTimestamp(userId);
-
-    const response: IUserParamsUpdateResponse = {
-      status: HttpStatus.OK,
-      updatedUserParams: updatedUserParams,
-    };
-    return response;
+    return updatedUserParams;
   }
 
   async updateUserLastActivityTimestamp(userId: number): Promise<void> {
