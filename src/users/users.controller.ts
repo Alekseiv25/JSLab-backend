@@ -6,8 +6,6 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { UsersService } from './users.service';
 import {
   IBasicUserResponse,
-  IDeleteUserResponse,
-  IGetAllUsersResponse,
   IUserInformationForAdminResponse,
   IUserParamsUpdateResponse,
 } from 'src/types/responses/users';
@@ -29,14 +27,9 @@ export class UsersController {
   constructor(private userService: UsersService) {}
 
   @Get()
-  getAllUsers(): Promise<IGetAllUsersResponse> {
-    return this.userService.getAllUsers();
-  }
-
-  @Get(':id')
   @UseGuards(AuthGuard)
-  getUserByID(@Param('id') id: number): Promise<IBasicUserResponse> {
-    return this.userService.getUserByID(id);
+  getUserByID(@Query('userId') userId: string): Promise<IBasicUserResponse> {
+    return this.userService.getUserByID(Number(userId));
   }
 
   @Get('admin/users-information')
@@ -47,7 +40,7 @@ export class UsersController {
     return this.userService.getUsersInfoForAdminTable(Number(requesterId));
   }
 
-  @Get('invite/a')
+  @Get('invite')
   @UseGuards(AuthGuard)
   reinviteUser(
     @Query('invitedUserId') invitedUserId: string,
@@ -97,9 +90,9 @@ export class UsersController {
     return this.userService.updateUserAssign(userID, assignData);
   }
 
-  @Delete(':id')
+  @Delete('invite/:id')
   @UseGuards(AuthGuard)
-  deleteUserByID(@Param('id') id: number): Promise<IDeleteUserResponse> {
-    return this.userService.deleteUserByID(id);
+  cancelUserInvite(@Param('id') id: number): Promise<IBasicResponse> {
+    return this.userService.cancelUserInvite(Number(id));
   }
 }

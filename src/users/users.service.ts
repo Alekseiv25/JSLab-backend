@@ -26,7 +26,6 @@ import {
 } from 'src/utils/generators/messageGenerators';
 import {
   IBasicUserResponse,
-  IDeleteUserResponse,
   IGetAllUsersResponse,
   IInvitedUserDataResponse,
   IUserAssignedInformationForAdmin,
@@ -166,15 +165,15 @@ export class UsersService {
     return response;
   }
 
-  async deleteUserByID(id: number): Promise<IDeleteUserResponse> {
+  async cancelUserInvite(id: number): Promise<IBasicResponse> {
     const user: User = await this.findUserByID(id);
-    await user.destroy();
+    const userParams: UsersParams = await this.userParamsService.getUserParams(id);
 
-    const response: IDeleteUserResponse = {
-      status: HttpStatus.OK,
-      message: makeDeleteMessage('User'),
-      data: user,
-    };
+    await user.destroy();
+    await userParams.destroy();
+    await UserStationRole.destroy({ where: { userId: id } });
+
+    const response: IBasicResponse = { status: HttpStatus.OK, message: makeDeleteMessage('User') };
     return response;
   }
 
