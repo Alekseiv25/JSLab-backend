@@ -21,7 +21,7 @@ export class BusinessesService {
 
   async getAllBusinesses(): Promise<IGetAllBusinessResponse> {
     const businesses: Business[] | [] = await this.businessRepository.findAll({
-      include: ['users', 'stations', 'accounts', 'transactions'],
+      include: ['users', 'stations', 'accounts', 'transactions', 'payments'],
     });
 
     if (businesses.length === 0) {

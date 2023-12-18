@@ -21,6 +21,8 @@ import { Transaction } from './transactions/transactions.model';
 import { TransactionsModule } from './transactions/transactions.module';
 import { UsersParamsModule } from './users_params/users_params.module';
 import { UsersParams } from './users_params/users_params.model';
+import { Payment } from './payments/payments.model';
+import { PaymentsModule } from './payments/payments.module';
 import { SocketService } from './socket/socket.service';
 
 @Module({
@@ -49,6 +51,7 @@ import { SocketService } from './socket/socket.service';
         Operation,
         FuelPrice,
         Transaction,
+        Payment,
       ],
       autoLoadModels: true,
     }),
@@ -63,6 +66,7 @@ import { SocketService } from './socket/socket.service';
     SupportModule,
     TransactionsModule,
     UsersParamsModule,
+    PaymentsModule,
   ],
 })
 export class AppModule {}

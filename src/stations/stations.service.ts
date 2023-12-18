@@ -22,6 +22,7 @@ import { Operation } from 'src/operations/operations.model';
 import { OperationsService } from 'src/operations/operations.service';
 import { FuelPrice } from 'src/fuel_prices/fuel_prices.model';
 import { Transaction } from 'src/transactions/transactions.model';
+import { Payment } from 'src/payments/payments.model';
 import { Op } from 'sequelize';
 
 @Injectable()
@@ -75,6 +76,7 @@ export class StationsService {
         { model: Operation },
         { model: FuelPrice },
         { model: Transaction },
+        { model: Payment },
       ],
     });
 
@@ -118,6 +120,7 @@ export class StationsService {
         { model: Operation, separate: true },
         { model: FuelPrice },
         { model: Transaction },
+        { model: Payment },
       ],
     });
 
@@ -129,11 +132,14 @@ export class StationsService {
       station.accounts.map(async (account) => {
         const decryptedRoutingNumber = decrypt(account.routingNumber, this.key32, this.key16);
         const decryptedAccountNumber = decrypt(account.accountNumber, this.key32, this.key16);
-
+        const decryptedPayment = account.payments
+          ? JSON.parse(JSON.stringify(account.payments))
+          : null;
         const decryptedAccount = Account.build({
           ...account.get({ plain: true }),
           routingNumber: decryptedRoutingNumber,
           accountNumber: decryptedAccountNumber,
+          payments: decryptedPayment,
         });
         decryptedAccount.isNewRecord = false;
         return decryptedAccount;
