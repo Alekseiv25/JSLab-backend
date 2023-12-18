@@ -126,6 +126,22 @@ export class UsersService {
       throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
     }
 
+    const transformedUsersPromises: Promise<IUserInformationForAdmin>[] =
+      usersRelatedToRequesterBusiness
+        .filter((user) => user.id !== requesterId)
+        .map((user) => this.transformUsersDataForAdmin(user));
+
+    const transformedUsers: IUserInformationForAdmin[] =
+      await Promise.all(transformedUsersPromises);
+
+    const response: IUserInformationForAdminResponse = {
+      status: HttpStatus.OK,
+      data: transformedUsers,
+    };
+
+    return response;
+  }
+
   async getUserByID(id: number): Promise<IBasicUserResponse> {
     const userData: User = await this.findUserByID(id);
     const response: IBasicUserResponse = { status: HttpStatus.OK, data: userData };
