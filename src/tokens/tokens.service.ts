@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ITokensCreationResponse } from 'src/auth/auth.service';
-import { User } from 'src/users/users.model';
-import * as jwt from 'jsonwebtoken';
-import { InjectModel } from '@nestjs/sequelize';
-import { Token } from './tokens.model';
-import { JwtPayload } from 'jsonwebtoken';
 import { makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
+import { ITokensCreationResponse } from 'src/auth/auth.service';
+import { InjectModel } from '@nestjs/sequelize';
+import { User } from 'src/users/users.model';
+import { JwtPayload } from 'jsonwebtoken';
+import { Token } from './tokens.model';
+import * as jwt from 'jsonwebtoken';
 
 const ACCESS_TOKEN_EXPIRES_IN = '5min';
 const REFRESH_TOKEN_EXPIRES_IN = '7d';
@@ -13,7 +13,6 @@ const REFRESH_TOKEN_EXPIRES_IN = '7d';
 export interface IAccessToken {
   id: number;
   email: string;
-  isAdmin: boolean;
 }
 
 export interface IRefreshToken {
@@ -28,8 +27,6 @@ export class TokensService {
     const accessTokenPayload: IAccessToken = {
       id: user.id,
       email: user.email,
-      // isAdmin: user.isAdmin,
-      isAdmin: true,
     };
     const refreshTokenPayload: IRefreshToken = { id: user.id };
 

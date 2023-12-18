@@ -10,11 +10,6 @@ export interface IGetAllBusinessResponse {
   data: Business[];
 }
 
-export interface ICheckBusinessNameResponse {
-  status: number;
-  message: string;
-}
-
 export interface IDeleteBusinessResponse {
   status: number;
   message: string;

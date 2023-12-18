@@ -8,13 +8,13 @@ import { TokensModule } from 'src/tokens/tokens.module';
 import { OperationsService } from 'src/operations/operations.service';
 import { Operation } from 'src/operations/operations.model';
 import { Transaction } from 'src/transactions/transactions.model';
-import { UsersStations } from 'src/users/users.model';
+import { UserStationRole } from 'src/users/users.model';
 
 @Module({
   controllers: [StationsController],
   providers: [StationsService, OperationsService],
   imports: [
-    SequelizeModule.forFeature([Station, StationAccount, Operation, Transaction, UsersStations]),
+    SequelizeModule.forFeature([Station, StationAccount, Operation, Transaction, UserStationRole]),
     TokensModule,
   ],
 })

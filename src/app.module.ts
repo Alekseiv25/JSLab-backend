@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
-import { User, UsersStations } from './users/users.model';
+import { User, UserStationRole } from './users/users.model';
 import { BusinessesModule } from './businesses/businesses.module';
 import { Business } from './businesses/businesses.model';
 import { StationsModule } from './stations/stations.module';
@@ -23,10 +23,11 @@ import { UsersParamsModule } from './users_params/users_params.module';
 import { UsersParams } from './users_params/users_params.model';
 import { Payment } from './payments/payments.model';
 import { PaymentsModule } from './payments/payments.module';
+import { SocketService } from './socket/socket.service';
 
 @Module({
   controllers: [],
-  providers: [],
+  providers: [SocketService],
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
@@ -40,7 +41,7 @@ import { PaymentsModule } from './payments/payments.module';
       database: process.env.DB,
       models: [
         User,
-        UsersStations,
+        UserStationRole,
         UsersParams,
         Business,
         Station,

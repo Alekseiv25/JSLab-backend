@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { User, UsersStations } from './users.model';
+import { User, UserStationRole } from './users.model';
 import { Business } from 'src/businesses/businesses.model';
 import { TokensModule } from 'src/tokens/tokens.module';
 import { UsersParamsModule } from 'src/users_params/users_params.module';
@@ -11,7 +11,7 @@ import { UsersParamsModule } from 'src/users_params/users_params.module';
   controllers: [UsersController],
   providers: [UsersService],
   imports: [
-    SequelizeModule.forFeature([User, Business, UsersStations]),
+    SequelizeModule.forFeature([User, Business, UserStationRole]),
     TokensModule,
     UsersParamsModule,
   ],

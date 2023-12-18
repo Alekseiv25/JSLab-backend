@@ -3,7 +3,6 @@ import { makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
 import { CreateUserParamsDto } from './dto/create-users_params.dto';
 import { UsersParams } from './users_params.model';
 import { InjectModel } from '@nestjs/sequelize';
-import { IUserParamsUpdateResponse } from 'src/types/responses/users';
 
 @Injectable()
 export class UsersParamsService {
@@ -14,7 +13,11 @@ export class UsersParamsService {
 
   async getUserParams(userId: number): Promise<UsersParams> {
     const userParams: UsersParams = await this.findUserParamsByID(userId);
-    await this.updateUserLastActivityTimestamp(userId);
+    return userParams;
+  }
+
+  async getUserParamsByInviteLink(inviteLink: string): Promise<UsersParams> {
+    const userParams: UsersParams = await this.findUserParamsByInviteLink(inviteLink);
     return userParams;
   }
 
@@ -25,17 +28,11 @@ export class UsersParamsService {
 
   async updateUserParams(
     userId: number,
-    newUserParams: CreateUserParamsDto,
-  ): Promise<IUserParamsUpdateResponse> {
+    newUserParams: Partial<CreateUserParamsDto>,
+  ): Promise<UsersParams> {
     const userParams: UsersParams = await this.findUserParamsByID(userId);
     const updatedUserParams: UsersParams = await userParams.update({ ...newUserParams });
-    await this.updateUserLastActivityTimestamp(userId);
-
-    const response: IUserParamsUpdateResponse = {
-      status: HttpStatus.OK,
-      updatedUserParams: updatedUserParams,
-    };
-    return response;
+    return updatedUserParams;
   }
 
   async updateUserLastActivityTimestamp(userId: number): Promise<void> {
@@ -46,6 +43,18 @@ export class UsersParamsService {
 
   private async findUserParamsByID(userId: number): Promise<UsersParams> {
     const userParams: UsersParams = await this.usersParamsModel.findByPk(userId);
+
+    if (!userParams) {
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
+    }
+
+    return userParams;
+  }
+
+  private async findUserParamsByInviteLink(inviteLink: string): Promise<UsersParams> {
+    const userParams: UsersParams | null = await this.usersParamsModel.findOne({
+      where: { inviteLink: inviteLink },
+    });
 
     if (!userParams) {
       throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
