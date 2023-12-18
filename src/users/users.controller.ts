@@ -1,15 +1,15 @@
 import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
-import { UsersService } from './users.service';
+import { IUserAssignUpdateRequest } from 'src/types/requests/users';
 import { CreateUserDto } from './dto/create-user.dto';
+import { IBasicResponse } from 'src/types/responses';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { UsersService } from './users.service';
 import {
   IBasicUserResponse,
-  ICheckUserEmailResponse,
   IDeleteUserResponse,
   IGetAllUsersResponse,
   IUserInformationForAdminResponse,
   IUserParamsUpdateResponse,
-  IValidateUserPasswordResponse,
 } from 'src/types/responses/users';
 import {
   Controller,
@@ -29,7 +29,7 @@ export class UsersController {
   constructor(private userService: UsersService) {}
 
   @Get()
-  getAll(): Promise<IGetAllUsersResponse> {
+  getAllUsers(): Promise<IGetAllUsersResponse> {
     return this.userService.getAllUsers();
   }
 
@@ -59,18 +59,25 @@ export class UsersController {
     return this.userService.getUserByID(id);
   }
 
+  @Get('admin/users-information')
+  @UseGuards(AuthGuard)
+  getUsersInfoForAdminTable(
+    @Query('requesterId') requesterId: string,
+  ): Promise<IUserInformationForAdminResponse> {
+    return this.userService.getUsersInfoForAdminTable(Number(requesterId));
+  }
+
   @Post('email-uniqueness')
   @HttpCode(200)
-  async checkUniquenessOfUserEmail(@Body('email') email: string): Promise<ICheckUserEmailResponse> {
+  async checkEmailUnique(@Body('email') email: string): Promise<IBasicResponse> {
     return this.userService.checkUniquenessOfEmail(email);
   }
 
-  @Post('password-validation')
-  @HttpCode(200)
+  @Post('password')
   async validatePassword(
     @Body('userID') userID: number,
     @Body('password') password: string,
-  ): Promise<IValidateUserPasswordResponse> {
+  ): Promise<IBasicResponse> {
     return this.userService.validatePassword(userID, password);
   }
 
@@ -90,6 +97,15 @@ export class UsersController {
     @Body() updatedUserParams: CreateUserParamsDto,
   ): Promise<IUserParamsUpdateResponse> {
     return this.userService.updateUserParams(id, updatedUserParams);
+  }
+
+  @Put('assign/:id')
+  @UseGuards(AuthGuard)
+  updateUserAssign(
+    @Param('id') userID: number,
+    @Body() assignData: IUserAssignUpdateRequest,
+  ): Promise<IBasicResponse> {
+    return this.userService.updateUserAssign(userID, assignData);
   }
 
   @Delete(':id')

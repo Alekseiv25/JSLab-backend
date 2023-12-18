@@ -15,7 +15,9 @@ type nameVariants =
   | 'Fuel Price'
   | 'Token'
   | 'Transactions'
-  | 'Transaction';
+  | 'Transaction'
+  | 'Payments'
+  | 'Payment';
 
 export function makeDeleteMessage(name: nameVariants): string {
   return `${name} was deleted from the database!`;
@@ -59,4 +61,8 @@ export function makeSuccessUpdatingMessage(): string {
 
 export function makeSuccessInvitingMessage(): string {
   return `Successfully invited.`;
+}
+
+export function makeAlreadyActivatedMessage(): string {
+  return `Account already activated.`;
 }

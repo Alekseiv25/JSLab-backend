@@ -12,6 +12,7 @@ import {
 } from '../types/responses/accounts';
 import { makeDeleteMessage, makeNotFoundMessage } from '../utils/generators/messageGenerators';
 import { Op } from 'sequelize';
+import { Payment } from 'src/payments/payments.model';
 
 @Injectable()
 export class AccountsService {
@@ -54,7 +55,9 @@ export class AccountsService {
   }
 
   async getAllAccounts() {
-    const accounts: Account[] | null = await this.accountRepository.findAll();
+    const accounts: Account[] | null = await this.accountRepository.findAll({
+      include: [{ model: Payment }],
+    });
 
     if (accounts.length === 0) {
       throw new HttpException(makeNotFoundMessage('Accounts'), HttpStatus.NOT_FOUND);
@@ -63,18 +66,27 @@ export class AccountsService {
     const decryptedAccounts = accounts.map((account) => {
       const decryptedRoutingNumber = decrypt(account.routingNumber, this.key32, this.key16);
       const decryptedAccountNumber = decrypt(account.accountNumber, this.key32, this.key16);
-      const decryptedAccount = Account.build({
+      const decryptedPayment: Payment[] = account.payments
+        ? JSON.parse(JSON.stringify(account.payments))
+        : null;
+
+      const decryptedAccount = {
         ...account.toJSON(),
         routingNumber: decryptedRoutingNumber,
         accountNumber: decryptedAccountNumber,
-      });
+        payments: decryptedPayment,
+      };
+
       return decryptedAccount;
     });
+
     return decryptedAccounts;
   }
 
   async getAccountById(id: number): Promise<Account | null> {
-    const account: Account | null = await this.accountRepository.findByPk(id);
+    const account: Account | null = await this.accountRepository.findByPk(id, {
+      include: [{ model: Payment }],
+    });
 
     if (!account) {
       throw new HttpException(makeNotFoundMessage('Account'), HttpStatus.NOT_FOUND);
@@ -82,13 +94,20 @@ export class AccountsService {
 
     const decryptedRoutingNumber = decrypt(account.routingNumber, this.key32, this.key16);
     const decryptedAccountNumber = decrypt(account.accountNumber, this.key32, this.key16);
-    const decryptedAccount = Account.build({
-      ...account.toJSON(),
+    const decryptedPayment: Payment[] = account.payments
+      ? JSON.parse(JSON.stringify(account.payments))
+      : null;
+
+    const decryptedAccount = {
       routingNumber: decryptedRoutingNumber,
       accountNumber: decryptedAccountNumber,
-    });
+      payments: decryptedPayment,
+    };
 
-    return decryptedAccount;
+    account.setDataValue('routingNumber', decryptedAccount.routingNumber);
+    account.setDataValue('accountNumber', decryptedAccount.accountNumber);
+
+    return account;
   }
 
   async getAccountsByBusinessId(businessId: number): Promise<IGetAllAccountsResponse> {
@@ -98,6 +117,7 @@ export class AccountsService {
           [Op.in]: [businessId],
         },
       },
+      include: [{ model: Payment }],
     });
 
     if (accounts.length === 0) {
@@ -107,15 +127,24 @@ export class AccountsService {
     const decryptedAccounts = accounts.map((account) => {
       const decryptedRoutingNumber = decrypt(account.routingNumber, this.key32, this.key16);
       const decryptedAccountNumber = decrypt(account.accountNumber, this.key32, this.key16);
-      const decryptedAccount = Account.build({
+      const decryptedPayment: Payment[] = account.payments
+        ? JSON.parse(JSON.stringify(account.payments))
+        : null;
+
+      const decryptedAccount = {
         ...account.toJSON(),
         routingNumber: decryptedRoutingNumber,
         accountNumber: decryptedAccountNumber,
-      });
+        payments: decryptedPayment,
+      };
+
       return decryptedAccount;
     });
 
-    const response: IGetAllAccountsResponse = { status: HttpStatus.OK, data: decryptedAccounts };
+    const response: IGetAllAccountsResponse = {
+      status: HttpStatus.OK,
+      data: decryptedAccounts as Account[],
+    };
     return response;
   }
 
@@ -125,7 +154,6 @@ export class AccountsService {
       routingNumber: encrypt(dto.routingNumber, this.key32, this.key16),
       accountNumber: encrypt(dto.accountNumber, this.key32, this.key16),
     };
-    console.log(encryptedDto);
 
     const newAccount: Account = await this.accountRepository.create(encryptedDto);
     const response: IBasicAccountResponse = { status: HttpStatus.OK, data: newAccount };

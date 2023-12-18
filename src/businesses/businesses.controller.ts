@@ -1,9 +1,9 @@
-import { BusinessesService } from './businesses.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
+import { BusinessesService } from './businesses.service';
+import { IBasicResponse } from 'src/types/responses';
 import { AuthGuard } from 'src/auth/auth.guard';
 import {
   IBasicBusinessResponse,
-  ICheckBusinessNameResponse,
   IDeleteBusinessResponse,
   IGetAllBusinessResponse,
 } from 'src/types/responses/businesses';
@@ -37,15 +37,13 @@ export class BusinessesController {
   @Post()
   createNewBusiness(
     @Body() businessDto: CreateBusinessDto,
-  ): Promise<IBasicBusinessResponse | ICheckBusinessNameResponse> {
+  ): Promise<IBasicBusinessResponse | IBasicResponse> {
     return this.businessesService.createNewBusiness(businessDto);
   }
 
   @Post('name-uniqueness')
   @HttpCode(200)
-  async checkUniquenessOfBusinessName(
-    @Body('name') name: string,
-  ): Promise<ICheckBusinessNameResponse> {
+  async checkUniquenessOfName(@Body('name') name: string): Promise<IBasicResponse> {
     return this.businessesService.checkUniquenessOfName(name);
   }
 

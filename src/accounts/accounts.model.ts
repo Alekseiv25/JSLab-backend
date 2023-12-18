@@ -4,12 +4,14 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { Business } from '../businesses/businesses.model';
 import { Station } from '../stations/stations.model';
 import { AccountTableColumns } from '../types/tableColumns';
+import { Payment } from 'src/payments/payments.model';
 
 @Table({ tableName: 'accounts' })
 export class Account extends Model<Account, AccountTableColumns> {
@@ -40,6 +42,9 @@ export class Account extends Model<Account, AccountTableColumns> {
 
   @BelongsTo(() => Business, 'businessId')
   businesses: Business;
+
+  @HasMany(() => Payment)
+  payments: Payment[];
 }
 
 @Table({ tableName: 'station_accounts' })
