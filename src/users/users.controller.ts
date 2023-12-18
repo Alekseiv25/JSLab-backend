@@ -33,6 +33,26 @@ export class UsersController {
     return this.userService.getAllUsers();
   }
 
+  @Get('admin/users-information')
+  @UseGuards(AuthGuard)
+  getUsersInformationForAdmin(
+    @Query('requesterId') requesterId: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
+    @Query('name') name?: string,
+    @Query('stationName') stationName?: string,
+    @Query('status') status?: string,
+  ): Promise<IUserInformationForAdminResponse> {
+    return this.userService.getUsersInformationForAdmin(
+      Number(requesterId),
+      limit,
+      offset,
+      name,
+      stationName,
+      status,
+    );
+  }
+
   @Get(':id')
   @UseGuards(AuthGuard)
   getUserByID(@Param('id') id: number): Promise<IBasicUserResponse> {

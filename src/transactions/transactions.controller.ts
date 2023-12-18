@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import {
@@ -28,16 +28,44 @@ export class TransactionsController {
   @UseGuards(AuthGuard)
   getTransactionsByBusinessId(
     @Param('businessId') businessId: number,
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+    @Query('fuelType') fuelType?: string,
+    @Query('discount') discount?: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
   ): Promise<IGetAllTransactionsResponse> {
-    return this.transactionsService.getTransactionsByBusinessId(businessId);
+    return this.transactionsService.getTransactionsByBusinessId(
+      businessId,
+      fromDate,
+      toDate,
+      fuelType,
+      discount,
+      limit,
+      offset,
+    );
   }
 
   @Get('stations/:stationId')
   @UseGuards(AuthGuard)
   getTransactionsByStationId(
     @Param('stationId') stationId: number,
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+    @Query('fuelType') fuelType?: string,
+    @Query('discount') discount?: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
   ): Promise<IGetAllTransactionsResponse> {
-    return this.transactionsService.getTransactionsByStationId(stationId);
+    return this.transactionsService.getTransactionsByStationId(
+      stationId,
+      fromDate,
+      toDate,
+      fuelType,
+      discount,
+      limit,
+      offset,
+    );
   }
 
   @Post()

@@ -32,6 +32,7 @@ import {
   IUserParamsInformationForAdmin,
   IUserParamsUpdateResponse,
 } from 'src/types/responses/users';
+import { FindOptions, IncludeOptions, Op, WhereOptions } from 'sequelize';
 
 @Injectable()
 export class UsersService {
@@ -61,6 +62,83 @@ export class UsersService {
     }
 
     const response: IGetAllUsersResponse = { status: HttpStatus.OK, data: users };
+    return response;
+  }
+
+  async getUsersInformationForAdmin(
+    requesterId: number,
+    limit?: number,
+    offset?: number,
+    name?: string,
+    stationNames?: string,
+    statuses?: string,
+  ): Promise<IUserInformationForAdminResponse> {
+    const requester: User = await this.findUserByID(requesterId);
+
+    const where: WhereOptions<User> = {
+      businessId: requester.businessId,
+    };
+
+    if (name) {
+      where[Op.or] = [
+        { firstName: { [Op.like]: `%${name}%` } },
+        { lastName: { [Op.like]: `%${name}%` } },
+      ];
+    }
+
+    const includeOptions: IncludeOptions[] = [];
+
+    if (stationNames) {
+      const stationNameList = stationNames.split(',');
+      includeOptions.push({
+        model: Station,
+        where: {
+          name: {
+            [Op.in]: stationNameList,
+          },
+        },
+      });
+    }
+
+    if (statuses) {
+      const statusList = statuses.split(',');
+      includeOptions.push({
+        model: UsersParams,
+        where: {
+          status: {
+            [Op.in]: statusList,
+          },
+        },
+      });
+    }
+
+    const options: FindOptions = {
+      where,
+      include: includeOptions,
+      limit,
+      offset,
+      order: [['id', 'DESC']],
+    };
+
+    const usersRelatedToRequesterBusiness: User[] = await this.userRepository.findAll(options);
+
+    if (!usersRelatedToRequesterBusiness || usersRelatedToRequesterBusiness.length === 0) {
+      throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
+    }
+
+    const transformedUsersPromises: Promise<IUserInformationForAdmin>[] =
+      usersRelatedToRequesterBusiness
+        .filter((user) => user.id !== requesterId)
+        .map((user) => this.transformUsersDataForAdmin(user));
+
+    const transformedUsers: IUserInformationForAdmin[] =
+      await Promise.all(transformedUsersPromises);
+
+    const response: IUserInformationForAdminResponse = {
+      status: HttpStatus.OK,
+      data: transformedUsers,
+    };
+
     return response;
   }
 

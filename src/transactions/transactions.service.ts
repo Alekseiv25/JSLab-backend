@@ -8,7 +8,7 @@ import {
 } from 'src/types/responses/transactions';
 import { makeDeleteMessage, makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
 import { CreateTransactionDto } from './dto/transactions.dto';
-import { Op } from 'sequelize';
+import { FindOptions, Op, WhereOptions } from 'sequelize';
 
 @Injectable()
 export class TransactionsService {
@@ -24,14 +24,64 @@ export class TransactionsService {
     return response;
   }
 
-  async getTransactionsByBusinessId(businessId: number): Promise<IGetAllTransactionsResponse> {
-    const transactions: Transaction[] | null = await this.transactionsRepository.findAll({
-      where: {
-        businessId: {
-          [Op.in]: [businessId],
-        },
+  async getTransactionsByBusinessId(
+    businessId: number,
+    fromDate?: string,
+    toDate?: string,
+    fuelTypes?: string,
+    discounts?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<IGetAllTransactionsResponse> {
+    const where: WhereOptions<Transaction> = {
+      businessId: {
+        [Op.in]: [businessId],
       },
-    });
+    };
+
+    if (fromDate && toDate) {
+      where.createdAt = {
+        [Op.between]: [new Date(fromDate), new Date(toDate)],
+      };
+    } else if (fromDate) {
+      where.createdAt = {
+        [Op.gte]: new Date(fromDate),
+      };
+    } else if (toDate) {
+      where.createdAt = {
+        [Op.lte]: new Date(toDate),
+      };
+    }
+
+    if (fuelTypes) {
+      const fuelTypeList = fuelTypes.split(',');
+      where.fuelType = {
+        [Op.in]: fuelTypeList,
+      };
+    }
+
+    if (discounts) {
+      const discountList = discounts.split(',');
+      where.discount = {
+        [Op.in]: discountList,
+      };
+    }
+
+    const options: FindOptions = {
+      where,
+      order: [['createdAt', 'DESC']],
+    };
+
+    if (limit) {
+      options.limit = limit;
+    }
+
+    if (offset) {
+      options.offset = offset;
+    }
+
+    const transactions: Transaction[] | null = await this.transactionsRepository.findAll(options);
+
     if (transactions.length === 0) {
       throw new HttpException(makeNotFoundMessage('Transactions'), HttpStatus.NOT_FOUND);
     }
@@ -40,14 +90,64 @@ export class TransactionsService {
     return response;
   }
 
-  async getTransactionsByStationId(stationId: number): Promise<IGetAllTransactionsResponse> {
-    const transactions: Transaction[] | null = await this.transactionsRepository.findAll({
-      where: {
-        stationId: {
-          [Op.in]: [stationId],
-        },
+  async getTransactionsByStationId(
+    stationId: number,
+    fromDate?: string,
+    toDate?: string,
+    fuelTypes?: string,
+    discounts?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<IGetAllTransactionsResponse> {
+    const where: WhereOptions<Transaction> = {
+      stationId: {
+        [Op.in]: [stationId],
       },
-    });
+    };
+
+    if (fromDate && toDate) {
+      where.createdAt = {
+        [Op.between]: [new Date(fromDate), new Date(toDate)],
+      };
+    } else if (fromDate) {
+      where.createdAt = {
+        [Op.gte]: new Date(fromDate),
+      };
+    } else if (toDate) {
+      where.createdAt = {
+        [Op.lte]: new Date(toDate),
+      };
+    }
+
+    if (fuelTypes) {
+      const fuelTypeList = fuelTypes.split(',');
+      where.fuelType = {
+        [Op.in]: fuelTypeList,
+      };
+    }
+
+    if (discounts) {
+      const discountList = discounts.split(',');
+      where.discount = {
+        [Op.in]: discountList,
+      };
+    }
+
+    const options: FindOptions = {
+      where,
+      order: [['createdAt', 'DESC']],
+    };
+
+    if (limit) {
+      options.limit = limit;
+    }
+
+    if (offset) {
+      options.offset = offset;
+    }
+
+    const transactions: Transaction[] | null = await this.transactionsRepository.findAll(options);
+
     if (transactions.length === 0) {
       throw new HttpException(makeNotFoundMessage('Transactions'), HttpStatus.NOT_FOUND);
     }
