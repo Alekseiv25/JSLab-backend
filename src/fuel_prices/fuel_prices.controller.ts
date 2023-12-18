@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { FuelPricesService } from './fuel_prices.service';
 import {
   IBasicFuelPriceResponse,
@@ -27,10 +27,12 @@ export class FuelPricesController {
 
   @Get('stations/:stationId')
   @UseGuards(AuthGuard)
-  getFuelPricesByStationId(
+  async getFuelPricesByStationId(
     @Param('stationId') stationId: number,
+    @Query('offset') offset?: number,
+    @Query('limit') limit?: number,
   ): Promise<IGetAllFuelPricesResponse> {
-    return this.fuelPricesService.getFuelPricesByStationId(stationId);
+    return this.fuelPricesService.getFuelPricesByStationId(stationId, offset, limit);
   }
 
   @Post()

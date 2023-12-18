@@ -17,6 +17,7 @@ import {
   Param,
   HttpCode,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 
 @Controller('stations')
@@ -33,8 +34,24 @@ export class StationsController {
   @UseGuards(AuthGuard)
   getStationsByBusinessId(
     @Param('businessId') businessId: number,
+    @Query('searchQuery') searchQuery?: string,
+    @Query('name') name?: string,
+    @Query('address') address?: string,
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
   ): Promise<IGetAllStationsResponse> {
-    return this.stationsService.getStationsByBusinessId(businessId);
+    return this.stationsService.getStationsByBusinessId(
+      businessId,
+      searchQuery,
+      name,
+      address,
+      fromDate,
+      toDate,
+      limit,
+      offset,
+    );
   }
 
   @Get(':id')

@@ -9,7 +9,7 @@ import {
 } from 'src/types/responses/fuel_prices';
 import { makeDeleteMessage, makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
 import { CreateFuelPriceDto } from './dto/fuel-price.dto';
-import { Op } from 'sequelize';
+import { FindOptions, Op, WhereOptions } from 'sequelize';
 
 @Injectable()
 export class FuelPricesService {
@@ -36,14 +36,32 @@ export class FuelPricesService {
     return response;
   }
 
-  async getFuelPricesByStationId(stationId: number): Promise<IGetAllFuelPricesResponse> {
-    const fuelPrices: FuelPrice[] | null = await this.fuelPriceRepository.findAll({
-      where: {
-        stationId: {
-          [Op.in]: [stationId],
-        },
+  async getFuelPricesByStationId(
+    stationId: number,
+    offset?: number,
+    limit?: number,
+  ): Promise<IGetAllFuelPricesResponse> {
+    const where: WhereOptions = {
+      stationId: {
+        [Op.in]: [stationId],
       },
-    });
+    };
+
+    const options: FindOptions = {
+      where,
+      order: [['id', 'DESC']],
+    };
+
+    if (offset) {
+      options.offset = offset;
+    }
+
+    if (limit) {
+      options.limit = limit;
+    }
+
+    const fuelPrices: FuelPrice[] | null = await this.fuelPriceRepository.findAll(options);
+
     if (fuelPrices.length === 0) {
       throw new HttpException(makeNotFoundMessage('Fuel Price'), HttpStatus.NOT_FOUND);
     }

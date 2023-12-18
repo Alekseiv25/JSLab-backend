@@ -22,7 +22,8 @@ import { Operation } from 'src/operations/operations.model';
 import { OperationsService } from 'src/operations/operations.service';
 import { FuelPrice } from 'src/fuel_prices/fuel_prices.model';
 import { Transaction } from 'src/transactions/transactions.model';
-import { Op } from 'sequelize';
+import { FindOptions, Op, WhereOptions } from 'sequelize';
+import { Payment } from 'src/payments/payments.model';
 
 @Injectable()
 export class StationsService {
@@ -75,6 +76,7 @@ export class StationsService {
         { model: Operation },
         { model: FuelPrice },
         { model: Transaction },
+        { model: Payment },
       ],
     });
 
@@ -86,20 +88,75 @@ export class StationsService {
     return response;
   }
 
-  async getStationsByBusinessId(businessId: number): Promise<IGetAllStationsResponse> {
-    const stations: Station[] | null = await this.stationRepository.findAll({
-      where: {
-        businessId: {
-          [Op.in]: [businessId],
-        },
+  async getStationsByBusinessId(
+    businessId: number,
+    searchQuery?: string,
+    name?: string,
+    address?: string,
+    fromDate?: string,
+    toDate?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<IGetAllStationsResponse> {
+    const where: WhereOptions<Station> = {
+      businessId: {
+        [Op.in]: [businessId],
       },
+    };
+
+    if (searchQuery) {
+      where[Op.or] = [
+        { name: { [Op.like]: `%${searchQuery}%` } },
+        { address: { [Op.like]: `%${searchQuery}%` } },
+      ];
+    } else {
+      if (name) {
+        where.name = {
+          [Op.in]: name.split(','),
+        };
+      }
+
+      if (address) {
+        where.address = {
+          [Op.in]: address.split(','),
+        };
+      }
+
+      if (fromDate && toDate) {
+        where.updatedAt = {
+          [Op.between]: [new Date(fromDate), new Date(toDate)],
+        };
+      } else if (fromDate) {
+        where.updatedAt = {
+          [Op.gte]: new Date(fromDate),
+        };
+      } else if (toDate) {
+        where.updatedAt = {
+          [Op.lte]: new Date(toDate),
+        };
+      }
+    }
+
+    const options: FindOptions = {
+      where,
       include: [
         { model: Account },
         { model: Operation },
         { model: FuelPrice },
         { model: Transaction },
       ],
-    });
+      order: [['id', 'DESC']],
+    };
+
+    if (limit) {
+      options.limit = limit;
+    }
+
+    if (offset) {
+      options.offset = offset;
+    }
+
+    const stations: Station[] | null = await this.stationRepository.findAll(options);
 
     if (stations.length === 0) {
       throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
@@ -118,6 +175,7 @@ export class StationsService {
         { model: Operation, separate: true },
         { model: FuelPrice },
         { model: Transaction },
+        { model: Payment },
       ],
     });
 
@@ -129,11 +187,14 @@ export class StationsService {
       station.accounts.map(async (account) => {
         const decryptedRoutingNumber = decrypt(account.routingNumber, this.key32, this.key16);
         const decryptedAccountNumber = decrypt(account.accountNumber, this.key32, this.key16);
-
+        const decryptedPayment = account.payments
+          ? JSON.parse(JSON.stringify(account.payments))
+          : null;
         const decryptedAccount = Account.build({
           ...account.get({ plain: true }),
           routingNumber: decryptedRoutingNumber,
           accountNumber: decryptedAccountNumber,
+          payments: decryptedPayment,
         });
         decryptedAccount.isNewRecord = false;
         return decryptedAccount;
