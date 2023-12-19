@@ -43,6 +43,10 @@ export function makeNotCorrectDataMessage(): string {
   return `Incorrect email or password.`;
 }
 
+export function makeSuspendMessage(): string {
+  return `Your account has been suspended. Please contact your business administrator for details.`;
+}
+
 export function makeNotValidPasswordMessage(): string {
   return `Incorrect password.`;
 }

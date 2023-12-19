@@ -19,6 +19,7 @@ import {
   makeDeleteMessage,
   makeNotCorrectDataMessage,
   makeSuccessInvitingMessage,
+  makeSuspendMessage,
   makeUnauthorizedMessage,
 } from 'src/utils/generators/messageGenerators';
 import {
@@ -61,7 +62,11 @@ export class AuthService {
     }
 
     const user: User = await this.userService.findUserByID(userDataFromToken.id);
-    const tokens: ITokensCreationResponse = await this.generateTokens(user);
+    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(user);
+    await this.tokensService.saveToken(user.id, tokens.refreshToken);
+    // TODO: remove line 64 and 65, uncomment line 68 when
+    // all errors related to refresh token will be caught on the frontend.
+    // const tokens: ITokensCreationResponse = await this.generateTokens(user);
 
     const response: IRefreshResponseJWT = {
       status: HttpStatus.OK,
@@ -86,8 +91,8 @@ export class AuthService {
   }
 
   async activateInvitedUserAccount(userDto: ActivateUserDto): Promise<IRegistrationResponseJWT> {
-    const hashPassword: string = await bcrypt.hash(userDto.userData.password, 10);
-    const activatedUser: User = await this.updateInvitedUser(userDto, hashPassword);
+    const activatedUser: User = await this.updateInvitedUser(userDto);
+
     await this.updateInvitedUserParams(activatedUser.id);
     const tokens: ITokensCreationResponse = await this.generateTokens(activatedUser);
 
@@ -110,6 +115,10 @@ export class AuthService {
 
     if (!isPasswordsEquals) {
       throw new HttpException(makeNotCorrectDataMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    if (userParams.status === 'Suspended') {
+      throw new HttpException(makeSuspendMessage(), HttpStatus.FORBIDDEN);
     }
 
     const tokens: ITokensCreationResponse = await this.generateTokens(user);
@@ -256,13 +265,10 @@ export class AuthService {
     return newUserParams;
   }
 
-  private async updateInvitedUser(
-    invitedUserDto: ActivateUserDto,
-    hashPassword: string,
-  ): Promise<User> {
+  private async updateInvitedUser(invitedUserDto: ActivateUserDto): Promise<User> {
     const userDataForUpdate: Partial<CreateUserDto> = {
       lastName: invitedUserDto.userData.lastName,
-      password: hashPassword,
+      password: invitedUserDto.userData.password,
     };
 
     const invitedUser: IBasicUserResponse = await this.userService.updateUserByID(
