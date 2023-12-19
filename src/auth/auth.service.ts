@@ -52,6 +52,7 @@ export class AuthService {
       this.tokensService.validateRefreshToken(refreshToken);
 
     if (!userDataFromToken) {
+      await this.tokensService.removeRefreshToken(refreshToken);
       throw new HttpException(makeUnauthorizedMessage(), HttpStatus.FORBIDDEN);
     }
 
