@@ -5,7 +5,6 @@ export class CreateUserParamsDto {
   readonly status: UserStatusTypes;
   readonly statusChangeDate: string;
   readonly isBusinessAdmin: boolean;
-  readonly suspensionReason: string;
   readonly isFinishedTutorial: boolean;
   readonly lastActivityDate: string;
   readonly inviteLink: string;

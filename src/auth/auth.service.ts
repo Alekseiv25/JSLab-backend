@@ -249,7 +249,6 @@ export class AuthService {
       statusChangeDate: currentTimestamp,
       lastActivityDate: currentTimestamp,
       isFinishedTutorial: false,
-      suspensionReason: null,
       inviteLink: inviteLink || null,
     };
     const newUserParams: UsersParams =
