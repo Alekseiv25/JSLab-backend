@@ -50,9 +50,14 @@ export class AuthService {
 
     const userDataFromToken: IRefreshToken | null =
       this.tokensService.validateRefreshToken(refreshToken);
+
+    if (!userDataFromToken) {
+      throw new HttpException(makeUnauthorizedMessage(), HttpStatus.FORBIDDEN);
+    }
+
     const tokenFromDB: Token = await this.tokensService.findTokenInDB(refreshToken);
 
-    if (!userDataFromToken || !tokenFromDB) {
+    if (!tokenFromDB) {
       throw new HttpException(makeUnauthorizedMessage(), HttpStatus.UNAUTHORIZED);
     }
 
