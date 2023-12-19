@@ -4,7 +4,6 @@ import { IInviteDto, ILoginUserData, IUserInvitationRequest } from 'src/types/re
 import { UsersParamsService } from 'src/users_params/users_params.service';
 import { ActivateUserDto, CreateNewUserDto } from './dto/create-user.dto';
 import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
-import { BusinessesService } from 'src/businesses/businesses.service';
 import { UsersParams } from 'src/users_params/users_params.model';
 import { User, UserStationRole } from 'src/users/users.model';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -39,7 +38,6 @@ export class AuthService {
   constructor(
     private userService: UsersService,
     private userParamsService: UsersParamsService,
-    private businessService: BusinessesService,
     private tokensService: TokensService,
   ) {}
 
