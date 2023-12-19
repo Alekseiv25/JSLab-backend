@@ -31,6 +31,16 @@ export class UsersParamsService {
     newUserParams: Partial<CreateUserParamsDto>,
   ): Promise<UsersParams> {
     const userParams: UsersParams = await this.findUserParamsByID(userId);
+
+    if (newUserParams.status) {
+      const currentTimestamp: string = await this.getCurrentTimestamp();
+      const updatedUserParams: UsersParams = await userParams.update({
+        ...newUserParams,
+        statusChangeDate: currentTimestamp,
+      });
+      return updatedUserParams;
+    }
+
     const updatedUserParams: UsersParams = await userParams.update({ ...newUserParams });
     return updatedUserParams;
   }

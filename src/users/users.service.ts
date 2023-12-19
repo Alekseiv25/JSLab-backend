@@ -1,14 +1,17 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
+import { IInviteDto, IUserAssignUpdateRequest } from 'src/types/requests/users';
 import { UsersParamsService } from 'src/users_params/users_params.service';
-import { IUserAssignUpdateRequest } from 'src/types/requests/users';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BusinessesService } from 'src/businesses/businesses.service';
 import { UsersParams } from 'src/users_params/users_params.model';
 import { UserStationRoleTypes } from 'src/types/tableColumns';
+import { Business } from 'src/businesses/businesses.model';
 import { User, UserStationRole } from './users.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Station } from 'src/stations/stations.model';
 import { IBasicResponse } from 'src/types/responses';
 import { InjectModel } from '@nestjs/sequelize';
+import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcrypt';
 import {
   makeAlreadyActivatedMessage,
@@ -17,12 +20,12 @@ import {
   makeDeleteMessage,
   makeNotFoundMessage,
   makeNotValidPasswordMessage,
+  makeSuccessInvitingMessage,
   makeSuccessUpdatingMessage,
   makeValidPasswordMessage,
 } from 'src/utils/generators/messageGenerators';
 import {
   IBasicUserResponse,
-  IDeleteUserResponse,
   IGetAllUsersResponse,
   IInvitedUserDataResponse,
   IUserAssignedInformationForAdmin,
@@ -32,6 +35,10 @@ import {
   IUserParamsInformationForAdmin,
   IUserParamsUpdateResponse,
 } from 'src/types/responses/users';
+import {
+  IUserInviteGeneratorArguments,
+  generateHTMLForEmailToInviteUser,
+} from 'src/utils/generators/emailGenerators';
 import { FindOptions, IncludeOptions, Op, WhereOptions } from 'sequelize';
 
 @Injectable()
@@ -39,6 +46,7 @@ export class UsersService {
   constructor(
     @InjectModel(User) private userRepository: typeof User,
     private userParamsService: UsersParamsService,
+    private businessService: BusinessesService,
   ) {}
 
   async getAllUsers(): Promise<IGetAllUsersResponse> {
@@ -148,6 +156,26 @@ export class UsersService {
     return response;
   }
 
+  async reinviteUser(invitedUserId: number, inviterUserId: number): Promise<IBasicResponse> {
+    const invitedUser: User = await this.findUserByID(invitedUserId);
+    const invitedUserParams: UsersParams =
+      await this.userParamsService.getUserParams(invitedUserId);
+
+    const dataForInvite: IInviteDto = {
+      inviterId: inviterUserId,
+      invitedUserEmail: invitedUser.email,
+      invitedUserFirstName: invitedUser.firstName,
+      inviteLink: invitedUserParams.inviteLink,
+    };
+
+    await this.sendInvite(dataForInvite);
+    const response: IBasicResponse = {
+      status: HttpStatus.OK,
+      message: makeSuccessInvitingMessage(),
+    };
+    return response;
+  }
+
   async getUsersInfoForAdminTable(requesterId: number): Promise<IUserInformationForAdminResponse> {
     const requester: User = await this.findUserByID(requesterId);
     const usersRelatedToRequesterBusiness: User[] = await this.findAllUsersRelatedToBusiness(
@@ -215,15 +243,15 @@ export class UsersService {
     return response;
   }
 
-  async deleteUserByID(id: number): Promise<IDeleteUserResponse> {
+  async cancelUserInvite(id: number): Promise<IBasicResponse> {
     const user: User = await this.findUserByID(id);
-    await user.destroy();
+    const userParams: UsersParams = await this.userParamsService.getUserParams(id);
 
-    const response: IDeleteUserResponse = {
-      status: HttpStatus.OK,
-      message: makeDeleteMessage('User'),
-      data: user,
-    };
+    await user.destroy();
+    await userParams.destroy();
+    await UserStationRole.destroy({ where: { userId: id } });
+
+    const response: IBasicResponse = { status: HttpStatus.OK, message: makeDeleteMessage('User') };
     return response;
   }
 
@@ -393,5 +421,37 @@ export class UsersService {
         }
       }),
     );
+  }
+
+  async sendInvite(inviteData: IInviteDto): Promise<void> {
+    const inviterData: User = await this.findUserByID(inviteData.inviterId);
+    const inviterBusiness: Business = await this.businessService.findBusinessByID(
+      inviterData.businessId,
+    );
+
+    const informationForInviteEmail: IUserInviteGeneratorArguments = {
+      businessName: inviterBusiness.legalName,
+      invitedUserFirstName: inviteData.invitedUserFirstName,
+      inviterUserFirstName: inviterData.firstName,
+      inviterUserLastName: inviterData.lastName,
+      inviteLink: `${process.env.INVITE_ROUTE}${inviteData.inviteLink}`,
+    };
+
+    const transporter = nodemailer.createTransport({
+      service: process.env.SUPPORT_EMAIL_SERVICE_NAME,
+      auth: {
+        user: process.env.SUPPORT_EMAIL,
+        pass: process.env.SUPPORT_EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptionsForInviteEmail = {
+      from: process.env.SUPPORT_EMAIL,
+      to: inviteData.invitedUserEmail,
+      subject: 'Invitation',
+      html: generateHTMLForEmailToInviteUser(informationForInviteEmail),
+    };
+
+    await transporter.sendMail(mailOptionsForInviteEmail);
   }
 }
