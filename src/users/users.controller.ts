@@ -26,6 +26,12 @@ import {
 export class UsersController {
   constructor(private userService: UsersService) {}
 
+  @Get('')
+  @UseGuards(AuthGuard)
+  getUserByID(@Query('userId') userId: string): Promise<IBasicUserResponse> {
+    return this.userService.getUserByID(Number(userId));
+  }
+
   @Get('admin/users-information')
   @UseGuards(AuthGuard)
   getUsersInformationForAdmin(
@@ -44,20 +50,6 @@ export class UsersController {
       stationName,
       status,
     );
-  }
-
-  @Get(':id')
-  @UseGuards(AuthGuard)
-  getUserByID(@Query('userId') userId: string): Promise<IBasicUserResponse> {
-    return this.userService.getUserByID(Number(userId));
-  }
-
-  @Get('admin/users-information')
-  @UseGuards(AuthGuard)
-  getUsersInfoForAdminTable(
-    @Query('requesterId') requesterId: string,
-  ): Promise<IUserInformationForAdminResponse> {
-    return this.userService.getUsersInfoForAdminTable(Number(requesterId));
   }
 
   @Get('invite')

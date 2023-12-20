@@ -1,6 +1,7 @@
 import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
 import { IInviteDto, IUserAssignUpdateRequest } from 'src/types/requests/users';
 import { UsersParamsService } from 'src/users_params/users_params.service';
+import { FindOptions, IncludeOptions, Op, WhereOptions } from 'sequelize';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { BusinessesService } from 'src/businesses/businesses.service';
 import { UsersParams } from 'src/users_params/users_params.model';
@@ -26,7 +27,6 @@ import {
 } from 'src/utils/generators/messageGenerators';
 import {
   IBasicUserResponse,
-  IGetAllUsersResponse,
   IInvitedUserDataResponse,
   IUserAssignedInformationForAdmin,
   IUserGeneralInformationForAdmin,
@@ -39,7 +39,6 @@ import {
   IUserInviteGeneratorArguments,
   generateHTMLForEmailToInviteUser,
 } from 'src/utils/generators/emailGenerators';
-import { FindOptions, IncludeOptions, Op, WhereOptions } from 'sequelize';
 
 @Injectable()
 export class UsersService {
@@ -48,30 +47,6 @@ export class UsersService {
     private userParamsService: UsersParamsService,
     private businessService: BusinessesService,
   ) {}
-
-  async getAllUsers(): Promise<IGetAllUsersResponse> {
-    const users: User[] | [] = await this.userRepository.findAll({
-      include: [
-        {
-          model: UsersParams,
-          as: 'parameters',
-        },
-        {
-          model: Station,
-          through: {
-            attributes: ['role'],
-          },
-        },
-      ],
-    });
-
-    if (users.length === 0) {
-      throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
-    }
-
-    const response: IGetAllUsersResponse = { status: HttpStatus.OK, data: users };
-    return response;
-  }
 
   async getUsersInformationForAdmin(
     requesterId: number,

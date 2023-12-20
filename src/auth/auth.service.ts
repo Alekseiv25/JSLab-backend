@@ -4,7 +4,6 @@ import { IInviteDto, ILoginUserData, IUserInvitationRequest } from 'src/types/re
 import { UsersParamsService } from 'src/users_params/users_params.service';
 import { ActivateUserDto, CreateNewUserDto } from './dto/create-user.dto';
 import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
-import { BusinessesService } from 'src/businesses/businesses.service';
 import { UsersParams } from 'src/users_params/users_params.model';
 import { User, UserStationRole } from 'src/users/users.model';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -20,6 +19,7 @@ import {
   makeDeleteMessage,
   makeNotCorrectDataMessage,
   makeSuccessInvitingMessage,
+  makeSuspendMessage,
   makeUnauthorizedMessage,
 } from 'src/utils/generators/messageGenerators';
 import {
@@ -39,7 +39,6 @@ export class AuthService {
   constructor(
     private userService: UsersService,
     private userParamsService: UsersParamsService,
-    private businessService: BusinessesService,
     private tokensService: TokensService,
   ) {}
 
@@ -50,14 +49,28 @@ export class AuthService {
 
     const userDataFromToken: IRefreshToken | null =
       this.tokensService.validateRefreshToken(refreshToken);
+
+    if (!userDataFromToken) {
+      await this.tokensService.removeRefreshToken(refreshToken);
+      throw new HttpException(makeUnauthorizedMessage(), HttpStatus.FORBIDDEN);
+    }
+
     const tokenFromDB: Token = await this.tokensService.findTokenInDB(refreshToken);
 
-    if (!userDataFromToken || !tokenFromDB) {
+    if (!tokenFromDB) {
       throw new HttpException(makeUnauthorizedMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     const user: User = await this.userService.findUserByID(userDataFromToken.id);
-    const tokens: ITokensCreationResponse = await this.generateTokens(user);
+    const userParams: UsersParams = await this.userParamsService.getUserParams(user.id);
+    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(
+      user,
+      userParams,
+    );
+    await this.tokensService.saveToken(user.id, tokens.refreshToken);
+    // TODO: remove line 65, 66 and 67, uncomment line 70 when
+    // all errors related to refresh token will be caught on the frontend.
+    // const tokens: ITokensCreationResponse = await this.generateTokens(user);
 
     const response: IRefreshResponseJWT = {
       status: HttpStatus.OK,
@@ -82,8 +95,8 @@ export class AuthService {
   }
 
   async activateInvitedUserAccount(userDto: ActivateUserDto): Promise<IRegistrationResponseJWT> {
-    const hashPassword: string = await bcrypt.hash(userDto.userData.password, 10);
-    const activatedUser: User = await this.updateInvitedUser(userDto, hashPassword);
+    const activatedUser: User = await this.updateInvitedUser(userDto);
+
     await this.updateInvitedUserParams(activatedUser.id);
     const tokens: ITokensCreationResponse = await this.generateTokens(activatedUser);
 
@@ -106,6 +119,10 @@ export class AuthService {
 
     if (!isPasswordsEquals) {
       throw new HttpException(makeNotCorrectDataMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    if (userParams.status === 'Suspended') {
+      throw new HttpException(makeSuspendMessage(), HttpStatus.FORBIDDEN);
     }
 
     const tokens: ITokensCreationResponse = await this.generateTokens(user);
@@ -190,7 +207,11 @@ export class AuthService {
   }
 
   private async generateTokens(user: User): Promise<ITokensCreationResponse> {
-    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(user);
+    const userParams: UsersParams = await this.userParamsService.getUserParams(user.id);
+    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(
+      user,
+      userParams,
+    );
     await this.tokensService.saveToken(user.id, tokens.refreshToken);
     return tokens;
   }
@@ -245,7 +266,6 @@ export class AuthService {
       statusChangeDate: currentTimestamp,
       lastActivityDate: currentTimestamp,
       isFinishedTutorial: false,
-      suspensionReason: null,
       inviteLink: inviteLink || null,
     };
     const newUserParams: UsersParams =
@@ -253,13 +273,10 @@ export class AuthService {
     return newUserParams;
   }
 
-  private async updateInvitedUser(
-    invitedUserDto: ActivateUserDto,
-    hashPassword: string,
-  ): Promise<User> {
+  private async updateInvitedUser(invitedUserDto: ActivateUserDto): Promise<User> {
     const userDataForUpdate: Partial<CreateUserDto> = {
       lastName: invitedUserDto.userData.lastName,
-      password: hashPassword,
+      password: invitedUserDto.userData.password,
     };
 
     const invitedUser: IBasicUserResponse = await this.userService.updateUserByID(

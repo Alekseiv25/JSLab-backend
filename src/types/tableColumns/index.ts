@@ -14,7 +14,6 @@ export interface UsersParamsTableColumns {
   status: UserStatusTypes;
   statusChangeDate: string;
   isBusinessAdmin: boolean;
-  suspensionReason: string;
   isFinishedTutorial: boolean;
   lastActivityDate: string;
   inviteLink: string;

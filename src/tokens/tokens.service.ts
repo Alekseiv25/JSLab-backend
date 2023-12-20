@@ -1,18 +1,22 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
+import { UsersParams } from 'src/users_params/users_params.model';
 import { ITokensCreationResponse } from 'src/auth/auth.service';
+import { UserStatusTypes } from 'src/types/tableColumns';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from 'src/users/users.model';
-import { JwtPayload } from 'jsonwebtoken';
 import { Token } from './tokens.model';
 import * as jwt from 'jsonwebtoken';
 
 const ACCESS_TOKEN_EXPIRES_IN = '5min';
-const REFRESH_TOKEN_EXPIRES_IN = '7d';
+// TODO: change expire time from 1h to 7d when all errors
+// related to refresh token will be caught on the frontend.
+const REFRESH_TOKEN_EXPIRES_IN = '1h';
 
 export interface IAccessToken {
   id: number;
   email: string;
+  status: UserStatusTypes;
 }
 
 export interface IRefreshToken {
@@ -23,9 +27,10 @@ export interface IRefreshToken {
 export class TokensService {
   constructor(@InjectModel(Token) private tokenRepository: typeof Token) {}
 
-  async generateToken(user: User): Promise<ITokensCreationResponse> {
+  async generateToken(user: User, userParams: UsersParams): Promise<ITokensCreationResponse> {
     const accessTokenPayload: IAccessToken = {
       id: user.id,
+      status: userParams.status,
       email: user.email,
     };
     const refreshTokenPayload: IRefreshToken = { id: user.id };
@@ -74,12 +79,12 @@ export class TokensService {
     return tokenInDB;
   }
 
-  validateAccessToken(accessToken: string): string | JwtPayload | null {
+  validateAccessToken(accessToken: string): IAccessToken | null {
     try {
-      const userDataFromToken: string | JwtPayload = jwt.verify(
+      const userDataFromToken: IAccessToken = jwt.verify(
         accessToken,
         process.env.JWT_PRIVATE_KEY,
-      );
+      ) as IAccessToken;
       return userDataFromToken;
     } catch (e) {
       return null;

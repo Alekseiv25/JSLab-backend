@@ -17,9 +17,6 @@ export class UsersParams extends Model<UsersParams, UsersParamsTableColumns> {
   @Column({ type: DataType.BOOLEAN, allowNull: false })
   isBusinessAdmin: boolean;
 
-  @Column({ type: DataType.STRING, allowNull: true, defaultValue: null })
-  suspensionReason: string | null;
-
   @Column({ type: DataType.BOOLEAN, allowNull: false })
   isFinishedTutorial: boolean;
 
