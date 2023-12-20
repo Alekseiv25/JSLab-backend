@@ -9,6 +9,7 @@ export interface IBasicStationResponse {
 export interface IGetAllStationsResponse {
   status: number;
   data: Station[];
+  totalCount?: number;
 }
 
 export interface ICheckStationNameResponse {
