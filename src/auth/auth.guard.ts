@@ -1,7 +1,14 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import { TokensService } from 'src/tokens/tokens.service';
+import {
+  CanActivate,
+  ExecutionContext,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { makeUnauthorizedMessage } from 'src/utils/generators/messageGenerators';
+import { IAccessToken, TokensService } from 'src/tokens/tokens.service';
 import { Request } from 'express';
-import { JwtPayload } from 'jsonwebtoken';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -15,16 +22,16 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    try {
-      const userDataFromToken: string | JwtPayload | null =
-        this.tokensService.validateAccessToken(token);
+    const userDataFromToken: IAccessToken | null = this.tokensService.validateAccessToken(token);
 
-      if (!userDataFromToken) {
-        throw new UnauthorizedException();
-      }
-    } catch {
+    if (!userDataFromToken) {
       throw new UnauthorizedException();
     }
+
+    if (userDataFromToken.status === 'Suspended') {
+      throw new HttpException(makeUnauthorizedMessage(), HttpStatus.FORBIDDEN);
+    }
+
     return true;
   }
 

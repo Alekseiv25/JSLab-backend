@@ -62,9 +62,13 @@ export class AuthService {
     }
 
     const user: User = await this.userService.findUserByID(userDataFromToken.id);
-    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(user);
+    const userParams: UsersParams = await this.userParamsService.getUserParams(user.id);
+    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(
+      user,
+      userParams,
+    );
     await this.tokensService.saveToken(user.id, tokens.refreshToken);
-    // TODO: remove line 64 and 65, uncomment line 68 when
+    // TODO: remove line 65, 66 and 67, uncomment line 70 when
     // all errors related to refresh token will be caught on the frontend.
     // const tokens: ITokensCreationResponse = await this.generateTokens(user);
 
@@ -203,7 +207,11 @@ export class AuthService {
   }
 
   private async generateTokens(user: User): Promise<ITokensCreationResponse> {
-    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(user);
+    const userParams: UsersParams = await this.userParamsService.getUserParams(user.id);
+    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(
+      user,
+      userParams,
+    );
     await this.tokensService.saveToken(user.id, tokens.refreshToken);
     return tokens;
   }
