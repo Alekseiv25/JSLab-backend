@@ -109,26 +109,40 @@ export class StationsService {
         { name: { [Op.like]: `%${searchQuery}%` } },
         { address: { [Op.like]: `%${searchQuery}%` } },
       ];
+    }
+
+    const conditions: WhereOptions<Station>[] = [];
+
+    if (name) {
+      const names = name.split(',').map((n) => ({ name: { [Op.like]: `%${n.trim()}%` } }));
+      conditions.push({ [Op.or]: names });
+    }
+
+    if (address) {
+      const addresses = address
+        .split(',')
+        .map((a) => ({ address: { [Op.like]: `%${a.trim()}%` } }));
+      conditions.push({ [Op.or]: addresses });
+    }
+
+    if (conditions.length > 0) {
+      where[Op.and] = conditions;
     } else {
-      const conditions: WhereOptions<Station>[] = [];
+      where[Op.and] = {};
+    }
 
-      if (name) {
-        const names = name.split(',').map((n) => ({ name: { [Op.like]: `%${n.trim()}%` } }));
-        conditions.push({ [Op.or]: names });
-      }
-
-      if (address) {
-        const addresses = address
-          .split(',')
-          .map((a) => ({ address: { [Op.like]: `%${a.trim()}%` } }));
-        conditions.push({ [Op.or]: addresses });
-      }
-
-      if (conditions.length > 0) {
-        where[Op.and] = conditions;
-      } else {
-        where[Op.and] = {};
-      }
+    if (fromDate && toDate) {
+      where.createdAt = {
+        [Op.between]: [fromDate, toDate],
+      };
+    } else if (fromDate) {
+      where.createdAt = {
+        [Op.gte]: fromDate,
+      };
+    } else if (toDate) {
+      where.createdAt = {
+        [Op.lte]: toDate,
+      };
     }
 
     const options: FindOptions = {
