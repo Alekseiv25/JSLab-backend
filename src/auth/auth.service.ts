@@ -5,6 +5,7 @@ import { UsersParamsService } from 'src/users_params/users_params.service';
 import { ActivateUserDto, CreateNewUserDto } from './dto/create-user.dto';
 import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
 import { UsersParams } from 'src/users_params/users_params.model';
+import { IBasicUserResponse } from 'src/types/responses/users';
 import { User, UserStationRole } from 'src/users/users.model';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserStationRoleTypes } from 'src/types/tableColumns';
@@ -23,11 +24,10 @@ import {
   makeUnauthorizedMessage,
 } from 'src/utils/generators/messageGenerators';
 import {
+  ILoginResponse,
   IRefreshResponseJWT,
   IRegistrationResponseJWT,
-  ILoginResponse,
-  IBasicUserResponse,
-} from 'src/types/responses/users';
+} from 'src/types/responses/users/registration';
 
 export interface ITokensCreationResponse {
   accessToken: string;
@@ -62,15 +62,7 @@ export class AuthService {
     }
 
     const user: User = await this.userService.findUserByID(userDataFromToken.id);
-    const userParams: UsersParams = await this.userParamsService.getUserParams(user.id);
-    const tokens: ITokensCreationResponse = await this.tokensService.generateToken(
-      user,
-      userParams,
-    );
-    await this.tokensService.saveToken(user.id, tokens.refreshToken);
-    // TODO: remove line 65, 66 and 67, uncomment line 70 when
-    // all errors related to refresh token will be caught on the frontend.
-    // const tokens: ITokensCreationResponse = await this.generateTokens(user);
+    const tokens: ITokensCreationResponse = await this.generateTokens(user);
 
     const response: IRefreshResponseJWT = {
       status: HttpStatus.OK,

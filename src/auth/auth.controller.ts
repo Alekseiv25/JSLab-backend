@@ -1,16 +1,16 @@
 import { Body, Controller, Get, HttpStatus, Post, Query, Req, Res } from '@nestjs/common';
 import { ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
 import { ActivateUserDto, CreateNewUserDto } from './dto/create-user.dto';
+import { IInvitedUserDataResponse } from 'src/types/responses/users';
 import { CookieOptions, Request, Response } from 'express';
 import { UsersService } from 'src/users/users.service';
 import { IBasicResponse } from 'src/types/responses';
 import { AuthService } from './auth.service';
 import {
-  IInvitedUserDataResponse,
   ILoginResponse,
   IRefreshResponseJWT,
   IRegistrationResponseJWT,
-} from 'src/types/responses/users';
+} from 'src/types/responses/users/registration';
 
 @Controller('auth')
 export class AuthController {
@@ -21,7 +21,7 @@ export class AuthController {
 
   private createRefreshTokenOptions(): CookieOptions {
     const options: CookieOptions = {
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 1 * 24 * 60 * 60 * 1000,
       httpOnly: true,
     };
 

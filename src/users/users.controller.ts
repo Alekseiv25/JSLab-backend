@@ -1,3 +1,4 @@
+import { IBasicUserResponse, IUserParamsUpdateResponse } from 'src/types/responses/users';
 import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
 import { IUserAssignUpdateRequest } from 'src/types/requests/users';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -5,10 +6,9 @@ import { IBasicResponse } from 'src/types/responses';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UsersService } from './users.service';
 import {
-  IBasicUserResponse,
-  IUserInformationForAdminResponse,
-  IUserParamsUpdateResponse,
-} from 'src/types/responses/users';
+  IFiltersDataForAdminTableResponse,
+  IUserDataForAdminTableResponse,
+} from 'src/types/responses/users/admin_table';
 import {
   Controller,
   Get,
@@ -32,24 +32,34 @@ export class UsersController {
     return this.userService.getUserByID(Number(userId));
   }
 
-  @Get('admin/users-information')
+  @Get('table')
   @UseGuards(AuthGuard)
-  getUsersInformationForAdmin(
-    @Query('requesterId') requesterId: string,
+  getUsersDataForAdminTable(
+    @Query('requesterId') requesterId: number,
     @Query('limit') limit?: number,
     @Query('offset') offset?: number,
-    @Query('name') name?: string,
+    @Query('userName') userName?: string,
     @Query('stationName') stationName?: string,
-    @Query('status') status?: string,
-  ): Promise<IUserInformationForAdminResponse> {
-    return this.userService.getUsersInformationForAdmin(
-      Number(requesterId),
+    @Query('stationLocation') stationLocation?: string,
+    @Query('userStatus') userStatus?: string,
+  ): Promise<IUserDataForAdminTableResponse> {
+    return this.userService.getUsersDataForAdminTable(
+      requesterId,
       limit,
       offset,
-      name,
+      userName,
       stationName,
-      status,
+      stationLocation,
+      userStatus,
     );
+  }
+
+  @Get('table/filters')
+  @UseGuards(AuthGuard)
+  getDataForFiltersInAdminTable(
+    @Query('requesterId') requesterId: string,
+  ): Promise<IFiltersDataForAdminTableResponse> {
+    return this.userService.getDataForFiltersInAdminTable(Number(requesterId));
   }
 
   @Get('invite')
