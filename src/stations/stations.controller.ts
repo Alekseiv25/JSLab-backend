@@ -31,8 +31,7 @@ export class StationsController {
   }
 
   @Get('businesses/:businessId')
-  @UseGuards(AuthGuard)
-  getStationsByBusinessId(
+  async getStationsByBusinessId(
     @Param('businessId') businessId: number,
     @Query('searchQuery') searchQuery?: string,
     @Query('name') name?: string,
@@ -40,9 +39,9 @@ export class StationsController {
     @Query('fromDate') fromDate?: string,
     @Query('toDate') toDate?: string,
     @Query('limit') limit?: number,
-    @Query('offset') offset?: number,
+    @Query('page') page?: number,
   ): Promise<IGetAllStationsResponse> {
-    return this.stationsService.getStationsByBusinessId(
+    const response = await this.stationsService.getStationsByBusinessId(
       businessId,
       searchQuery,
       name,
@@ -50,8 +49,10 @@ export class StationsController {
       fromDate,
       toDate,
       limit,
-      offset,
+      page,
     );
+
+    return response;
   }
 
   @Get(':id')

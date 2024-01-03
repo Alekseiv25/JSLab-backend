@@ -96,7 +96,7 @@ export class StationsService {
     fromDate?: string,
     toDate?: string,
     limit?: number,
-    offset?: number,
+    page?: number,
   ): Promise<IGetAllStationsResponse> {
     const where: WhereOptions<Station> = {
       businessId: {
@@ -109,32 +109,40 @@ export class StationsService {
         { name: { [Op.like]: `%${searchQuery}%` } },
         { address: { [Op.like]: `%${searchQuery}%` } },
       ];
+    }
+
+    const conditions: WhereOptions<Station>[] = [];
+
+    if (name) {
+      const names = name.split(',').map((n) => ({ name: { [Op.like]: `%${n.trim()}%` } }));
+      conditions.push({ [Op.or]: names });
+    }
+
+    if (address) {
+      const addresses = address
+        .split(',')
+        .map((a) => ({ address: { [Op.like]: `%${a.trim()}%` } }));
+      conditions.push({ [Op.or]: addresses });
+    }
+
+    if (conditions.length > 0) {
+      where[Op.and] = conditions;
     } else {
-      if (name) {
-        where.name = {
-          [Op.in]: name.split(','),
-        };
-      }
+      where[Op.and] = {};
+    }
 
-      if (address) {
-        where.address = {
-          [Op.in]: address.split(','),
-        };
-      }
-
-      if (fromDate && toDate) {
-        where.updatedAt = {
-          [Op.between]: [new Date(fromDate), new Date(toDate)],
-        };
-      } else if (fromDate) {
-        where.updatedAt = {
-          [Op.gte]: new Date(fromDate),
-        };
-      } else if (toDate) {
-        where.updatedAt = {
-          [Op.lte]: new Date(toDate),
-        };
-      }
+    if (fromDate && toDate) {
+      where.createdAt = {
+        [Op.between]: [fromDate, toDate],
+      };
+    } else if (fromDate) {
+      where.createdAt = {
+        [Op.gte]: fromDate,
+      };
+    } else if (toDate) {
+      where.createdAt = {
+        [Op.lte]: toDate,
+      };
     }
 
     const options: FindOptions = {
@@ -148,12 +156,12 @@ export class StationsService {
       order: [['id', 'DESC']],
     };
 
-    if (limit) {
+    if (limit && page) {
+      const offset = (page - 1) * limit;
       options.limit = limit;
-    }
-
-    if (offset) {
       options.offset = offset;
+    } else if (limit) {
+      options.limit = limit;
     }
 
     const stations: Station[] | null = await this.stationRepository.findAll(options);
@@ -162,7 +170,14 @@ export class StationsService {
       throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
     }
 
-    const response: IGetAllStationsResponse = { status: HttpStatus.OK, data: stations };
+    const totalCount = await this.stationRepository.count({ where });
+
+    const response: IGetAllStationsResponse = {
+      status: HttpStatus.OK,
+      data: stations,
+      totalCount,
+    };
+
     return response;
   }
 
