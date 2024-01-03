@@ -9,9 +9,7 @@ import { Token } from './tokens.model';
 import * as jwt from 'jsonwebtoken';
 
 const ACCESS_TOKEN_EXPIRES_IN = '5min';
-// TODO: change expire time from 1h to 7d when all errors
-// related to refresh token will be caught on the frontend.
-const REFRESH_TOKEN_EXPIRES_IN = '1h';
+const REFRESH_TOKEN_EXPIRES_IN = '1d';
 
 export interface IAccessToken {
   id: number;

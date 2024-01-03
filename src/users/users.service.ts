@@ -16,29 +16,34 @@ import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcrypt';
 import {
   makeAlreadyActivatedMessage,
-  makeAvailableMessage,
-  makeConflictMessage,
-  makeDeleteMessage,
-  makeNotFoundMessage,
   makeNotValidPasswordMessage,
   makeSuccessInvitingMessage,
   makeSuccessUpdatingMessage,
   makeValidPasswordMessage,
+  makeAvailableMessage,
+  makeConflictMessage,
+  makeNotFoundMessage,
+  makeDeleteMessage,
 } from 'src/utils/generators/messageGenerators';
 import {
-  IBasicUserResponse,
-  IInvitedUserDataResponse,
-  IUserAssignedInformationForAdmin,
-  IUserGeneralInformationForAdmin,
-  IUserInformationForAdmin,
-  IUserInformationForAdminResponse,
-  IUserParamsInformationForAdmin,
   IUserParamsUpdateResponse,
+  IInvitedUserDataResponse,
+  IBasicUserResponse,
 } from 'src/types/responses/users';
 import {
-  IUserInviteGeneratorArguments,
   generateHTMLForEmailToInviteUser,
+  IUserInviteGeneratorArguments,
 } from 'src/utils/generators/emailGenerators';
+import {
+  IFiltersDataForAdminTableResponse,
+  IUserDataForAdminTableResponse,
+  IFilterOptionAdvancedData,
+  IFiltersDataForTable,
+  IUserDataForTable,
+  IAssignedToData,
+  IGeneralData,
+  IParamsData,
+} from 'src/types/responses/users/admin_table';
 
 @Injectable()
 export class UsersService {
@@ -48,31 +53,36 @@ export class UsersService {
     private businessService: BusinessesService,
   ) {}
 
-  async getUsersInformationForAdmin(
+  async getUsersDataForAdminTable(
     requesterId: number,
-    limit?: number,
-    offset?: number,
-    name?: string,
-    stationNames?: string,
-    statuses?: string,
-  ): Promise<IUserInformationForAdminResponse> {
+    limit: number,
+    offset: number,
+    userName: string,
+    stationName: string,
+    stationAddress: string,
+    userStatus: string,
+  ): Promise<IUserDataForAdminTableResponse> {
     const requester: User = await this.findUserByID(requesterId);
 
-    const where: WhereOptions<User> = {
-      businessId: requester.businessId,
-    };
+    const membersOfRequesterBusiness: User[] = await this.userRepository.findAll({
+      where: { businessId: requester.businessId },
+    });
+    if (!membersOfRequesterBusiness || membersOfRequesterBusiness.length === 0) {
+      throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
+    }
 
-    if (name) {
+    const where: WhereOptions<User> = { businessId: requester.businessId };
+    const includeOptions: IncludeOptions[] = [];
+
+    if (userName) {
       where[Op.or] = [
-        { firstName: { [Op.like]: `%${name}%` } },
-        { lastName: { [Op.like]: `%${name}%` } },
+        { firstName: { [Op.iLike]: `%${userName}%` } },
+        { lastName: { [Op.iLike]: `%${userName}%` } },
       ];
     }
 
-    const includeOptions: IncludeOptions[] = [];
-
-    if (stationNames) {
-      const stationNameList = stationNames.split(',');
+    if (stationName) {
+      const stationNameList = stationName.split(',');
       includeOptions.push({
         model: Station,
         where: {
@@ -83,8 +93,20 @@ export class UsersService {
       });
     }
 
-    if (statuses) {
-      const statusList = statuses.split(',');
+    if (stationAddress) {
+      const stationAddresses: string[] = stationAddress.split('~');
+      includeOptions.push({
+        model: Station,
+        where: {
+          address: {
+            [Op.in]: stationAddresses,
+          },
+        },
+      });
+    }
+
+    if (userStatus) {
+      const statusList = userStatus.split(',');
       includeOptions.push({
         model: UsersParams,
         where: {
@@ -96,32 +118,50 @@ export class UsersService {
     }
 
     const options: FindOptions = {
-      where,
+      where: { ...where, id: { [Op.ne]: requesterId } },
       include: includeOptions,
       limit,
       offset,
       order: [['id', 'DESC']],
     };
 
-    const usersRelatedToRequesterBusiness: User[] = await this.userRepository.findAll(options);
+    const filteredMembersOfRequesterBusiness: User[] = await this.userRepository.findAll(options);
+    if (!filteredMembersOfRequesterBusiness || filteredMembersOfRequesterBusiness.length === 0) {
+      throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.BAD_REQUEST);
+    }
 
-    if (!usersRelatedToRequesterBusiness || usersRelatedToRequesterBusiness.length === 0) {
+    const usersDataForTable: Promise<IUserDataForTable>[] = filteredMembersOfRequesterBusiness
+      .filter((user) => user.id !== requesterId)
+      .map((user) => this.prepareAdminTableData(user));
+    const tableData: IUserDataForTable[] = await Promise.all(usersDataForTable);
+
+    const response: IUserDataForAdminTableResponse = {
+      status: HttpStatus.OK,
+      data: tableData,
+    };
+    return response;
+  }
+
+  async getDataForFiltersInAdminTable(
+    requesterId: number,
+  ): Promise<IFiltersDataForAdminTableResponse> {
+    const requester: User = await this.findUserByID(requesterId);
+
+    const membersOfRequesterBusiness: User[] = await this.userRepository.findAll({
+      where: { businessId: requester.businessId },
+    });
+    if (!membersOfRequesterBusiness || membersOfRequesterBusiness.length === 0) {
       throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
     }
 
-    const transformedUsersPromises: Promise<IUserInformationForAdmin>[] =
-      usersRelatedToRequesterBusiness
-        .filter((user) => user.id !== requesterId)
-        .map((user) => this.transformUsersDataForAdmin(user));
+    const tableFiltersData: IFiltersDataForTable = await this.prepareAdminTableFiltersData(
+      membersOfRequesterBusiness,
+    );
 
-    const transformedUsers: IUserInformationForAdmin[] =
-      await Promise.all(transformedUsersPromises);
-
-    const response: IUserInformationForAdminResponse = {
+    const response: IFiltersDataForAdminTableResponse = {
       status: HttpStatus.OK,
-      data: transformedUsers,
+      data: tableFiltersData,
     };
-
     return response;
   }
 
@@ -148,22 +188,6 @@ export class UsersService {
       status: HttpStatus.OK,
       message: makeSuccessInvitingMessage(),
     };
-    return response;
-  }
-
-  async getUsersInfoForAdminTable(requesterId: number): Promise<IUserInformationForAdminResponse> {
-    const requester: User = await this.findUserByID(requesterId);
-    const usersRelatedToRequesterBusiness: User[] = await this.findAllUsersRelatedToBusiness(
-      requester.id,
-    );
-
-    const transformedUsersInfoPromises: Promise<IUserInformationForAdmin>[] =
-      usersRelatedToRequesterBusiness
-        .filter((user) => user.id !== requesterId)
-        .map((user) => this.transformUsersDataForAdmin(user));
-    const usersInfo: IUserInformationForAdmin[] = await Promise.all(transformedUsersInfoPromises);
-
-    const response: IUserInformationForAdminResponse = { status: HttpStatus.OK, data: usersInfo };
     return response;
   }
 
@@ -304,43 +328,32 @@ export class UsersService {
     return user;
   }
 
-  private async findAllUsersRelatedToBusiness(businessID: number): Promise<User[]> {
-    const usersRelatedToRequesterBusiness: User[] = await this.userRepository.findAll({
-      where: { businessId: businessID },
-    });
-
-    if (!usersRelatedToRequesterBusiness || usersRelatedToRequesterBusiness.length === 0) {
-      throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
-    }
-
-    return usersRelatedToRequesterBusiness;
-  }
-
-  private async transformUsersDataForAdmin(user: User): Promise<IUserInformationForAdmin> {
+  private async prepareAdminTableData(user: User): Promise<IUserDataForTable> {
     const userParams: UsersParams = await this.userParamsService.getUserParams(user.id);
     const userStations: UserStationRole[] = await UserStationRole.findAll({
       where: { userId: user.id },
       include: [{ model: Station }],
     });
 
-    const generalInformationAboutUser: IUserGeneralInformationForAdmin = {
+    const generalInformationAboutUser: IGeneralData = {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName || null,
       email: user.email,
     };
 
-    const paramsInformationAboutUser: IUserParamsInformationForAdmin = {
+    const paramsInformationAboutUser: IParamsData = {
       lastActiveTimestamp: userParams.lastActivityDate,
       status: userParams.status,
       statusChangeDate: userParams.statusChangeDate,
     };
 
-    const assignedInfo: IUserAssignedInformationForAdmin[] = userStations.map((userStation) => ({
+    const assignedInfo: IAssignedToData[] = userStations.map((userStation) => ({
       stationId: userStation.station.id,
       stationName: userStation.station.name,
       stationMerchantId: userStation.station.merchantId,
       stationStoreId: userStation.station.storeId,
+      stationAddress: userStation.station.address,
       userRole: userStation.role,
     }));
 
@@ -349,6 +362,44 @@ export class UsersService {
       params: paramsInformationAboutUser,
       assigned: assignedInfo,
     };
+  }
+
+  private async prepareAdminTableFiltersData(
+    businessMembers: User[],
+  ): Promise<IFiltersDataForTable> {
+    const usersStatuses = new Set<string>();
+    const stationsLocations = new Set<string>();
+    const stationsNames: IFilterOptionAdvancedData[] = [];
+
+    for (const member of businessMembers) {
+      const memberParams: UsersParams = await this.userParamsService.getUserParams(member.id);
+      usersStatuses.add(memberParams.status);
+    }
+
+    const uniqueStationNames: string[] = [];
+
+    for (const member of businessMembers) {
+      const memberStations: UserStationRole[] = await UserStationRole.findAll({
+        where: { userId: member.id },
+        include: [{ model: Station }],
+      });
+      for (const station of memberStations) {
+        const { name, address } = station.station;
+        stationsLocations.add(address);
+
+        if (!uniqueStationNames.includes(name)) {
+          uniqueStationNames.push(name);
+          stationsNames.push({ mainValue: name, secondaryValue: address });
+        }
+      }
+    }
+
+    const result: IFiltersDataForTable = {
+      usersStatuses: Array.from(usersStatuses).sort(),
+      stationsLocations: Array.from(stationsLocations).sort(),
+      stationsNames: stationsNames.sort((a, b) => a.mainValue.localeCompare(b.mainValue)),
+    };
+    return result;
   }
 
   private async updateUserStationAssigns(
