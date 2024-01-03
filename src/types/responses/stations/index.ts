@@ -23,6 +23,12 @@ export interface IDeleteStationResponse {
   data: Station;
 }
 
+export interface IDeleteStationsResponse {
+  status: number;
+  message: string;
+  data: Station[];
+}
+
 export interface IExampleResponse {
   data: StationAccount;
 }
