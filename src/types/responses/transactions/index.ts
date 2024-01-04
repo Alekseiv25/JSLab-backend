@@ -3,6 +3,7 @@ import { Transaction } from 'src/transactions/transactions.model';
 export interface IGetAllTransactionsResponse {
   status: number;
   data: Transaction[];
+  totalCount?: number;
 }
 
 export interface IBasicTransactionResponse {

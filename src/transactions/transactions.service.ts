@@ -107,15 +107,15 @@ export class TransactionsService {
 
     if (fromDate && toDate) {
       where.createdAt = {
-        [Op.between]: [new Date(fromDate), new Date(toDate)],
+        [Op.between]: [fromDate, toDate],
       };
     } else if (fromDate) {
       where.createdAt = {
-        [Op.gte]: new Date(fromDate),
+        [Op.gte]: fromDate,
       };
     } else if (toDate) {
       where.createdAt = {
-        [Op.lte]: new Date(toDate),
+        [Op.lte]: toDate,
       };
     }
 
@@ -152,7 +152,13 @@ export class TransactionsService {
       throw new HttpException(makeNotFoundMessage('Transactions'), HttpStatus.NOT_FOUND);
     }
 
-    const response: IGetAllTransactionsResponse = { status: HttpStatus.OK, data: transactions };
+    const totalCount = await this.transactionsRepository.count({ where });
+
+    const response: IGetAllTransactionsResponse = {
+      status: HttpStatus.OK,
+      data: transactions,
+      totalCount,
+    };
     return response;
   }
 

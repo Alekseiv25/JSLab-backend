@@ -48,7 +48,7 @@ export class TransactionsController {
 
   @Get('stations/:stationId')
   @UseGuards(AuthGuard)
-  getTransactionsByStationId(
+  async getTransactionsByStationId(
     @Param('stationId') stationId: number,
     @Query('fromDate') fromDate?: string,
     @Query('toDate') toDate?: string,
@@ -57,7 +57,7 @@ export class TransactionsController {
     @Query('limit') limit?: number,
     @Query('offset') offset?: number,
   ): Promise<IGetAllTransactionsResponse> {
-    return this.transactionsService.getTransactionsByStationId(
+    const response = await this.transactionsService.getTransactionsByStationId(
       stationId,
       fromDate,
       toDate,
@@ -66,6 +66,7 @@ export class TransactionsController {
       limit,
       offset,
     );
+    return response;
   }
 
   @Post()
