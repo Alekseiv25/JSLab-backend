@@ -15,6 +15,7 @@ import {
   IBasicStationResponse,
   ICheckStationNameResponse,
   IDeleteStationResponse,
+  IDeleteStationsResponse,
   IGetAllStationsResponse,
 } from 'src/types/responses/stations';
 import { decrypt } from 'src/utils/crypto';
@@ -280,6 +281,34 @@ export class StationsService {
       status: HttpStatus.OK,
       message: makeDeleteMessage('Station'),
       data: station,
+    };
+    return response;
+  }
+
+  async deleteStations(ids: number[]): Promise<IDeleteStationsResponse> {
+    const stations: Station[] = await this.stationRepository.findAll({
+      where: {
+        id: {
+          [Op.in]: ids,
+        },
+      },
+    });
+    if (stations.length === 0) {
+      throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
+    }
+
+    await this.stationRepository.destroy({
+      where: {
+        id: {
+          [Op.in]: ids,
+        },
+      },
+    });
+
+    const response: IDeleteStationsResponse = {
+      status: HttpStatus.OK,
+      message: makeDeleteMessage('Stations'),
+      data: stations,
     };
     return response;
   }

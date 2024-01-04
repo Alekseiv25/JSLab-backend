@@ -5,6 +5,7 @@ import {
   IBasicStationResponse,
   ICheckStationNameResponse,
   IDeleteStationResponse,
+  IDeleteStationsResponse,
   IGetAllStationsResponse,
 } from 'src/types/responses/stations';
 import {
@@ -91,5 +92,10 @@ export class StationsController {
   @UseGuards(AuthGuard)
   deleteStation(@Param('id') id: number): Promise<IDeleteStationResponse> {
     return this.stationsService.deleteStation(id);
+  }
+
+  @Delete()
+  deleteStations(@Body() ids: number[]): Promise<IDeleteStationsResponse> {
+    return this.stationsService.deleteStations(ids);
   }
 }
