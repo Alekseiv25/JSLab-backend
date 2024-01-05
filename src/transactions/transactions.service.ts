@@ -28,8 +28,8 @@ export class TransactionsService {
     businessId: number,
     fromDate?: string,
     toDate?: string,
-    fuelTypes?: string,
-    discounts?: string,
+    fuelType?: string,
+    discount?: string,
     limit?: number,
     offset?: number,
   ): Promise<IGetAllTransactionsResponse> {
@@ -53,15 +53,15 @@ export class TransactionsService {
       };
     }
 
-    if (fuelTypes) {
-      const fuelTypeList = fuelTypes.split(',');
+    if (fuelType) {
+      const fuelTypeList = fuelType.split(',');
       where.fuelType = {
         [Op.in]: fuelTypeList,
       };
     }
 
-    if (discounts) {
-      const discountList = discounts.split(',');
+    if (discount) {
+      const discountList = discount.split(',');
       where.discount = {
         [Op.in]: discountList,
       };
@@ -94,8 +94,8 @@ export class TransactionsService {
     stationId: number,
     fromDate?: string,
     toDate?: string,
-    fuelTypes?: string,
-    discounts?: string,
+    fuelType?: string,
+    discount?: string,
     limit?: number,
     offset?: number,
   ): Promise<IGetAllTransactionsResponse> {
@@ -104,6 +104,8 @@ export class TransactionsService {
         [Op.in]: [stationId],
       },
     };
+
+    const conditions: WhereOptions<Transaction>[] = [];
 
     if (fromDate && toDate) {
       where.createdAt = {
@@ -119,18 +121,24 @@ export class TransactionsService {
       };
     }
 
-    if (fuelTypes) {
-      const fuelTypeList = fuelTypes.split(',');
-      where.fuelType = {
-        [Op.in]: fuelTypeList,
-      };
+    if (fuelType) {
+      const fuelTypeList = fuelType
+        .split(',')
+        .map((el) => ({ fuelType: { [Op.like]: `%${el.trim()}%` } }));
+      conditions.push({ [Op.or]: fuelTypeList });
     }
 
-    if (discounts) {
-      const discountList = discounts.split(',');
-      where.discount = {
-        [Op.in]: discountList,
-      };
+    if (discount) {
+      const discountList = discount
+        .split(',')
+        .map((el) => ({ discount: { [Op.like]: `%${el.trim()}%` } }));
+      conditions.push({ [Op.or]: discountList });
+    }
+
+    if (conditions.length > 0) {
+      where[Op.and] = conditions;
+    } else {
+      where[Op.and] = {};
     }
 
     const options: FindOptions = {
