@@ -299,7 +299,10 @@ export class UsersService {
 
     const response: IInvitedUserDataResponse = {
       status: HttpStatus.OK,
-      invitedUserData: invitedUserInformation,
+      invitedUserData: {
+        userData: invitedUserInformation,
+        isBusinessAdmin: userParams.isBusinessAdmin,
+      },
     };
 
     return response;
@@ -461,6 +464,20 @@ export class UsersService {
         }
       }),
     );
+  }
+
+  async addUserAssignToStation(
+    userId: number,
+    stationId: number,
+    role: UserStationRoleTypes,
+  ): Promise<void> {
+    const station: Station | null = await Station.findByPk(stationId);
+
+    if (!station) {
+      throw new HttpException(makeNotFoundMessage('Station'), HttpStatus.NOT_FOUND);
+    }
+
+    await UserStationRole.create({ userId, stationId: station.id, role: role });
   }
 
   async sendInvite(inviteData: IInviteDto): Promise<void> {

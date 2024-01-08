@@ -30,6 +30,7 @@ interface ILoginUserData {
 }
 
 interface ILoginUserParams {
+  isBusinessAdmin: boolean;
   isFinishedTutorial: boolean;
 }
 
