@@ -39,9 +39,20 @@ export interface IFiltersDataForTable {
   stationsNames: IFilterOptionAdvancedData[];
 }
 
+export interface IUserDataForAdminTableParams {
+  totalAmountOfUsers: number;
+  totalAmountOfPages: number;
+  page: number;
+}
+
+export interface IUserDataForAdminTable {
+  usersData: IUserDataForTable[];
+  params: IUserDataForAdminTableParams;
+}
+
 export interface IUserDataForAdminTableResponse {
   status: number;
-  data: IUserDataForTable[];
+  data: IUserDataForAdminTable;
 }
 
 export interface IFiltersDataForAdminTableResponse {

@@ -44,7 +44,7 @@ export class AuthService {
 
   async refresh(refreshToken: string): Promise<IRefreshResponseJWT> {
     if (!refreshToken) {
-      throw new HttpException(makeUnauthorizedMessage(), HttpStatus.UNAUTHORIZED);
+      throw new HttpException(makeUnauthorizedMessage(), HttpStatus.FORBIDDEN);
     }
 
     const userDataFromToken: IRefreshToken | null =

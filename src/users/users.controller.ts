@@ -36,8 +36,8 @@ export class UsersController {
   @UseGuards(AuthGuard)
   getUsersDataForAdminTable(
     @Query('requesterId') requesterId: number,
-    @Query('limit') limit?: number,
-    @Query('offset') offset?: number,
+    @Query('page') page?: number,
+    @Query('itemsPerPage') itemsPerPage?: number,
     @Query('userName') userName?: string,
     @Query('stationName') stationName?: string,
     @Query('stationLocation') stationLocation?: string,
@@ -45,8 +45,8 @@ export class UsersController {
   ): Promise<IUserDataForAdminTableResponse> {
     return this.userService.getUsersDataForAdminTable(
       requesterId,
-      limit,
-      offset,
+      page,
+      itemsPerPage,
       userName,
       stationName,
       stationLocation,
