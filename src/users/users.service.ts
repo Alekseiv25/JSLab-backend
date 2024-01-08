@@ -55,8 +55,8 @@ export class UsersService {
 
   async getUsersDataForAdminTable(
     requesterId: number,
-    limit: number,
-    offset: number,
+    page: number,
+    itemsPerPage: number,
     userName: string,
     stationName: string,
     stationAddress: string,
@@ -120,24 +120,38 @@ export class UsersService {
     const options: FindOptions = {
       where: { ...where, id: { [Op.ne]: requesterId } },
       include: includeOptions,
-      limit,
-      offset,
       order: [['id', 'DESC']],
     };
 
-    const filteredMembersOfRequesterBusiness: User[] = await this.userRepository.findAll(options);
+    const { count, rows: filteredMembersOfRequesterBusiness } =
+      await this.userRepository.findAndCountAll(options);
     if (!filteredMembersOfRequesterBusiness || filteredMembersOfRequesterBusiness.length === 0) {
       throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.BAD_REQUEST);
     }
 
+    const totalPages: number = Math.ceil(count / itemsPerPage);
+    const calculatedPage: number = Math.max(1, Math.min(page, totalPages));
+    const offset: number = (calculatedPage - 1) * itemsPerPage;
+
+    options.limit = itemsPerPage;
+    options.offset = offset;
+
     const usersDataForTable: Promise<IUserDataForTable>[] = filteredMembersOfRequesterBusiness
       .filter((user) => user.id !== requesterId)
+      .slice(offset, offset + itemsPerPage)
       .map((user) => this.prepareAdminTableData(user));
     const tableData: IUserDataForTable[] = await Promise.all(usersDataForTable);
 
     const response: IUserDataForAdminTableResponse = {
       status: HttpStatus.OK,
-      data: tableData,
+      data: {
+        usersData: tableData,
+        params: {
+          totalAmountOfUsers: count,
+          page: calculatedPage,
+          totalAmountOfPages: totalPages,
+        },
+      },
     };
     return response;
   }
