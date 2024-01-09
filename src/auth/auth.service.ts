@@ -1,20 +1,21 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
 import { IInviteDto, ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
+import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
+import { UsersStationsService } from 'src/users_stations/users_stations.service';
 import { UsersParamsService } from 'src/users_params/users_params.service';
 import { ActivateUserDto, CreateNewUserDto } from './dto/create-user.dto';
 import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UsersParams } from 'src/users_params/users_params.model';
 import { IBasicUserResponse } from 'src/types/responses/users';
-import { User, UserStationRole } from 'src/users/users.model';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserStationRoleTypes } from 'src/types/tableColumns';
 import { UsersService } from 'src/users/users.service';
 import { Station } from 'src/stations/stations.model';
 import { IBasicResponse } from 'src/types/responses';
 import { Token } from 'src/tokens/tokens.model';
-import * as bcrypt from 'bcrypt';
+import { User } from 'src/users/users.model';
 import { v4 as uuidv4 } from 'uuid';
+import * as bcrypt from 'bcrypt';
 import {
   makeConflictMessage,
   makeDeleteMessage,
@@ -39,6 +40,7 @@ export class AuthService {
   constructor(
     private userService: UsersService,
     private userParamsService: UsersParamsService,
+    private userStationsService: UsersStationsService,
     private tokensService: TokensService,
   ) {}
 
@@ -217,7 +219,7 @@ export class AuthService {
     for (const stationId of stationsIDs) {
       const station: Station | null = await Station.findByPk(stationId);
       if (station) {
-        await UserStationRole.create({
+        await this.userStationsService.createNewRecord({
           userId: userID,
           stationId: station.id,
           role: role,

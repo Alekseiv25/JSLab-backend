@@ -1,18 +1,20 @@
 import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
+import { UsersStationsService } from 'src/users_stations/users_stations.service';
 import { IInviteDto, IUserAssignUpdateRequest } from 'src/types/requests/users';
 import { UsersParamsService } from 'src/users_params/users_params.service';
 import { FindOptions, IncludeOptions, Op, WhereOptions } from 'sequelize';
+import { UsersStations } from 'src/users_stations/users_stations.model';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { BusinessesService } from 'src/businesses/businesses.service';
 import { UsersParams } from 'src/users_params/users_params.model';
 import { UserStationRoleTypes } from 'src/types/tableColumns';
 import { Business } from 'src/businesses/businesses.model';
-import { User, UserStationRole } from './users.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Station } from 'src/stations/stations.model';
 import { IBasicResponse } from 'src/types/responses';
 import { InjectModel } from '@nestjs/sequelize';
 import * as nodemailer from 'nodemailer';
+import { User } from './users.model';
 import * as bcrypt from 'bcrypt';
 import {
   makeAlreadyActivatedMessage,
@@ -50,6 +52,7 @@ export class UsersService {
   constructor(
     @InjectModel(User) private userRepository: typeof User,
     private userParamsService: UsersParamsService,
+    private userStationsService: UsersStationsService,
     private businessService: BusinessesService,
   ) {}
 
@@ -262,7 +265,7 @@ export class UsersService {
 
     await user.destroy();
     await userParams.destroy();
-    await UserStationRole.destroy({ where: { userId: id } });
+    await this.userStationsService.removeUserAssignToStation(null, id);
 
     const response: IBasicResponse = { status: HttpStatus.OK, message: makeDeleteMessage('User') };
     return response;
@@ -347,10 +350,9 @@ export class UsersService {
 
   private async prepareAdminTableData(user: User): Promise<IUserDataForTable> {
     const userParams: UsersParams = await this.userParamsService.getUserParams(user.id);
-    const userStations: UserStationRole[] = await UserStationRole.findAll({
-      where: { userId: user.id },
-      include: [{ model: Station }],
-    });
+    const userStations: UsersStations[] = await this.userStationsService.findAllRecordsByUserId(
+      user.id,
+    );
 
     const generalInformationAboutUser: IGeneralData = {
       id: user.id,
@@ -396,12 +398,13 @@ export class UsersService {
     const uniqueStationNames: string[] = [];
 
     for (const member of businessMembers) {
-      const memberStations: UserStationRole[] = await UserStationRole.findAll({
+      const memberStations: UsersStations[] = await UsersStations.findAll({
         where: { userId: member.id },
         include: [{ model: Station }],
       });
       for (const station of memberStations) {
         const { name, address } = station.station;
+
         stationsLocations.add(address);
 
         if (!uniqueStationNames.includes(name)) {
@@ -426,7 +429,7 @@ export class UsersService {
   ) {
     const userId: number = user.id;
 
-    const existingUserStationRoles: UserStationRole[] = await UserStationRole.findAll({
+    const existingUserStationRoles: UsersStations[] = await UsersStations.findAll({
       where: { userId, role },
     });
 
@@ -441,14 +444,14 @@ export class UsersService {
         ),
     );
 
-    await UserStationRole.destroy({
+    await UsersStations.destroy({
       where: { userId, role, stationId: stationIdsToRemove },
     });
 
     for (const stationId of stationIdsToAdd) {
       const station: Station | null = await Station.findByPk(stationId);
       if (station) {
-        await UserStationRole.create({
+        await UsersStations.create({
           userId,
           stationId: station.id,
           role: role,
@@ -477,7 +480,7 @@ export class UsersService {
       throw new HttpException(makeNotFoundMessage('Station'), HttpStatus.NOT_FOUND);
     }
 
-    await UserStationRole.create({ userId, stationId: station.id, role: role });
+    await UsersStations.create({ userId, stationId: station.id, role: role });
   }
 
   async sendInvite(inviteData: IInviteDto): Promise<void> {
@@ -510,5 +513,9 @@ export class UsersService {
     };
 
     await transporter.sendMail(mailOptionsForInviteEmail);
+  }
+
+  async removeUserAssignOnStation(stationId: number): Promise<void> {
+    await UsersStations.destroy({ where: { stationId: stationId } });
   }
 }

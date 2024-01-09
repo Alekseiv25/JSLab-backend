@@ -1,7 +1,8 @@
-import { Business } from 'src/businesses/businesses.model';
-import { Station } from 'src/stations/stations.model';
-import { UserTableColumns } from 'src/types/tableColumns';
+import { UsersStations } from 'src/users_stations/users_stations.model';
 import { UsersParams } from 'src/users_params/users_params.model';
+import { Business } from 'src/businesses/businesses.model';
+import { UserTableColumns } from 'src/types/tableColumns';
+import { Station } from 'src/stations/stations.model';
 import {
   Column,
   DataType,
@@ -9,7 +10,6 @@ import {
   Table,
   ForeignKey,
   BelongsTo,
-  TableOptions,
   BelongsToMany,
   HasOne,
 } from 'sequelize-typescript';
@@ -38,29 +38,9 @@ export class User extends Model<User, UserTableColumns> {
   @BelongsTo(() => Business)
   business: Business;
 
-  @BelongsToMany(() => Station, () => UserStationRole)
+  @BelongsToMany(() => Station, () => UsersStations)
   stations: Station[];
 
   @HasOne(() => UsersParams)
   parameters: UsersParams;
-}
-
-@Table({ tableName: 'user_station_role', timestamps: false } as TableOptions)
-export class UserStationRole extends Model<UserStationRole> {
-  @ForeignKey(() => User)
-  @Column
-  userId: number;
-
-  @ForeignKey(() => Station)
-  @Column
-  stationId: number;
-
-  @Column({ type: DataType.STRING, allowNull: false })
-  role: 'Admin' | 'Member';
-
-  @BelongsTo(() => User)
-  user: User;
-
-  @BelongsTo(() => Station)
-  station: Station;
 }

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
-import { User, UserStationRole } from './users/users.model';
+import { User } from './users/users.model';
 import { BusinessesModule } from './businesses/businesses.module';
 import { Business } from './businesses/businesses.model';
 import { StationsModule } from './stations/stations.module';
@@ -24,6 +24,8 @@ import { UsersParams } from './users_params/users_params.model';
 import { Payment } from './payments/payments.model';
 import { PaymentsModule } from './payments/payments.module';
 import { SocketService } from './socket/socket.service';
+import { UsersStations } from './users_stations/users_stations.model';
+import { UsersStationsModule } from './users_stations/users_stations.module';
 
 @Module({
   controllers: [],
@@ -41,7 +43,7 @@ import { SocketService } from './socket/socket.service';
       database: process.env.DB,
       models: [
         User,
-        UserStationRole,
+        UsersStations,
         UsersParams,
         Business,
         Station,
@@ -56,6 +58,7 @@ import { SocketService } from './socket/socket.service';
       autoLoadModels: true,
     }),
     UsersModule,
+    UsersStationsModule,
     BusinessesModule,
     StationsModule,
     AccountsModule,
