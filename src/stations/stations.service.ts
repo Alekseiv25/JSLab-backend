@@ -126,24 +126,24 @@ export class StationsService {
       conditions.push({ [Op.or]: addresses });
     }
 
+    if (fromDate && toDate) {
+      where.createdAt = {
+        [Op.between]: [new Date(fromDate), new Date(toDate)],
+      };
+    } else if (fromDate) {
+      where.createdAt = {
+        [Op.gte]: new Date(fromDate),
+      };
+    } else if (toDate) {
+      where.createdAt = {
+        [Op.lte]: new Date(toDate),
+      };
+    }
+
     if (conditions.length > 0) {
       where[Op.and] = conditions;
     } else {
       where[Op.and] = {};
-    }
-
-    if (fromDate && toDate) {
-      where.createdAt = {
-        [Op.between]: [fromDate, toDate],
-      };
-    } else if (fromDate) {
-      where.createdAt = {
-        [Op.gte]: fromDate,
-      };
-    } else if (toDate) {
-      where.createdAt = {
-        [Op.lte]: toDate,
-      };
     }
 
     const options: FindOptions = {
