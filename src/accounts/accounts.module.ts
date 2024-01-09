@@ -8,6 +8,7 @@ import { StationsService } from 'src/stations/stations.service';
 import { Station } from 'src/stations/stations.model';
 import { OperationsService } from 'src/operations/operations.service';
 import { Operation } from 'src/operations/operations.model';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   controllers: [AccountsController],
@@ -15,6 +16,7 @@ import { Operation } from 'src/operations/operations.model';
   imports: [
     SequelizeModule.forFeature([Account, StationAccount, Station, Operation]),
     TokensModule,
+    UsersModule,
   ],
 })
 export class AccountsModule {}

@@ -129,6 +129,7 @@ export class AuthService {
           lastName: user.lastName,
         },
         userParams: {
+          isBusinessAdmin: userParams.isBusinessAdmin,
           isFinishedTutorial: userParams.isFinishedTutorial,
         },
         tokens: {

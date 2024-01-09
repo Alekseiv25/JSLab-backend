@@ -19,6 +19,7 @@ import {
   HttpCode,
   UseGuards,
   Query,
+  Headers,
 } from '@nestjs/common';
 
 @Controller('stations')
@@ -65,9 +66,10 @@ export class StationsController {
   @Post()
   @UseGuards(AuthGuard)
   createNewStation(
+    @Headers('userId') userId: string,
     @Body() stationDto: CreateStationDto,
   ): Promise<IBasicStationResponse | ICheckStationNameResponse> {
-    return this.stationsService.createNewStation(stationDto);
+    return this.stationsService.createNewStation(stationDto, Number(userId));
   }
 
   @Post('name-uniqueness')

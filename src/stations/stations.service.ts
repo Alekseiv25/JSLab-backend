@@ -25,6 +25,7 @@ import { FuelPrice } from 'src/fuel_prices/fuel_prices.model';
 import { Transaction } from 'src/transactions/transactions.model';
 import { FindOptions, Op, WhereOptions } from 'sequelize';
 import { Payment } from 'src/payments/payments.model';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class StationsService {
@@ -34,6 +35,7 @@ export class StationsService {
     @InjectModel(Station) private stationRepository: typeof Station,
     @InjectModel(StationAccount) private stationAccountRepository: typeof StationAccount,
     private operationsService: OperationsService,
+    private usersService: UsersService,
   ) {
     const { key32, key16 } = this.loadEncryptionKeys();
     this.key32 = key32;
@@ -224,6 +226,7 @@ export class StationsService {
 
   async createNewStation(
     dto: CreateStationDto,
+    userId: number,
   ): Promise<IBasicStationResponse | ICheckStationNameResponse> {
     const uniquenessResponse: ICheckStationNameResponse = await this.checkUniquenessOfName(
       dto.name,
@@ -241,11 +244,12 @@ export class StationsService {
     const storeId: string = `${yearOfCreation}-${newStation.id}`;
 
     const station: Station = await newStation.update({
-      ...dto,
+      ...newStation,
       merchantId: merchantId,
       storeId: storeId,
     });
 
+    await this.usersService.addUserAssignToStation(userId, station.id, 'Admin');
     await this.operationsService.createNewOperation(station.id);
     await this.assignStationToAccount(station.id, dto.accountId);
 

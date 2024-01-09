@@ -12,9 +12,14 @@ export interface IDeleteUserResponse {
   data: User;
 }
 
+type IInvitedUserData = {
+  userData: Pick<User, 'id' | 'firstName' | 'email'>;
+  isBusinessAdmin: boolean;
+};
+
 export interface IInvitedUserDataResponse {
   status: number;
-  invitedUserData: Pick<User, 'id' | 'firstName' | 'email'>;
+  invitedUserData: IInvitedUserData;
 }
 
 export interface IUserParamsUpdateResponse {
