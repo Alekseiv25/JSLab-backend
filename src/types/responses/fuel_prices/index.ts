@@ -3,6 +3,7 @@ import { FuelPrice } from 'src/fuel_prices/fuel_prices.model';
 export interface IGetAllFuelPricesResponse {
   status: number;
   data: FuelPrice[];
+  totalCount?: number;
 }
 
 export interface IBasicFuelPriceResponse {

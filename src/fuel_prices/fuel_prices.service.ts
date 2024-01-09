@@ -60,13 +60,17 @@ export class FuelPricesService {
       options.limit = limit;
     }
 
-    const fuelPrices: FuelPrice[] | null = await this.fuelPriceRepository.findAll(options);
+    const { count, rows: fuelPrices } = await this.fuelPriceRepository.findAndCountAll(options);
 
     if (fuelPrices.length === 0) {
       throw new HttpException(makeNotFoundMessage('Fuel Price'), HttpStatus.NOT_FOUND);
     }
 
-    const response: IGetAllFuelPricesResponse = { status: HttpStatus.OK, data: fuelPrices };
+    const response: IGetAllFuelPricesResponse = {
+      status: HttpStatus.OK,
+      data: fuelPrices,
+      totalCount: count,
+    };
     return response;
   }
 
