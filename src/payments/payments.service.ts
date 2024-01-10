@@ -7,7 +7,7 @@ import {
   IGetAllPaymentsResponse,
 } from 'src/types/responses/payments';
 import { makeDeleteMessage, makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
-import { Op } from 'sequelize';
+import { FindOptions, Op, WhereOptions } from 'sequelize';
 import { CreatePaymentDto } from './dto/payments.dto';
 
 @Injectable()
@@ -23,35 +23,67 @@ export class PaymentsService {
     return response;
   }
 
-  async getPaymentsByBusinessId(businessId: number): Promise<IGetAllPaymentsResponse> {
-    const payments: Payment[] | null = await this.paymentRepository.findAll({
-      where: {
-        businessId: {
-          [Op.in]: [businessId],
-        },
+  async getPaymentsByBusinessId(
+    businessId: number,
+    limit: number,
+    offset: number,
+  ): Promise<IGetAllPaymentsResponse> {
+    const where: WhereOptions = {
+      businessId: {
+        [Op.in]: [businessId],
       },
-    });
+    };
+
+    const options: FindOptions = {
+      where,
+      limit,
+      offset,
+      order: [['id', 'DESC']],
+    };
+
+    const { count, rows: payments } = await this.paymentRepository.findAndCountAll(options);
+
     if (payments.length === 0) {
       throw new HttpException(makeNotFoundMessage('Payments'), HttpStatus.NOT_FOUND);
     }
 
-    const response: IGetAllPaymentsResponse = { status: HttpStatus.OK, data: payments };
+    const response: IGetAllPaymentsResponse = {
+      status: HttpStatus.OK,
+      data: payments,
+      totalCount: count,
+    };
     return response;
   }
 
-  async getPaymentsByStationId(stationId: number): Promise<IGetAllPaymentsResponse> {
-    const payments: Payment[] | null = await this.paymentRepository.findAll({
-      where: {
-        stationId: {
-          [Op.in]: [stationId],
-        },
+  async getPaymentsByStationId(
+    stationId: number,
+    limit: number,
+    offset: number,
+  ): Promise<IGetAllPaymentsResponse> {
+    const where: WhereOptions = {
+      stationId: {
+        [Op.in]: [stationId],
       },
-    });
+    };
+
+    const options: FindOptions = {
+      where,
+      limit,
+      offset,
+      order: [['id', 'DESC']],
+    };
+
+    const { count, rows: payments } = await this.paymentRepository.findAndCountAll(options);
+
     if (payments.length === 0) {
       throw new HttpException(makeNotFoundMessage('Payments'), HttpStatus.NOT_FOUND);
     }
 
-    const response: IGetAllPaymentsResponse = { status: HttpStatus.OK, data: payments };
+    const response: IGetAllPaymentsResponse = {
+      status: HttpStatus.OK,
+      data: payments,
+      totalCount: count,
+    };
     return response;
   }
 

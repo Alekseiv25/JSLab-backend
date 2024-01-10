@@ -85,8 +85,13 @@ export class TransactionsService {
     if (transactions.length === 0) {
       throw new HttpException(makeNotFoundMessage('Transactions'), HttpStatus.NOT_FOUND);
     }
+    const totalCount = await this.transactionsRepository.count({ where });
 
-    const response: IGetAllTransactionsResponse = { status: HttpStatus.OK, data: transactions };
+    const response: IGetAllTransactionsResponse = {
+      status: HttpStatus.OK,
+      data: transactions,
+      totalCount,
+    };
     return response;
   }
 
