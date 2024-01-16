@@ -20,5 +20,6 @@ import { UsersStationsModule } from 'src/users_stations/users_stations.module';
     TokensModule,
     UsersStationsModule,
   ],
+  exports: [StationsService],
 })
 export class StationsModule {}

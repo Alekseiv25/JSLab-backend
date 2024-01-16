@@ -115,6 +115,6 @@ export class UsersController {
   @Delete('invite/:id')
   @UseGuards(AuthGuard)
   cancelUserInvite(@Param('id') id: number): Promise<IBasicResponse> {
-    return this.userService.cancelUserInvite(Number(id));
+    return this.userService.cancelUserInvite(id);
   }
 }

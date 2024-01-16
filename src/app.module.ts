@@ -26,6 +26,8 @@ import { PaymentsModule } from './payments/payments.module';
 import { SocketService } from './socket/socket.service';
 import { UsersStations } from './users_stations/users_stations.model';
 import { UsersStationsModule } from './users_stations/users_stations.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { Notification } from './notifications/notifications.model';
 
 @Module({
   controllers: [],
@@ -54,6 +56,7 @@ import { UsersStationsModule } from './users_stations/users_stations.module';
         FuelPrice,
         Transaction,
         Payment,
+        Notification,
       ],
       autoLoadModels: true,
     }),
@@ -70,6 +73,7 @@ import { UsersStationsModule } from './users_stations/users_stations.module';
     TransactionsModule,
     UsersParamsModule,
     PaymentsModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

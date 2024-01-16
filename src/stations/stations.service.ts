@@ -354,4 +354,14 @@ export class StationsService {
     };
     return response;
   }
+
+  async findStationById(id: number): Promise<Station> {
+    const station: Station | null = await this.stationRepository.findByPk(id);
+
+    if (!station) {
+      throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
+    }
+
+    return station;
+  }
 }
