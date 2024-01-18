@@ -9,10 +9,20 @@ import {
 import { makeDeleteMessage, makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
 import { FindOptions, Op, WhereOptions } from 'sequelize';
 import { CreatePaymentDto } from './dto/payments.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { StationsService } from 'src/stations/stations.service';
+import { Station } from 'src/stations/stations.model';
+import { UsersService } from 'src/users/users.service';
+import { User } from 'src/users/users.model';
 
 @Injectable()
 export class PaymentsService {
-  constructor(@InjectModel(Payment) private paymentRepository: typeof Payment) {}
+  constructor(
+    @InjectModel(Payment) private paymentRepository: typeof Payment,
+    private notificationsService: NotificationsService,
+    private stationsService: StationsService,
+    private usersService: UsersService,
+  ) {}
 
   async getAllPayments(): Promise<IGetAllPaymentsResponse> {
     const payments: Payment[] | [] = await this.paymentRepository.findAll();
@@ -97,17 +107,32 @@ export class PaymentsService {
     return response;
   }
 
-  async createNewPayment(dto: CreatePaymentDto): Promise<IBasicPaymentResponse> {
+  async createNewPayment(userId: number, dto: CreatePaymentDto): Promise<IBasicPaymentResponse> {
     const payment: Payment = await this.paymentRepository.create(dto);
+
+    const businessAdmin: User = await this.usersService.findUserByBusinessId(dto.businessId);
+    const user: User = await this.usersService.findUserByID(userId);
+
+    if (businessAdmin.id !== user.id) {
+      const station: Station = await this.stationsService.findStationById(dto.stationId);
+      await this.notificationsService.createPaymentNotificationForAdmin(
+        businessAdmin.id,
+        `${user.firstName} ${user.lastName}`,
+        station.name,
+        dto.paymentAmount,
+        dto.paymentName,
+      );
+    }
+
     const response: IBasicPaymentResponse = { status: HttpStatus.OK, data: payment };
     return response;
   }
 
-  async deletePayments(ids: number[]): Promise<IDeletePaymentsResponse> {
+  async deletePayments(userId, paymentsIdsForDelete: number[]): Promise<IDeletePaymentsResponse> {
     const payments: Payment[] = await this.paymentRepository.findAll({
       where: {
         id: {
-          [Op.in]: ids,
+          [Op.in]: paymentsIdsForDelete,
         },
       },
     });
@@ -119,10 +144,35 @@ export class PaymentsService {
     await this.paymentRepository.destroy({
       where: {
         id: {
-          [Op.in]: ids,
+          [Op.in]: paymentsIdsForDelete,
         },
       },
     });
+
+    const station: Station = await this.stationsService.findStationById(payments[0].stationId);
+    const businessAdmin: User = await this.usersService.findUserByBusinessId(station.businessId);
+
+    if (businessAdmin.id !== userId) {
+      const user: User = await this.usersService.findUserByID(userId);
+
+      let paymentsAmount: number = 0;
+      const paymentsSubjects: string[] = [];
+
+      for (const payment of payments) {
+        paymentsAmount += parseFloat(payment.paymentAmount);
+        if (!paymentsSubjects.includes(payment.paymentName)) {
+          paymentsSubjects.push(payment.paymentName);
+        }
+      }
+
+      await this.notificationsService.createDeletePaymentNotificationForAdmin(
+        businessAdmin.id,
+        `${user.firstName} ${user.lastName}`,
+        station.name,
+        String(paymentsAmount),
+        paymentsSubjects,
+      );
+    }
 
     const response: IDeletePaymentsResponse = {
       status: HttpStatus.OK,

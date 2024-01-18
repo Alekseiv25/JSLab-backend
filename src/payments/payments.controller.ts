@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { ICreatePaymentRequest, IDeletePaymentsRequest } from 'src/types/requests/payments';
 import { PaymentsService } from './payments.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import {
@@ -6,7 +7,6 @@ import {
   IDeletePaymentsResponse,
   IGetAllPaymentsResponse,
 } from 'src/types/responses/payments';
-import { CreatePaymentDto } from './dto/payments.dto';
 
 @Controller('payments')
 export class PaymentsController {
@@ -46,13 +46,19 @@ export class PaymentsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  createNewPayment(@Body() transactionDto: CreatePaymentDto): Promise<IBasicPaymentResponse> {
-    return this.paymentsService.createNewPayment(transactionDto);
+  createNewPayment(@Body() requestObject: ICreatePaymentRequest): Promise<IBasicPaymentResponse> {
+    return this.paymentsService.createNewPayment(
+      requestObject.userId,
+      requestObject.paymentCreationData,
+    );
   }
 
   @Delete()
   @UseGuards(AuthGuard)
-  deletePayments(@Body() ids: number[]): Promise<IDeletePaymentsResponse> {
-    return this.paymentsService.deletePayments(ids);
+  deletePayments(@Body() requestObject: IDeletePaymentsRequest): Promise<IDeletePaymentsResponse> {
+    return this.paymentsService.deletePayments(
+      requestObject.userId,
+      requestObject.paymentsIdsForDelete,
+    );
   }
 }

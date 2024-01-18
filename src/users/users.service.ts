@@ -1,6 +1,7 @@
 import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
 import { UsersStationsService } from 'src/users_stations/users_stations.service';
 import { IInviteDto, IUserAssignUpdateRequest } from 'src/types/requests/users';
+import { NotificationsService } from 'src/notifications/notifications.service';
 import { UsersParamsService } from 'src/users_params/users_params.service';
 import { FindOptions, IncludeOptions, Op, WhereOptions } from 'sequelize';
 import { UsersStations } from 'src/users_stations/users_stations.model';
@@ -54,6 +55,7 @@ export class UsersService {
     private userParamsService: UsersParamsService,
     private userStationsService: UsersStationsService,
     private businessService: BusinessesService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async getUsersDataForAdminTable(
@@ -263,9 +265,9 @@ export class UsersService {
     const user: User = await this.findUserByID(id);
     const userParams: UsersParams = await this.userParamsService.getUserParams(id);
 
-    await user.destroy();
-    await userParams.destroy();
     await this.userStationsService.removeUserAssignToStation(null, id);
+    await userParams.destroy();
+    await user.destroy();
 
     const response: IBasicResponse = { status: HttpStatus.OK, message: makeDeleteMessage('User') };
     return response;
@@ -335,6 +337,16 @@ export class UsersService {
 
   async findUserByEmail(email: string): Promise<User | null> {
     const user: User | null = await this.userRepository.findOne({ where: { email } });
+    return user;
+  }
+
+  async findUserByBusinessId(businessId: number): Promise<User> {
+    const user: User | null = await this.userRepository.findOne({ where: { businessId } });
+
+    if (!user) {
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
+    }
+
     return user;
   }
 
@@ -437,12 +449,28 @@ export class UsersService {
       .filter((userStationRole) => !stationIds.includes(userStationRole.stationId))
       .map((userStationRole) => userStationRole.stationId);
 
+    const stationsToRemovePromises = stationIdsToRemove.map(async (stationId) => {
+      const userStation = await UsersStations.findOne({
+        where: { stationId },
+        include: [{ model: Station }],
+      });
+      return userStation.station.name;
+    });
+
     const stationIdsToAdd: number[] = stationIds.filter(
       (stationId) =>
         !existingUserStationRoles.some(
           (userStationRole) => userStationRole.stationId === stationId,
         ),
     );
+
+    const stationsToAddPromises = stationIdsToAdd.map(async (stationId) => {
+      const userStation = await UsersStations.findOne({
+        where: { stationId },
+        include: [{ model: Station }],
+      });
+      return userStation.station.name;
+    });
 
     await UsersStations.destroy({
       where: { userId, role, stationId: stationIdsToRemove },
@@ -467,6 +495,24 @@ export class UsersService {
         }
       }),
     );
+
+    const stationsNamesToRemove = await Promise.all(stationsToRemovePromises);
+    const stationsNamesToAdd = await Promise.all(stationsToAddPromises);
+
+    if (stationsNamesToRemove.length > 0) {
+      await this.notificationsService.createNotificationsAboutRemovedOrAddedAssign(
+        'Removed',
+        userId,
+        stationsNamesToRemove,
+      );
+    }
+    if (stationsNamesToAdd.length > 0) {
+      await this.notificationsService.createNotificationsAboutRemovedOrAddedAssign(
+        'Added',
+        userId,
+        stationsNamesToAdd,
+      );
+    }
   }
 
   async addUserAssignToStation(

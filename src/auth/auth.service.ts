@@ -1,6 +1,6 @@
 import { IInviteDto, ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
-import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
 import { UsersStationsService } from 'src/users_stations/users_stations.service';
+import { NotificationsService } from 'src/notifications/notifications.service';
 import { UsersParamsService } from 'src/users_params/users_params.service';
 import { ActivateUserDto, CreateNewUserDto } from './dto/create-user.dto';
 import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
@@ -29,6 +29,7 @@ import {
   IRefreshResponseJWT,
   IRegistrationResponseJWT,
 } from 'src/types/responses/users/registration';
+import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
 
 export interface ITokensCreationResponse {
   accessToken: string;
@@ -40,6 +41,7 @@ export class AuthService {
   constructor(
     private userService: UsersService,
     private userParamsService: UsersParamsService,
+    private notificationsService: NotificationsService,
     private userStationsService: UsersStationsService,
     private tokensService: TokensService,
   ) {}
@@ -90,8 +92,14 @@ export class AuthService {
 
   async activateInvitedUserAccount(userDto: ActivateUserDto): Promise<IRegistrationResponseJWT> {
     const activatedUser: User = await this.updateInvitedUser(userDto);
-
     await this.updateInvitedUserParams(activatedUser.id);
+
+    const inviter: User = await this.userService.findUserByBusinessId(activatedUser.businessId);
+    await this.notificationsService.createActivationNotificationForAdmin(
+      inviter.id,
+      `${activatedUser.firstName} ${activatedUser.lastName}`,
+    );
+
     const tokens: ITokensCreationResponse = await this.generateTokens(activatedUser);
 
     const response: IRegistrationResponseJWT = {
