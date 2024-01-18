@@ -134,16 +134,19 @@ export class NotificationsService {
     paymentAmount: string,
     paymentSubjects: string[],
   ): Promise<void> {
+    const isMultiplePayments = paymentSubjects.length > 1;
+    const paymentWord = isMultiplePayments ? 'payments' : 'payment';
+    const subjectWord = isMultiplePayments ? 'subjects' : 'subject';
+
+    const title = `Deleted ${paymentWord}`;
+    const message = `${userName} deleted ${paymentWord} for the ${stationName} station. The amount of deleted ${paymentWord}: $${paymentAmount}, ${subjectWord} of ${paymentWord}: ${paymentSubjects.join(
+      ', ',
+    )}.`;
+
     const createNotificationDto: CreateNotificationDto = {
       userId: adminId,
-      title: `Deleted paymen${paymentSubjects.length > 1 ? 'ts' : 't'}`,
-      message: `${userName} deleted paymen${
-        paymentSubjects.length > 1 ? 'ts' : 't'
-      } for the ${stationName} station. The amount of deleted paymen${
-        paymentSubjects.length > 1 ? 'ts' : 't'
-      }: $${paymentAmount}, subjec${paymentSubjects.length > 1 ? 'ts' : 't'} of paymen${
-        paymentSubjects.length > 1 ? 'ts' : 't'
-      }: ${paymentSubjects.join(', ')}.`,
+      title,
+      message,
       createdAt: String(new Date().getTime()),
     };
 
