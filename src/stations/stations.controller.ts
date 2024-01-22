@@ -33,6 +33,7 @@ export class StationsController {
   }
 
   @Get('businesses/:businessId')
+  @UseGuards(AuthGuard)
   async getStationsByBusinessId(
     @Param('businessId') businessId: number,
     @Query('searchQuery') searchQuery?: string,
@@ -45,6 +46,32 @@ export class StationsController {
   ): Promise<IGetAllStationsResponse> {
     const response = await this.stationsService.getStationsByBusinessId(
       businessId,
+      searchQuery,
+      name,
+      address,
+      fromDate,
+      toDate,
+      limit,
+      page,
+    );
+
+    return response;
+  }
+
+  @Get('users/:userId')
+  @UseGuards(AuthGuard)
+  async getStationsByUserId(
+    @Param('userId') userId: number,
+    @Query('searchQuery') searchQuery?: string,
+    @Query('name') name?: string,
+    @Query('address') address?: string,
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+    @Query('limit') limit?: number,
+    @Query('page') page?: number,
+  ): Promise<IGetAllStationsResponse> {
+    const response = await this.stationsService.getStationsByUserId(
+      userId,
       searchQuery,
       name,
       address,
@@ -97,6 +124,7 @@ export class StationsController {
   }
 
   @Delete()
+  @UseGuards(AuthGuard)
   deleteStations(@Body() ids: number[]): Promise<IDeleteStationsResponse> {
     return this.stationsService.deleteStations(ids);
   }
