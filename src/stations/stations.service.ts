@@ -75,118 +75,118 @@ export class StationsService {
     }
   }
 
-  async getAllStations(): Promise<IGetAllStationsResponse> {
-    const stations: Station[] | [] = await this.stationRepository.findAll({
-      include: [
-        { model: Account },
-        { model: Operation },
-        { model: FuelPrice },
-        { model: Transaction },
-        { model: Payment },
-      ],
-    });
+  // async getAllStations(): Promise<IGetAllStationsResponse> {
+  //   const stations: Station[] | [] = await this.stationRepository.findAll({
+  //     include: [
+  //       { model: Account },
+  //       { model: Operation },
+  //       { model: FuelPrice },
+  //       { model: Transaction },
+  //       { model: Payment },
+  //     ],
+  //   });
 
-    if (stations.length === 0) {
-      throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
-    }
+  //   if (stations.length === 0) {
+  //     throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
+  //   }
 
-    const response: IGetAllStationsResponse = { status: HttpStatus.OK, data: stations };
-    return response;
-  }
+  //   const response: IGetAllStationsResponse = { status: HttpStatus.OK, data: stations };
+  //   return response;
+  // }
 
-  async getStationsByBusinessId(
-    businessId: number,
-    searchQuery?: string,
-    name?: string,
-    address?: string,
-    fromDate?: string,
-    toDate?: string,
-    limit?: number,
-    page?: number,
-  ): Promise<IGetAllStationsResponse> {
-    const where: WhereOptions<Station> = {
-      businessId: {
-        [Op.in]: [businessId],
-      },
-    };
+  // async getStationsByBusinessId(
+  //   businessId: number,
+  //   searchQuery?: string,
+  //   name?: string,
+  //   address?: string,
+  //   fromDate?: string,
+  //   toDate?: string,
+  //   limit?: number,
+  //   page?: number,
+  // ): Promise<IGetAllStationsResponse> {
+  //   const where: WhereOptions<Station> = {
+  //     businessId: {
+  //       [Op.in]: [businessId],
+  //     },
+  //   };
 
-    if (searchQuery) {
-      where[Op.or] = [
-        { name: { [Op.like]: `%${searchQuery}%` } },
-        { address: { [Op.like]: `%${searchQuery}%` } },
-      ];
-    }
+  //   if (searchQuery) {
+  //     where[Op.or] = [
+  //       { name: { [Op.like]: `%${searchQuery}%` } },
+  //       { address: { [Op.like]: `%${searchQuery}%` } },
+  //     ];
+  //   }
 
-    const conditions: WhereOptions<Station>[] = [];
+  //   const conditions: WhereOptions<Station>[] = [];
 
-    if (name) {
-      const names = name.split(',').map((n) => ({ name: { [Op.like]: `%${n.trim()}%` } }));
-      conditions.push({ [Op.or]: names });
-    }
+  //   if (name) {
+  //     const names = name.split(',').map((n) => ({ name: { [Op.like]: `%${n.trim()}%` } }));
+  //     conditions.push({ [Op.or]: names });
+  //   }
 
-    if (address) {
-      const addresses = address
-        .split(',')
-        .map((a) => ({ address: { [Op.like]: `%${a.trim()}%` } }));
-      conditions.push({ [Op.or]: addresses });
-    }
+  //   if (address) {
+  //     const addresses = address
+  //       .split(',')
+  //       .map((a) => ({ address: { [Op.like]: `%${a.trim()}%` } }));
+  //     conditions.push({ [Op.or]: addresses });
+  //   }
 
-    if (fromDate && toDate) {
-      where.createdAt = {
-        [Op.between]: [new Date(fromDate), new Date(toDate)],
-      };
-    } else if (fromDate) {
-      where.createdAt = {
-        [Op.gte]: new Date(fromDate),
-      };
-    } else if (toDate) {
-      where.createdAt = {
-        [Op.lte]: new Date(toDate),
-      };
-    }
+  //   if (fromDate && toDate) {
+  //     where.createdAt = {
+  //       [Op.between]: [new Date(fromDate), new Date(toDate)],
+  //     };
+  //   } else if (fromDate) {
+  //     where.createdAt = {
+  //       [Op.gte]: new Date(fromDate),
+  //     };
+  //   } else if (toDate) {
+  //     where.createdAt = {
+  //       [Op.lte]: new Date(toDate),
+  //     };
+  //   }
 
-    if (conditions.length > 0) {
-      where[Op.and] = conditions;
-    } else {
-      where[Op.and] = {};
-    }
+  //   if (conditions.length > 0) {
+  //     where[Op.and] = conditions;
+  //   } else {
+  //     where[Op.and] = {};
+  //   }
 
-    const options: FindOptions = {
-      where,
-      include: [
-        { model: Account },
-        { model: Operation },
-        { model: FuelPrice },
-        { model: Transaction },
-        { model: Payment },
-      ],
-      order: [['id', 'DESC']],
-    };
+  //   const options: FindOptions = {
+  //     where,
+  //     include: [
+  //       { model: Account },
+  //       { model: Operation },
+  //       { model: FuelPrice },
+  //       { model: Transaction },
+  //       { model: Payment },
+  //     ],
+  //     order: [['id', 'DESC']],
+  //   };
 
-    if (limit && page) {
-      const offset = (page - 1) * limit;
-      options.limit = limit;
-      options.offset = offset;
-    } else if (limit) {
-      options.limit = limit;
-    }
+  //   if (limit && page) {
+  //     const offset = (page - 1) * limit;
+  //     options.limit = limit;
+  //     options.offset = offset;
+  //   } else if (limit) {
+  //     options.limit = limit;
+  //   }
 
-    const stations: Station[] | null = await this.stationRepository.findAll(options);
+  //   const stations: Station[] | null = await this.stationRepository.findAll(options);
 
-    if (stations.length === 0) {
-      throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
-    }
+  //   if (stations.length === 0) {
+  //     throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
+  //   }
 
-    const totalCount = await this.stationRepository.count({ where });
+  //   const totalCount = await this.stationRepository.count({ where });
 
-    const response: IGetAllStationsResponse = {
-      status: HttpStatus.OK,
-      data: stations,
-      totalCount,
-    };
+  //   const response: IGetAllStationsResponse = {
+  //     status: HttpStatus.OK,
+  //     data: stations,
+  //     totalCount,
+  //   };
 
-    return response;
-  }
+  //   return response;
+  // }
 
   async getStationsByUserId(
     userId: number,
@@ -204,6 +204,15 @@ export class StationsService {
 
     if (!userStationsIds) {
       throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
+    }
+
+    const aleshaArr = [];
+
+    for (const station of userStations) {
+      aleshaArr.push({
+        station: station.station,
+        userRole: station.role,
+      });
     }
 
     const where: WhereOptions<Station> = {
@@ -283,7 +292,7 @@ export class StationsService {
 
     const response: IGetAllStationsResponse = {
       status: HttpStatus.OK,
-      data: stations,
+      data: aleshaArr,
       totalCount,
     };
 
