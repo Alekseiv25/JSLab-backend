@@ -1,5 +1,6 @@
 import { IBasicUserResponse, IUserParamsUpdateResponse } from 'src/types/responses/users';
 import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
+import { IGlobalSearchUsersResponse } from 'src/types/responses/globalSEarch';
 import { IUserAssignUpdateRequest } from 'src/types/requests/users';
 import { CreateUserDto } from './dto/create-user.dto';
 import { IBasicResponse } from 'src/types/responses';
@@ -42,15 +43,17 @@ export class UsersController {
     @Query('stationName') stationName?: string,
     @Query('stationLocation') stationLocation?: string,
     @Query('userStatus') userStatus?: string,
+    @Query('targetUserId') targetUserId?: number,
   ): Promise<IUserDataForAdminTableResponse> {
     return this.userService.getUsersDataForAdminTable(
-      requesterId,
-      page,
-      itemsPerPage,
+      Number(requesterId),
+      Number(page),
+      Number(itemsPerPage),
       userName,
       stationName,
       stationLocation,
       userStatus,
+      Number(targetUserId),
     );
   }
 
@@ -69,6 +72,22 @@ export class UsersController {
     @Query('inviterUserId') inviterUserId: string,
   ): Promise<IBasicResponse> {
     return this.userService.reinviteUser(Number(invitedUserId), Number(inviterUserId));
+  }
+
+  @Get('search')
+  @UseGuards(AuthGuard)
+  getUsersBySearchValue(
+    @Query('userId') userId: number,
+    @Query('searchValue') searchValue: string,
+    @Query('currentPage') currentPage: number,
+    @Query('itemsPerPage') itemsPerPage: number,
+  ): Promise<IGlobalSearchUsersResponse> {
+    return this.userService.getUsersBySearchValue(
+      Number(userId),
+      searchValue,
+      Number(currentPage),
+      Number(itemsPerPage),
+    );
   }
 
   @Post('email-uniqueness')

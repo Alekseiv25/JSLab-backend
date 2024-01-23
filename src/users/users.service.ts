@@ -27,6 +27,7 @@ import {
   makeConflictMessage,
   makeNotFoundMessage,
   makeDeleteMessage,
+  makeUnauthorizedMessage,
 } from 'src/utils/generators/messageGenerators';
 import {
   IUserParamsUpdateResponse,
@@ -47,6 +48,10 @@ import {
   IGeneralData,
   IParamsData,
 } from 'src/types/responses/users/admin_table';
+import {
+  IGlobalSearchUsersResponse,
+  IUserDataForGlobalSearch,
+} from 'src/types/responses/globalSEarch';
 
 @Injectable()
 export class UsersService {
@@ -66,12 +71,14 @@ export class UsersService {
     stationName: string,
     stationAddress: string,
     userStatus: string,
+    targetUserId: number,
   ): Promise<IUserDataForAdminTableResponse> {
     const requester: User = await this.findUserByID(requesterId);
 
     const membersOfRequesterBusiness: User[] = await this.userRepository.findAll({
       where: { businessId: requester.businessId },
     });
+
     if (!membersOfRequesterBusiness || membersOfRequesterBusiness.length === 0) {
       throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
     }
@@ -135,7 +142,17 @@ export class UsersService {
     }
 
     const totalPages: number = Math.ceil(count / itemsPerPage);
-    const calculatedPage: number = Math.max(1, Math.min(page, totalPages));
+
+    const userPosition = targetUserId
+      ? (await this.userRepository.count({
+          where: { businessId: requester.businessId, id: { [Op.gte]: targetUserId } },
+        })) + 1
+      : null;
+
+    const calculatedPage: number = userPosition
+      ? Math.ceil(userPosition / itemsPerPage)
+      : Math.max(1, Math.min(page, totalPages));
+
     const offset: number = (calculatedPage - 1) * itemsPerPage;
 
     options.limit = itemsPerPage;
@@ -187,6 +204,82 @@ export class UsersService {
   async getUserByID(id: number): Promise<IBasicUserResponse> {
     const userData: User = await this.findUserByID(id);
     const response: IBasicUserResponse = { status: HttpStatus.OK, data: userData };
+    return response;
+  }
+
+  async getUsersBySearchValue(
+    userId: number,
+    searchValue: string,
+    currentPage: number,
+    itemsPerPage: number,
+  ): Promise<IGlobalSearchUsersResponse> {
+    const userParams: UsersParams = await this.userParamsService.getUserParams(userId);
+
+    if (!userParams.isBusinessAdmin) {
+      throw new HttpException(makeUnauthorizedMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    const user: User = await this.findUserByID(userId);
+
+    const membersOfBusiness: User[] = await this.userRepository.findAll({
+      where: {
+        businessId: user.businessId,
+        id: { [Op.ne]: userId },
+        [Op.or]: [
+          { firstName: { [Op.iLike]: `%${searchValue}%` } },
+          { lastName: { [Op.iLike]: `%${searchValue}%` } },
+        ],
+      },
+      offset: (currentPage - 1) * itemsPerPage,
+      limit: itemsPerPage,
+    });
+
+    const amountOfUsers: number = membersOfBusiness.length;
+    const usersData: IUserDataForGlobalSearch[] = [];
+
+    for (const member of membersOfBusiness) {
+      const memberStations: UsersStations[] = await this.userStationsService.findAllRecordsByUserId(
+        user.id,
+      );
+
+      const memberRoles: string[] = [];
+      const memberStationNames: string[] = [];
+      const memberStationAddresses: string[] = [];
+
+      memberStations.forEach((station): void => {
+        if (!memberRoles.includes(station.role)) {
+          memberRoles.push(station.role);
+        }
+        if (!memberStationNames.includes(station.station.name)) {
+          memberStationNames.push(station.station.name);
+        }
+        if (!memberStationAddresses.includes(station.station.address)) {
+          memberStationAddresses.push(station.station.address);
+        }
+      });
+
+      const memberObject: IUserDataForGlobalSearch = {
+        id: member.id,
+        firstName: member.firstName,
+        lastName: member.lastName,
+        email: member.email,
+        role: memberRoles.join(', '),
+        stationAddress: memberStationAddresses.join(', '),
+        stationName: memberStationNames.join(', '),
+      };
+
+      usersData.push(memberObject);
+    }
+
+    const amountOfPages: number = Math.ceil(amountOfUsers / itemsPerPage);
+
+    const response: IGlobalSearchUsersResponse = {
+      status: HttpStatus.OK,
+      data: {
+        users: usersData,
+        params: { amountOfUsers, amountOfPages, currentPage },
+      },
+    };
     return response;
   }
 
@@ -350,6 +443,16 @@ export class UsersService {
     return user;
   }
 
+  async findUsersByBusinessId(businessId: number): Promise<User[]> {
+    const user: User[] | null = await this.userRepository.findAll({ where: { businessId } });
+
+    if (!user || user.length === 0) {
+      throw new HttpException(makeNotFoundMessage('User'), HttpStatus.NOT_FOUND);
+    }
+
+    return user;
+  }
+
   async findUserByID(userID: number): Promise<User> {
     const user: User | null = await this.userRepository.findByPk(userID);
 
@@ -358,6 +461,13 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async findUserStations(userId: number): Promise<UsersStations[]> {
+    const userStations: UsersStations[] =
+      await this.userStationsService.findAllRecordsByUserId(userId);
+
+    return userStations;
   }
 
   private async prepareAdminTableData(user: User): Promise<IUserDataForTable> {

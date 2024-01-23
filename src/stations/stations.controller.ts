@@ -1,3 +1,4 @@
+import { IGlobalSearchStationsResponse } from 'src/types/responses/globalSEarch';
 import { StationsService } from './stations.service';
 import { CreateStationDto } from './dto/create-station.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -55,6 +56,22 @@ export class StationsController {
     );
 
     return response;
+  }
+
+  @Get('search')
+  @UseGuards(AuthGuard)
+  getStationsBySearchValue(
+    @Query('userId') userId: number,
+    @Query('searchValue') searchValue: string,
+    @Query('currentPage') currentPage: number,
+    @Query('itemsPerPage') itemsPerPage: number,
+  ): Promise<IGlobalSearchStationsResponse> {
+    return this.stationsService.getStationsBySearchValue(
+      Number(userId),
+      searchValue,
+      Number(currentPage),
+      Number(itemsPerPage),
+    );
   }
 
   @Get(':id')
