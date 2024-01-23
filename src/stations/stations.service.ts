@@ -391,8 +391,9 @@ export class StationsService {
       throw new HttpException(makeNotFoundMessage('Station'), HttpStatus.NOT_FOUND);
     }
 
-    await station.destroy();
     await this.usersService.removeUserAssignOnStation(id);
+    await station.destroy();
+
     const response: IDeleteStationResponse = {
       status: HttpStatus.OK,
       message: makeDeleteMessage('Station'),
@@ -413,6 +414,7 @@ export class StationsService {
     if (stations.length === 0) {
       throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
     }
+    for (const station of stations) await this.usersService.removeUserAssignOnStation(station.id);
 
     await this.stationRepository.destroy({
       where: {
@@ -421,8 +423,6 @@ export class StationsService {
         },
       },
     });
-
-    for (const station of stations) await this.usersService.removeUserAssignOnStation(station.id);
 
     const response: IDeleteStationsResponse = {
       status: HttpStatus.OK,
