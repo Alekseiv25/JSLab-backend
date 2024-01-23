@@ -4,6 +4,7 @@ type RegistrationResponseDataType = {
   accessToken: string;
   refreshToken: string;
   createdUser: User;
+  isBusinessAdmin: boolean;
 };
 
 export interface IRegistrationResponseJWT {
