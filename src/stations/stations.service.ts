@@ -26,6 +26,8 @@ import { Transaction } from 'src/transactions/transactions.model';
 import { FindOptions, Op, WhereOptions } from 'sequelize';
 import { Payment } from 'src/payments/payments.model';
 import { UsersService } from 'src/users/users.service';
+import { UsersStationsService } from 'src/users_stations/users_stations.service';
+import { UsersStations } from 'src/users_stations/users_stations.model';
 
 @Injectable()
 export class StationsService {
@@ -36,6 +38,7 @@ export class StationsService {
     @InjectModel(StationAccount) private stationAccountRepository: typeof StationAccount,
     private operationsService: OperationsService,
     private usersService: UsersService,
+    private usersStationsService: UsersStationsService,
   ) {
     const { key32, key16 } = this.loadEncryptionKeys();
     this.key32 = key32;
@@ -195,9 +198,17 @@ export class StationsService {
     limit?: number,
     page?: number,
   ): Promise<IGetAllStationsResponse> {
+    const userStations: UsersStations[] =
+      await this.usersStationsService.findAllRecordsByUserId(userId);
+    const userStationsIds = userStations.map((usersStations) => usersStations.dataValues.stationId);
+
+    if (!userStationsIds) {
+      throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
+    }
+
     const where: WhereOptions<Station> = {
-      businessId: {
-        [Op.in]: [userId],
+      id: {
+        [Op.in]: userStationsIds,
       },
     };
 
@@ -279,7 +290,7 @@ export class StationsService {
     return response;
   }
 
-  async getStationById(id: number): Promise<IBasicStationResponse> {
+  async getStationById(id: number, userId: number): Promise<IBasicStationResponse> {
     const station: Station | null = await this.stationRepository.findByPk(id, {
       include: [
         { model: Account },
@@ -291,6 +302,13 @@ export class StationsService {
     });
 
     if (!station) {
+      throw new HttpException(makeNotFoundMessage('Station'), HttpStatus.NOT_FOUND);
+    }
+
+    const userStations: UsersStations[] =
+      await this.usersStationsService.findAllRecordsByUserId(userId);
+
+    if (!userStations.some((userStation) => userStation.dataValues.stationId === Number(id))) {
       throw new HttpException(makeNotFoundMessage('Station'), HttpStatus.NOT_FOUND);
     }
 

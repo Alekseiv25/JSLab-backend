@@ -86,8 +86,11 @@ export class StationsController {
 
   @Get(':id')
   @UseGuards(AuthGuard)
-  getStationById(@Param('id') id: number): Promise<IBasicStationResponse> {
-    return this.stationsService.getStationById(id);
+  getStationById(
+    @Param('id') id: number,
+    @Query('userId') userId: number,
+  ): Promise<IBasicStationResponse> {
+    return this.stationsService.getStationById(id, userId);
   }
 
   @Post()
