@@ -202,14 +202,10 @@ export class StationsService {
       await this.usersStationsService.findAllRecordsByUserId(userId);
     const userStationsIds = userStations.map((usersStations) => usersStations.dataValues.stationId);
 
-    if (!userStationsIds) {
-      throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
-    }
-
-    const aleshaArr = [];
+    let stationsData = [];
 
     for (const station of userStations) {
-      aleshaArr.push({
+      stationsData.push({
         station: station.station,
         userRole: station.role,
       });
@@ -282,9 +278,15 @@ export class StationsService {
       options.limit = limit;
     }
 
-    const stations: Station[] | null = await this.stationRepository.findAll(options);
+    // const stations: Station[] | null = await this.stationRepository.findAll(options);
 
-    if (stations.length === 0) {
+    stationsData = await this.stationRepository.findAll(options);
+
+    // if (stations.length === 0) {
+    //   throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
+    // }
+
+    if (!userStationsIds) {
       throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
     }
 
@@ -292,7 +294,7 @@ export class StationsService {
 
     const response: IGetAllStationsResponse = {
       status: HttpStatus.OK,
-      data: aleshaArr,
+      data: stationsData,
       totalCount,
     };
 

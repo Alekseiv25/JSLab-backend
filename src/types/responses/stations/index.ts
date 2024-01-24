@@ -7,14 +7,14 @@ export interface IBasicStationResponse {
   data: Station;
 }
 
-export interface Alesha1 {
+export interface StationsData {
   station: Station;
-  userRole: UserStationRoleTypes;
+  userRole?: UserStationRoleTypes;
 }
 
 export interface IGetAllStationsResponse {
   status: number;
-  data: Alesha1[];
+  data: StationsData[];
   totalCount?: number;
 }
 
