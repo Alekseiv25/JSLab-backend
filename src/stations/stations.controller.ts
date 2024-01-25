@@ -7,6 +7,7 @@ import {
   IDeleteStationResponse,
   IDeleteStationsResponse,
   IGetAllStationsResponse,
+  IGetStationResponse,
 } from 'src/types/responses/stations';
 import {
   Controller,
@@ -26,37 +27,37 @@ import {
 export class StationsController {
   constructor(private stationsService: StationsService) {}
 
-  // @Get()
-  // @UseGuards(AuthGuard)
-  // getAllStations(): Promise<IGetAllStationsResponse> {
-  //   return this.stationsService.getAllStations();
-  // }
+  @Get()
+  @UseGuards(AuthGuard)
+  getAllStations(): Promise<IGetAllStationsResponse> {
+    return this.stationsService.getAllStations();
+  }
 
-  // @Get('businesses/:businessId')
-  // @UseGuards(AuthGuard)
-  // async getStationsByBusinessId(
-  //   @Param('businessId') businessId: number,
-  //   @Query('searchQuery') searchQuery?: string,
-  //   @Query('name') name?: string,
-  //   @Query('address') address?: string,
-  //   @Query('fromDate') fromDate?: string,
-  //   @Query('toDate') toDate?: string,
-  //   @Query('limit') limit?: number,
-  //   @Query('page') page?: number,
-  // ): Promise<IGetAllStationsResponse> {
-  //   const response = await this.stationsService.getStationsByBusinessId(
-  //     businessId,
-  //     searchQuery,
-  //     name,
-  //     address,
-  //     fromDate,
-  //     toDate,
-  //     limit,
-  //     page,
-  //   );
+  @Get('businesses/:businessId')
+  @UseGuards(AuthGuard)
+  async getStationsByBusinessId(
+    @Param('businessId') businessId: number,
+    @Query('searchQuery') searchQuery?: string,
+    @Query('name') name?: string,
+    @Query('address') address?: string,
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+    @Query('limit') limit?: number,
+    @Query('page') page?: number,
+  ): Promise<IGetAllStationsResponse> {
+    const response = await this.stationsService.getStationsByBusinessId(
+      businessId,
+      searchQuery,
+      name,
+      address,
+      fromDate,
+      toDate,
+      limit,
+      page,
+    );
 
-  //   return response;
-  // }
+    return response;
+  }
 
   @Get('users/:userId')
   @UseGuards(AuthGuard)
@@ -89,7 +90,7 @@ export class StationsController {
   getStationById(
     @Param('id') id: number,
     @Query('userId') userId: number,
-  ): Promise<IBasicStationResponse> {
+  ): Promise<IGetStationResponse> {
     return this.stationsService.getStationById(id, userId);
   }
 

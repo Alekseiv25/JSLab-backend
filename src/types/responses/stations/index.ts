@@ -1,20 +1,23 @@
 import { StationAccount } from 'src/accounts/accounts.model';
 import { Station } from 'src/stations/stations.model';
-import { UserStationRoleTypes } from 'src/types/tableColumns';
+
+interface IStationData {
+  station: Station;
+  userStatus: string;
+}
+export interface IGetStationResponse {
+  status: number;
+  data: IStationData;
+}
 
 export interface IBasicStationResponse {
   status: number;
   data: Station;
 }
 
-export interface StationsData {
-  station: Station;
-  userRole?: UserStationRoleTypes;
-}
-
 export interface IGetAllStationsResponse {
   status: number;
-  data: StationsData[];
+  data: Station[];
   totalCount?: number;
 }
 
