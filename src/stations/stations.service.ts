@@ -29,6 +29,10 @@ import { Payment } from 'src/payments/payments.model';
 import { UsersService } from 'src/users/users.service';
 import { UsersStationsService } from 'src/users_stations/users_stations.service';
 import { UsersStations } from 'src/users_stations/users_stations.model';
+import {
+  IGlobalSearchStationsResponse,
+  IStationsDataForGlobalSearch,
+} from 'src/types/responses/globalSEarch';
 
 @Injectable()
 export class StationsService {
@@ -338,6 +342,47 @@ export class StationsService {
     const stationResponse = { station: station, userStatus: userStatus };
 
     const response: IGetStationResponse = { status: HttpStatus.OK, data: stationResponse };
+    return response;
+  }
+
+  async getStationsBySearchValue(
+    userId: number,
+    searchValue: string,
+    currentPage: number,
+    itemsPerPage: number,
+  ): Promise<IGlobalSearchStationsResponse> {
+    const userStations: UsersStations[] = await this.usersService.findUserStations(userId);
+
+    const stationsData: IStationsDataForGlobalSearch[] = [];
+    const amountOfStations: number = userStations.length;
+
+    const amountOfPages: number = Math.ceil(amountOfStations / itemsPerPage);
+    const startIndex: number = (currentPage - 1) * itemsPerPage;
+    const endIndex: number = currentPage * itemsPerPage;
+
+    for (let i = startIndex; i < endIndex && i < amountOfStations; i++) {
+      const station = userStations[i];
+
+      if (station.station.name.toLowerCase().includes(searchValue.toLowerCase())) {
+        const stationObject: IStationsDataForGlobalSearch = {
+          id: station.station.id,
+          name: station.station.name,
+          address: station.station.address,
+          phone: station.station.phone,
+          openStatus: true,
+        };
+
+        stationsData.push(stationObject);
+      }
+    }
+
+    const response: IGlobalSearchStationsResponse = {
+      status: HttpStatus.OK,
+      data: {
+        stations: stationsData,
+        params: { amountOfStations, amountOfPages, currentPage },
+      },
+    };
     return response;
   }
 
