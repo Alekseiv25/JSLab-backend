@@ -17,6 +17,7 @@ import {
   IDeleteStationResponse,
   IDeleteStationsResponse,
   IGetAllStationsResponse,
+  IGetStationResponse,
 } from 'src/types/responses/stations';
 import { decrypt } from 'src/utils/crypto';
 import { Operation } from 'src/operations/operations.model';
@@ -26,6 +27,7 @@ import { Transaction } from 'src/transactions/transactions.model';
 import { FindOptions, Op, WhereOptions } from 'sequelize';
 import { Payment } from 'src/payments/payments.model';
 import { UsersService } from 'src/users/users.service';
+import { UsersStationsService } from 'src/users_stations/users_stations.service';
 import { UsersStations } from 'src/users_stations/users_stations.model';
 import {
   IGlobalSearchStationsResponse,
@@ -41,6 +43,7 @@ export class StationsService {
     @InjectModel(StationAccount) private stationAccountRepository: typeof StationAccount,
     private operationsService: OperationsService,
     private usersService: UsersService,
+    private usersStationsService: UsersStationsService,
   ) {
     const { key32, key16 } = this.loadEncryptionKeys();
     this.key32 = key32;
@@ -200,9 +203,13 @@ export class StationsService {
     limit?: number,
     page?: number,
   ): Promise<IGetAllStationsResponse> {
+    const userStations: UsersStations[] =
+      await this.usersStationsService.findAllRecordsByUserId(userId);
+    const userStationsIds = userStations.map((usersStations) => usersStations.dataValues.stationId);
+
     const where: WhereOptions<Station> = {
-      businessId: {
-        [Op.in]: [userId],
+      id: {
+        [Op.in]: userStationsIds,
       },
     };
 
@@ -269,7 +276,7 @@ export class StationsService {
 
     const stations: Station[] | null = await this.stationRepository.findAll(options);
 
-    if (stations.length === 0) {
+    if (!userStationsIds) {
       throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
     }
 
@@ -284,7 +291,7 @@ export class StationsService {
     return response;
   }
 
-  async getStationById(id: number): Promise<IBasicStationResponse> {
+  async getStationById(id: number, userId: number): Promise<IGetStationResponse> {
     const station: Station | null = await this.stationRepository.findByPk(id, {
       include: [
         { model: Account },
@@ -296,6 +303,19 @@ export class StationsService {
     });
 
     if (!station) {
+      throw new HttpException(makeNotFoundMessage('Station'), HttpStatus.NOT_FOUND);
+    }
+
+    const userStations: UsersStations[] =
+      await this.usersStationsService.findAllRecordsByUserId(userId);
+
+    const userStation: UsersStations | undefined = userStations.find(
+      (userStation) => userStation.dataValues.stationId === Number(id),
+    );
+
+    const userStatus: string = userStation.dataValues.role;
+
+    if (!userStations.some((userStation) => userStation.dataValues.stationId === Number(id))) {
       throw new HttpException(makeNotFoundMessage('Station'), HttpStatus.NOT_FOUND);
     }
 
@@ -318,7 +338,10 @@ export class StationsService {
     );
 
     station.setDataValue('accounts', decryptedAccounts);
-    const response: IBasicStationResponse = { status: HttpStatus.OK, data: station };
+
+    const stationResponse = { station: station, userStatus: userStatus };
+
+    const response: IGetStationResponse = { status: HttpStatus.OK, data: stationResponse };
     return response;
   }
 
@@ -419,8 +442,9 @@ export class StationsService {
       throw new HttpException(makeNotFoundMessage('Station'), HttpStatus.NOT_FOUND);
     }
 
-    await station.destroy();
     await this.usersService.removeUserAssignOnStation(id);
+    await station.destroy();
+
     const response: IDeleteStationResponse = {
       status: HttpStatus.OK,
       message: makeDeleteMessage('Station'),
@@ -441,6 +465,7 @@ export class StationsService {
     if (stations.length === 0) {
       throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
     }
+    for (const station of stations) await this.usersService.removeUserAssignOnStation(station.id);
 
     await this.stationRepository.destroy({
       where: {
@@ -449,8 +474,6 @@ export class StationsService {
         },
       },
     });
-
-    for (const station of stations) await this.usersService.removeUserAssignOnStation(station.id);
 
     const response: IDeleteStationsResponse = {
       status: HttpStatus.OK,

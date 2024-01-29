@@ -1,6 +1,15 @@
 import { StationAccount } from 'src/accounts/accounts.model';
 import { Station } from 'src/stations/stations.model';
 
+interface IStationData {
+  station: Station;
+  userStatus: string;
+}
+export interface IGetStationResponse {
+  status: number;
+  data: IStationData;
+}
+
 export interface IBasicStationResponse {
   status: number;
   data: Station;
