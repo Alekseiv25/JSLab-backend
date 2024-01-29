@@ -17,6 +17,7 @@ import {
   IDeleteStationResponse,
   IDeleteStationsResponse,
   IGetAllStationsResponse,
+  IGetStationResponse,
 } from 'src/types/responses/stations';
 import { decrypt } from 'src/utils/crypto';
 import { Operation } from 'src/operations/operations.model';
@@ -202,10 +203,6 @@ export class StationsService {
       await this.usersStationsService.findAllRecordsByUserId(userId);
     const userStationsIds = userStations.map((usersStations) => usersStations.dataValues.stationId);
 
-    if (!userStationsIds) {
-      throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
-    }
-
     const where: WhereOptions<Station> = {
       id: {
         [Op.in]: userStationsIds,
@@ -275,7 +272,7 @@ export class StationsService {
 
     const stations: Station[] | null = await this.stationRepository.findAll(options);
 
-    if (stations.length === 0) {
+    if (!userStationsIds) {
       throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
     }
 
@@ -290,7 +287,7 @@ export class StationsService {
     return response;
   }
 
-  async getStationById(id: number, userId: number): Promise<IBasicStationResponse> {
+  async getStationById(id: number, userId: number): Promise<IGetStationResponse> {
     const station: Station | null = await this.stationRepository.findByPk(id, {
       include: [
         { model: Account },
@@ -307,6 +304,12 @@ export class StationsService {
 
     const userStations: UsersStations[] =
       await this.usersStationsService.findAllRecordsByUserId(userId);
+
+    const userStation: UsersStations | undefined = userStations.find(
+      (userStation) => userStation.dataValues.stationId === Number(id),
+    );
+
+    const userStatus: string = userStation.dataValues.role;
 
     if (!userStations.some((userStation) => userStation.dataValues.stationId === Number(id))) {
       throw new HttpException(makeNotFoundMessage('Station'), HttpStatus.NOT_FOUND);
@@ -331,7 +334,10 @@ export class StationsService {
     );
 
     station.setDataValue('accounts', decryptedAccounts);
-    const response: IBasicStationResponse = { status: HttpStatus.OK, data: station };
+
+    const stationResponse = { station: station, userStatus: userStatus };
+
+    const response: IGetStationResponse = { status: HttpStatus.OK, data: stationResponse };
     return response;
   }
 

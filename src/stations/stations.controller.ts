@@ -7,6 +7,7 @@ import {
   IDeleteStationResponse,
   IDeleteStationsResponse,
   IGetAllStationsResponse,
+  IGetStationResponse,
 } from 'src/types/responses/stations';
 import {
   Controller,
@@ -89,7 +90,7 @@ export class StationsController {
   getStationById(
     @Param('id') id: number,
     @Query('userId') userId: number,
-  ): Promise<IBasicStationResponse> {
+  ): Promise<IGetStationResponse> {
     return this.stationsService.getStationById(id, userId);
   }
 

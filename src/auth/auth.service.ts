@@ -81,11 +81,12 @@ export class AuthService {
     const hashPassword: string = await bcrypt.hash(userDto.password, 10);
     const newUser: User = await this.createNewUser(userDto, hashPassword);
     await this.createNewUserParams(newUser.id, false);
+    const userParams: UsersParams = await this.userParamsService.getUserParams(newUser.id);
     const tokens: ITokensCreationResponse = await this.generateTokens(newUser);
 
     const response: IRegistrationResponseJWT = {
       status: HttpStatus.CREATED,
-      data: { ...tokens, createdUser: newUser },
+      data: { ...tokens, isBusinessAdmin: userParams.isBusinessAdmin, createdUser: newUser },
     };
     return response;
   }
@@ -101,10 +102,11 @@ export class AuthService {
     );
 
     const tokens: ITokensCreationResponse = await this.generateTokens(activatedUser);
+    const userParams: UsersParams = await this.userParamsService.getUserParams(activatedUser.id);
 
     const response: IRegistrationResponseJWT = {
       status: HttpStatus.CREATED,
-      data: { ...tokens, createdUser: activatedUser },
+      data: { ...tokens, isBusinessAdmin: userParams.isBusinessAdmin, createdUser: activatedUser },
     };
     return response;
   }
