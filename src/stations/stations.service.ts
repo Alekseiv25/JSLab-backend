@@ -338,7 +338,6 @@ export class StationsService {
     const stationResponse = { station: station, userStatus: userStatus };
 
     const response: IGetStationResponse = { status: HttpStatus.OK, data: stationResponse };
-    console.log('RESPONSE_________________________', response);
     return response;
   }
 
