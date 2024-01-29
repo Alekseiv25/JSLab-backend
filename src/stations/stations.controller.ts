@@ -34,6 +34,7 @@ export class StationsController {
   }
 
   @Get('businesses/:businessId')
+  @UseGuards(AuthGuard)
   async getStationsByBusinessId(
     @Param('businessId') businessId: number,
     @Query('searchQuery') searchQuery?: string,
@@ -58,20 +59,30 @@ export class StationsController {
     return response;
   }
 
-  @Get('search')
+  @Get('users/:userId')
   @UseGuards(AuthGuard)
-  getStationsBySearchValue(
-    @Query('userId') userId: number,
-    @Query('searchValue') searchValue: string,
-    @Query('currentPage') currentPage: number,
-    @Query('itemsPerPage') itemsPerPage: number,
-  ): Promise<IGlobalSearchStationsResponse> {
-    return this.stationsService.getStationsBySearchValue(
-      Number(userId),
-      searchValue,
-      Number(currentPage),
-      Number(itemsPerPage),
+  async getStationsByUserId(
+    @Param('userId') userId: number,
+    @Query('searchQuery') searchQuery?: string,
+    @Query('name') name?: string,
+    @Query('address') address?: string,
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+    @Query('limit') limit?: number,
+    @Query('page') page?: number,
+  ): Promise<IGetAllStationsResponse> {
+    const response = await this.stationsService.getStationsByUserId(
+      userId,
+      searchQuery,
+      name,
+      address,
+      fromDate,
+      toDate,
+      limit,
+      page,
     );
+
+    return response;
   }
 
   @Get(':id')
@@ -114,7 +125,24 @@ export class StationsController {
   }
 
   @Delete()
+  @UseGuards(AuthGuard)
   deleteStations(@Body() ids: number[]): Promise<IDeleteStationsResponse> {
     return this.stationsService.deleteStations(ids);
+  }
+
+  @Get('search')
+  @UseGuards(AuthGuard)
+  getStationsBySearchValue(
+    @Query('userId') userId: number,
+    @Query('searchValue') searchValue: string,
+    @Query('currentPage') currentPage: number,
+    @Query('itemsPerPage') itemsPerPage: number,
+  ): Promise<IGlobalSearchStationsResponse> {
+    return this.stationsService.getStationsBySearchValue(
+      Number(userId),
+      searchValue,
+      Number(currentPage),
+      Number(itemsPerPage),
+    );
   }
 }
