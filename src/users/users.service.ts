@@ -76,7 +76,10 @@ export class UsersService {
     const requester: User = await this.findUserByID(requesterId);
 
     const membersOfRequesterBusiness: User[] = await this.userRepository.findAll({
-      where: { businessId: requester.businessId },
+      where: {
+        businessId: requester.businessId,
+        id: { [Op.ne]: requesterId },
+      },
     });
 
     if (!membersOfRequesterBusiness || membersOfRequesterBusiness.length === 0) {
@@ -344,13 +347,83 @@ export class UsersService {
   ): Promise<IBasicResponse> {
     const user: User = await this.findUserByID(id);
 
-    await this.updateUserStationAssigns(user, 'Admin', assignData.asAdmin || []);
-    await this.updateUserStationAssigns(user, 'Member', assignData.asMember || []);
+    const existingAssigns = await UsersStations.findAll({
+      where: { userId: user.id },
+      include: Station,
+    });
+
+    const updatedAssigns: { role: UserStationRoleTypes; stationIds: number[] }[] = [
+      { role: 'Admin', stationIds: assignData.asAdmin || [] },
+      { role: 'Member', stationIds: assignData.asMember || [] },
+    ];
+
+    const assignmentsToRemove: UsersStations[] = [];
+    const stationIdsToAdd: { role: UserStationRoleTypes; stationId: number }[] = [];
+
+    existingAssigns.forEach((assign) => {
+      const updatedAssign = updatedAssigns.find((updated) => updated.role === assign.role);
+
+      if (updatedAssign) {
+        if (!updatedAssign.stationIds.includes(assign.stationId)) {
+          assignmentsToRemove.push(assign);
+        }
+      } else {
+        assignmentsToRemove.push(assign);
+      }
+    });
+
+    updatedAssigns.forEach((updatedAssign) => {
+      updatedAssign.stationIds.forEach((stationId) => {
+        const existingAssign = existingAssigns.find(
+          (assign) => assign.role === updatedAssign.role && assign.stationId === stationId,
+        );
+
+        if (!existingAssign) {
+          stationIdsToAdd.push({ role: updatedAssign.role, stationId });
+        }
+      });
+    });
+
+    const stationsNamesToRemove = assignmentsToRemove.map((assign) => assign.station.name);
+    const stationsNamesToAdd = await Promise.all(
+      stationIdsToAdd.map(async (item) => {
+        const station = await Station.findByPk(item.stationId);
+        return station ? station.name : '';
+      }),
+    );
+
+    await Promise.all(assignmentsToRemove.map((assign) => assign.destroy()));
+    await Promise.all(
+      stationIdsToAdd.map((item) =>
+        UsersStations.create({
+          userId: user.id,
+          stationId: item.stationId,
+          role: item.role,
+        }),
+      ),
+    );
 
     const response: IBasicResponse = {
       status: HttpStatus.OK,
       message: makeSuccessUpdatingMessage(),
     };
+
+    if (stationsNamesToRemove.length > 0) {
+      await this.notificationsService.createNotificationsAboutRemovedOrAddedAssign(
+        'Removed',
+        user.id,
+        stationsNamesToRemove,
+      );
+    }
+
+    if (stationsNamesToAdd.length > 0) {
+      await this.notificationsService.createNotificationsAboutRemovedOrAddedAssign(
+        'Added',
+        user.id,
+        stationsNamesToAdd,
+      );
+    }
+
     return response;
   }
 
@@ -542,87 +615,6 @@ export class UsersService {
       stationsNames: stationsNames.sort((a, b) => a.mainValue.localeCompare(b.mainValue)),
     };
     return result;
-  }
-
-  private async updateUserStationAssigns(
-    user: User,
-    role: UserStationRoleTypes,
-    stationIds: number[],
-  ) {
-    const userId: number = user.id;
-
-    const existingUserStationRoles: UsersStations[] = await UsersStations.findAll({
-      where: { userId, role },
-    });
-
-    const stationIdsToRemove: number[] = existingUserStationRoles
-      .filter((userStationRole) => !stationIds.includes(userStationRole.stationId))
-      .map((userStationRole) => userStationRole.stationId);
-
-    const stationsToRemovePromises = stationIdsToRemove.map(async (stationId) => {
-      const userStation = await UsersStations.findOne({
-        where: { stationId },
-        include: [{ model: Station }],
-      });
-      return userStation.station.name;
-    });
-
-    const stationIdsToAdd: number[] = stationIds.filter(
-      (stationId) =>
-        !existingUserStationRoles.some(
-          (userStationRole) => userStationRole.stationId === stationId,
-        ),
-    );
-
-    const stationsToAddPromises = stationIdsToAdd.map(async (stationId) => {
-      const userStation = await UsersStations.findOne({
-        where: { stationId },
-        include: [{ model: Station }],
-      });
-      return userStation.station.name;
-    });
-
-    await UsersStations.destroy({
-      where: { userId, role, stationId: stationIdsToRemove },
-    });
-
-    for (const stationId of stationIdsToAdd) {
-      const station: Station | null = await Station.findByPk(stationId);
-      if (station) {
-        await UsersStations.create({
-          userId,
-          stationId: station.id,
-          role: role,
-        });
-      }
-    }
-
-    await Promise.all(
-      existingUserStationRoles.map(async (userStationRole) => {
-        if (!stationIdsToRemove.includes(userStationRole.stationId)) {
-          userStationRole.role = role;
-          await userStationRole.save();
-        }
-      }),
-    );
-
-    const stationsNamesToRemove = await Promise.all(stationsToRemovePromises);
-    const stationsNamesToAdd = await Promise.all(stationsToAddPromises);
-
-    if (stationsNamesToRemove.length > 0) {
-      await this.notificationsService.createNotificationsAboutRemovedOrAddedAssign(
-        'Removed',
-        userId,
-        stationsNamesToRemove,
-      );
-    }
-    if (stationsNamesToAdd.length > 0) {
-      await this.notificationsService.createNotificationsAboutRemovedOrAddedAssign(
-        'Added',
-        userId,
-        stationsNamesToAdd,
-      );
-    }
   }
 
   async addUserAssignToStation(

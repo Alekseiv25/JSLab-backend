@@ -6,5 +6,5 @@ export class CreateBusinessDto {
   readonly secondaryAddress: string;
   readonly city: string;
   readonly ST: string;
-  readonly zip: number;
+  readonly zip: string;
 }

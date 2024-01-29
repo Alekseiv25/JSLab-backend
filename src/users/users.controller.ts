@@ -128,7 +128,7 @@ export class UsersController {
     @Param('id') userID: number,
     @Body() assignData: IUserAssignUpdateRequest,
   ): Promise<IBasicResponse> {
-    return this.userService.updateUserAssign(userID, assignData);
+    return this.userService.updateUserAssign(Number(userID), assignData);
   }
 
   @Delete('invite/:id')

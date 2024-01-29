@@ -29,8 +29,8 @@ export class Business extends Model<Business, BusinessTableColumns> {
   @Column({ type: DataType.STRING, allowNull: false })
   ST: string;
 
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  zip: number;
+  @Column({ type: DataType.STRING, allowNull: false })
+  zip: string;
 
   @HasMany(() => User)
   users: User[];
