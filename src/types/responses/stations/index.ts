@@ -19,6 +19,8 @@ export interface IGetAllStationsResponse {
   status: number;
   data: Station[];
   totalCount?: number;
+  amountOfPages?: number;
+  currentPage?: number;
 }
 
 export interface ICheckStationNameResponse {
