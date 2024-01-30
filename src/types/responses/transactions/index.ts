@@ -4,6 +4,8 @@ export interface IGetAllTransactionsResponse {
   status: number;
   data: Transaction[];
   totalCount?: number;
+  amountOfPages?: number;
+  currentPage?: number;
 }
 
 export interface IBasicTransactionResponse {

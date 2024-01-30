@@ -31,7 +31,7 @@ export class TransactionsService {
     fuelType?: string,
     discount?: string,
     limit?: number,
-    offset?: number,
+    page?: number,
   ): Promise<IGetAllTransactionsResponse> {
     const where: WhereOptions<Transaction> = {
       businessId: {
@@ -72,12 +72,12 @@ export class TransactionsService {
       order: [['createdAt', 'DESC']],
     };
 
-    if (limit) {
+    if (limit && page) {
+      const offset = (page - 1) * limit;
       options.limit = limit;
-    }
-
-    if (offset) {
       options.offset = offset;
+    } else if (limit) {
+      options.limit = limit;
     }
 
     const transactions: Transaction[] | null = await this.transactionsRepository.findAll(options);
@@ -85,12 +85,17 @@ export class TransactionsService {
     if (transactions.length === 0) {
       throw new HttpException(makeNotFoundMessage('Transactions'), HttpStatus.NOT_FOUND);
     }
+
     const totalCount = await this.transactionsRepository.count({ where });
+    const amountOfPages = Math.ceil(totalCount / limit);
+    const currentPage = page;
 
     const response: IGetAllTransactionsResponse = {
       status: HttpStatus.OK,
       data: transactions,
       totalCount,
+      amountOfPages,
+      currentPage,
     };
     return response;
   }
@@ -102,7 +107,7 @@ export class TransactionsService {
     fuelType?: string,
     discount?: string,
     limit?: number,
-    offset?: number,
+    page?: number,
   ): Promise<IGetAllTransactionsResponse> {
     const where: WhereOptions<Transaction> = {
       stationId: {
@@ -151,12 +156,12 @@ export class TransactionsService {
       order: [['createdAt', 'DESC']],
     };
 
-    if (limit) {
+    if (limit && page) {
+      const offset = (page - 1) * limit;
       options.limit = limit;
-    }
-
-    if (offset) {
       options.offset = offset;
+    } else if (limit) {
+      options.limit = limit;
     }
 
     const transactions: Transaction[] | null = await this.transactionsRepository.findAll(options);
@@ -166,11 +171,15 @@ export class TransactionsService {
     }
 
     const totalCount = await this.transactionsRepository.count({ where });
+    const amountOfPages = Math.ceil(totalCount / limit);
+    const currentPage = page;
 
     const response: IGetAllTransactionsResponse = {
       status: HttpStatus.OK,
       data: transactions,
       totalCount,
+      amountOfPages,
+      currentPage,
     };
     return response;
   }
