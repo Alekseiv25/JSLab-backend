@@ -35,8 +35,8 @@ export class PaymentsService {
 
   async getPaymentsByBusinessId(
     businessId: number,
-    limit: number,
-    offset: number,
+    limit?: number,
+    page?: number,
   ): Promise<IGetAllPaymentsResponse> {
     const where: WhereOptions = {
       businessId: {
@@ -46,10 +46,16 @@ export class PaymentsService {
 
     const options: FindOptions = {
       where,
-      limit,
-      offset,
       order: [['id', 'DESC']],
     };
+
+    if (limit && page) {
+      const offset = (page - 1) * limit;
+      options.limit = limit;
+      options.offset = offset;
+    } else if (limit) {
+      options.limit = limit;
+    }
 
     const { count, rows: payments } = await this.paymentRepository.findAndCountAll(options);
 
@@ -57,18 +63,23 @@ export class PaymentsService {
       throw new HttpException(makeNotFoundMessage('Payments'), HttpStatus.NOT_FOUND);
     }
 
+    const amountOfPages = Math.ceil(count / limit);
+    const currentPage = page;
+
     const response: IGetAllPaymentsResponse = {
       status: HttpStatus.OK,
       data: payments,
       totalCount: count,
+      amountOfPages,
+      currentPage,
     };
     return response;
   }
 
   async getPaymentsByStationId(
     stationId: number,
-    limit: number,
-    offset: number,
+    limit?: number,
+    page?: number,
   ): Promise<IGetAllPaymentsResponse> {
     const where: WhereOptions = {
       stationId: {
@@ -78,10 +89,16 @@ export class PaymentsService {
 
     const options: FindOptions = {
       where,
-      limit,
-      offset,
       order: [['id', 'DESC']],
     };
+
+    if (limit && page) {
+      const offset = (page - 1) * limit;
+      options.limit = limit;
+      options.offset = offset;
+    } else if (limit) {
+      options.limit = limit;
+    }
 
     const { count, rows: payments } = await this.paymentRepository.findAndCountAll(options);
 
@@ -89,10 +106,15 @@ export class PaymentsService {
       throw new HttpException(makeNotFoundMessage('Payments'), HttpStatus.NOT_FOUND);
     }
 
+    const amountOfPages = Math.ceil(count / limit);
+    const currentPage = page;
+
     const response: IGetAllPaymentsResponse = {
       status: HttpStatus.OK,
       data: payments,
       totalCount: count,
+      amountOfPages,
+      currentPage,
     };
     return response;
   }

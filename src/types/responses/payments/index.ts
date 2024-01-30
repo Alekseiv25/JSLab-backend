@@ -4,6 +4,8 @@ export interface IGetAllPaymentsResponse {
   status: number;
   data: Payment[];
   totalCount?: number;
+  amountOfPages?: number;
+  currentPage?: number;
 }
 
 export interface IBasicPaymentResponse {
