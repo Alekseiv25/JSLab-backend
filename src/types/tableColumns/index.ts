@@ -27,7 +27,7 @@ export interface BusinessTableColumns {
   secondaryAddress: string;
   city: string;
   ST: string;
-  zip: number;
+  zip: string;
 }
 
 export interface FuelPricesColumns {
