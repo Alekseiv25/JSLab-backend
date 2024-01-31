@@ -29,9 +29,9 @@ export class PaymentsController {
   getPaymentsByBusinessId(
     @Param('businessId') businessId: number,
     @Query('limit') limit?: number,
-    @Query('offset') offset?: number,
+    @Query('page') page?: number,
   ): Promise<IGetAllPaymentsResponse> {
-    return this.paymentsService.getPaymentsByBusinessId(businessId, limit, offset);
+    return this.paymentsService.getPaymentsByBusinessId(businessId, limit, Number(page));
   }
 
   @Get('stations/:stationId')
@@ -39,9 +39,9 @@ export class PaymentsController {
   getPaymentsByStationId(
     @Param('stationId') stationId: number,
     @Query('limit') limit?: number,
-    @Query('offset') offset?: number,
+    @Query('page') page?: number,
   ): Promise<IGetAllPaymentsResponse> {
-    return this.paymentsService.getPaymentsByStationId(stationId, limit, offset);
+    return this.paymentsService.getPaymentsByStationId(stationId, limit, Number(page));
   }
 
   @Post()

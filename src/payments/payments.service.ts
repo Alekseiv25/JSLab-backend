@@ -101,13 +101,12 @@ export class PaymentsService {
     }
 
     const { count, rows: payments } = await this.paymentRepository.findAndCountAll(options);
+    const amountOfPages = Math.ceil(count / limit);
+    const currentPage = page;
 
     if (payments.length === 0) {
       throw new HttpException(makeNotFoundMessage('Payments'), HttpStatus.NOT_FOUND);
     }
-
-    const amountOfPages = Math.ceil(count / limit);
-    const currentPage = page;
 
     const response: IGetAllPaymentsResponse = {
       status: HttpStatus.OK,
