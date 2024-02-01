@@ -19,6 +19,7 @@ import * as bcrypt from 'bcrypt';
 import {
   makeConflictMessage,
   makeDeleteMessage,
+  makeNotActivatedAccountMessage,
   makeNotCorrectDataMessage,
   makeSuccessInvitingMessage,
   makeSuspendMessage,
@@ -116,6 +117,10 @@ export class AuthService {
 
     if (!user) {
       throw new HttpException(makeNotCorrectDataMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    if (!user.password) {
+      throw new HttpException(makeNotActivatedAccountMessage(), HttpStatus.NOT_FOUND);
     }
 
     const userParams: UsersParams = await this.userParamsService.getUserParams(user.id);
