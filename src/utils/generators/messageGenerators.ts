@@ -71,3 +71,7 @@ export function makeSuccessInvitingMessage(): string {
 export function makeAlreadyActivatedMessage(): string {
   return `Account already activated.`;
 }
+
+export function makeNotActivatedAccountMessage(): string {
+  return 'The account has not been activated.';
+}
