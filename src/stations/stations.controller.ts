@@ -86,6 +86,22 @@ export class StationsController {
     return response;
   }
 
+  @Get('globalSearch/:searchValue')
+  @UseGuards(AuthGuard)
+  getStationsBySearchValue(
+    @Param('searchValue') searchValue: string,
+    @Query('userId') userId: number,
+    @Query('currentPage') currentPage: number,
+    @Query('itemsPerPage') itemsPerPage: number,
+  ): Promise<IGlobalSearchStationsResponse> {
+    return this.stationsService.getStationsBySearchValue(
+      Number(userId),
+      searchValue,
+      Number(currentPage),
+      Number(itemsPerPage),
+    );
+  }
+
   @Get(':id')
   @UseGuards(AuthGuard)
   getStationById(
@@ -132,21 +148,5 @@ export class StationsController {
   @UseGuards(AuthGuard)
   deleteStations(@Body() ids: number[]): Promise<IDeleteStationsResponse> {
     return this.stationsService.deleteStations(ids);
-  }
-
-  @Get('search')
-  @UseGuards(AuthGuard)
-  getStationsBySearchValue(
-    @Query('userId') userId: number,
-    @Query('searchValue') searchValue: string,
-    @Query('currentPage') currentPage: number,
-    @Query('itemsPerPage') itemsPerPage: number,
-  ): Promise<IGlobalSearchStationsResponse> {
-    return this.stationsService.getStationsBySearchValue(
-      Number(userId),
-      searchValue,
-      Number(currentPage),
-      Number(itemsPerPage),
-    );
   }
 }
