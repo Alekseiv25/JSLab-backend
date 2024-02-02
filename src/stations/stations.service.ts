@@ -283,7 +283,7 @@ export class StationsService {
     const totalCount = await this.stationRepository.count({ where });
     const amountOfPages = Math.ceil(totalCount / limit);
     const currentPage = page;
-    console.log('AMOUNT OF PAGES', amountOfPages);
+
     const response: IGetAllStationsResponse = {
       status: HttpStatus.OK,
       data: stations,
