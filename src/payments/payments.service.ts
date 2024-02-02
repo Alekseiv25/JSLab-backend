@@ -14,6 +14,7 @@ import { StationsService } from 'src/stations/stations.service';
 import { Station } from 'src/stations/stations.model';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.model';
+import { applyPaginationOptions, calculateAmountOfPages } from 'src/utils/pagination';
 
 @Injectable()
 export class PaymentsService {
@@ -29,7 +30,10 @@ export class PaymentsService {
     if (payments.length === 0) {
       throw new HttpException(makeNotFoundMessage('Payments'), HttpStatus.NOT_FOUND);
     }
-    const response: IGetAllPaymentsResponse = { status: HttpStatus.OK, data: payments };
+    const response: IGetAllPaymentsResponse = {
+      status: HttpStatus.OK,
+      data: { payments: payments },
+    };
     return response;
   }
 
@@ -49,13 +53,7 @@ export class PaymentsService {
       order: [['id', 'DESC']],
     };
 
-    if (limit && page) {
-      const offset = (page - 1) * limit;
-      options.limit = limit;
-      options.offset = offset;
-    } else if (limit) {
-      options.limit = limit;
-    }
+    applyPaginationOptions(options, limit, page);
 
     const { count, rows: payments } = await this.paymentRepository.findAndCountAll(options);
 
@@ -63,15 +61,19 @@ export class PaymentsService {
       throw new HttpException(makeNotFoundMessage('Payments'), HttpStatus.NOT_FOUND);
     }
 
-    const amountOfPages = Math.ceil(count / limit);
+    const amountOfPages = calculateAmountOfPages(count, limit);
     const currentPage = page;
 
     const response: IGetAllPaymentsResponse = {
       status: HttpStatus.OK,
-      data: payments,
-      totalCount: count,
-      amountOfPages,
-      currentPage,
+      data: {
+        payments: payments,
+        params: {
+          totalCount: count,
+          amountOfPages,
+          currentPage,
+        },
+      },
     };
     return response;
   }
@@ -92,16 +94,9 @@ export class PaymentsService {
       order: [['id', 'DESC']],
     };
 
-    if (limit && page) {
-      const offset = (page - 1) * limit;
-      options.limit = limit;
-      options.offset = offset;
-    } else if (limit) {
-      options.limit = limit;
-    }
-
+    applyPaginationOptions(options, limit, page);
     const { count, rows: payments } = await this.paymentRepository.findAndCountAll(options);
-    const amountOfPages = Math.ceil(count / limit);
+    const amountOfPages = calculateAmountOfPages(count, limit);
     const currentPage = page;
 
     if (payments.length === 0) {
@@ -110,10 +105,14 @@ export class PaymentsService {
 
     const response: IGetAllPaymentsResponse = {
       status: HttpStatus.OK,
-      data: payments,
-      totalCount: count,
-      amountOfPages,
-      currentPage,
+      data: {
+        payments: payments,
+        params: {
+          totalCount: count,
+          amountOfPages,
+          currentPage,
+        },
+      },
     };
     return response;
   }

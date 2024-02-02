@@ -1,11 +1,12 @@
 import { Payment } from 'src/payments/payments.model';
+import { IPaginationParams } from 'src/types/responses/index';
 
 export interface IGetAllPaymentsResponse {
   status: number;
-  data: Payment[];
-  totalCount?: number;
-  amountOfPages?: number;
-  currentPage?: number;
+  data: {
+    payments: Payment[];
+    params?: IPaginationParams;
+  };
 }
 
 export interface IBasicPaymentResponse {

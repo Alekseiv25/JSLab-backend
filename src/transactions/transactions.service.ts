@@ -9,6 +9,7 @@ import {
 import { makeDeleteMessage, makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
 import { CreateTransactionDto } from './dto/transactions.dto';
 import { FindOptions, Op, WhereOptions } from 'sequelize';
+import { applyPaginationOptions, calculateAmountOfPages } from 'src/utils/pagination';
 
 @Injectable()
 export class TransactionsService {
@@ -20,7 +21,10 @@ export class TransactionsService {
     if (transactions.length === 0) {
       throw new HttpException(makeNotFoundMessage('Transactions'), HttpStatus.NOT_FOUND);
     }
-    const response: IGetAllTransactionsResponse = { status: HttpStatus.OK, data: transactions };
+    const response: IGetAllTransactionsResponse = {
+      status: HttpStatus.OK,
+      data: { transactions: transactions },
+    };
     return response;
   }
 
@@ -72,13 +76,7 @@ export class TransactionsService {
       order: [['createdAt', 'DESC']],
     };
 
-    if (limit && page) {
-      const offset = (page - 1) * limit;
-      options.limit = limit;
-      options.offset = offset;
-    } else if (limit) {
-      options.limit = limit;
-    }
+    applyPaginationOptions(options, limit, page);
 
     const transactions: Transaction[] | null = await this.transactionsRepository.findAll(options);
 
@@ -87,15 +85,15 @@ export class TransactionsService {
     }
 
     const totalCount = await this.transactionsRepository.count({ where });
-    const amountOfPages = Math.ceil(totalCount / limit);
+    const amountOfPages = calculateAmountOfPages(totalCount, limit);
     const currentPage = page;
 
     const response: IGetAllTransactionsResponse = {
       status: HttpStatus.OK,
-      data: transactions,
-      totalCount,
-      amountOfPages,
-      currentPage,
+      data: {
+        transactions: transactions,
+        params: { totalCount, amountOfPages, currentPage },
+      },
     };
     return response;
   }
@@ -156,14 +154,7 @@ export class TransactionsService {
       order: [['createdAt', 'DESC']],
     };
 
-    if (limit && page) {
-      const offset = (page - 1) * limit;
-      options.limit = limit;
-      options.offset = offset;
-    } else if (limit) {
-      options.limit = limit;
-    }
-
+    applyPaginationOptions(options, limit, page);
     const transactions: Transaction[] | null = await this.transactionsRepository.findAll(options);
 
     if (transactions.length === 0) {
@@ -171,15 +162,12 @@ export class TransactionsService {
     }
 
     const totalCount = await this.transactionsRepository.count({ where });
-    const amountOfPages = Math.ceil(totalCount / limit);
+    const amountOfPages = calculateAmountOfPages(totalCount, limit);
     const currentPage = page;
 
     const response: IGetAllTransactionsResponse = {
       status: HttpStatus.OK,
-      data: transactions,
-      totalCount,
-      amountOfPages,
-      currentPage,
+      data: { transactions: transactions, params: { totalCount, amountOfPages, currentPage } },
     };
     return response;
   }
