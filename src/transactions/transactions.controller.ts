@@ -33,7 +33,7 @@ export class TransactionsController {
     @Query('fuelType') fuelType?: string,
     @Query('discount') discount?: string,
     @Query('limit') limit?: number,
-    @Query('offset') offset?: number,
+    @Query('page') page?: number,
   ): Promise<IGetAllTransactionsResponse> {
     return this.transactionsService.getTransactionsByBusinessId(
       businessId,
@@ -42,7 +42,7 @@ export class TransactionsController {
       fuelType,
       discount,
       limit,
-      offset,
+      Number(page),
     );
   }
 
@@ -55,7 +55,7 @@ export class TransactionsController {
     @Query('fuelType') fuelType?: string,
     @Query('discount') discount?: string,
     @Query('limit') limit?: number,
-    @Query('offset') offset?: number,
+    @Query('page') page?: number,
   ): Promise<IGetAllTransactionsResponse> {
     const response = await this.transactionsService.getTransactionsByStationId(
       stationId,
@@ -64,7 +64,7 @@ export class TransactionsController {
       fuelType,
       discount,
       limit,
-      offset,
+      Number(page),
     );
     return response;
   }

@@ -80,7 +80,7 @@ export class StationsController {
       fromDate,
       toDate,
       limit,
-      page,
+      Number(page),
     );
 
     return response;

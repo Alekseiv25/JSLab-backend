@@ -1,5 +1,6 @@
 import { StationAccount } from 'src/accounts/accounts.model';
 import { Station } from 'src/stations/stations.model';
+import { IPaginationParams } from 'src/types/responses/index';
 
 interface IStationData {
   station: Station;
@@ -17,8 +18,10 @@ export interface IBasicStationResponse {
 
 export interface IGetAllStationsResponse {
   status: number;
-  data: Station[];
-  totalCount?: number;
+  data: {
+    stations: Station[];
+    params?: IPaginationParams;
+  };
 }
 
 export interface ICheckStationNameResponse {

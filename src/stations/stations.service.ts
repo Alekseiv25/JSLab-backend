@@ -33,6 +33,7 @@ import {
   IGlobalSearchStationsResponse,
   IStationsDataForGlobalSearch,
 } from 'src/types/responses/globalSEarch';
+import { applyPaginationOptions, calculateAmountOfPages } from 'src/utils/pagination';
 
 @Injectable()
 export class StationsService {
@@ -95,7 +96,10 @@ export class StationsService {
       throw new HttpException(makeNotFoundMessage('Stations'), HttpStatus.NOT_FOUND);
     }
 
-    const response: IGetAllStationsResponse = { status: HttpStatus.OK, data: stations };
+    const response: IGetAllStationsResponse = {
+      status: HttpStatus.OK,
+      data: { stations: stations },
+    };
     return response;
   }
 
@@ -168,14 +172,7 @@ export class StationsService {
       order: [['id', 'DESC']],
     };
 
-    if (limit && page) {
-      const offset = (page - 1) * limit;
-      options.limit = limit;
-      options.offset = offset;
-    } else if (limit) {
-      options.limit = limit;
-    }
-
+    applyPaginationOptions(options, limit, page);
     const stations: Station[] | null = await this.stationRepository.findAll(options);
 
     if (stations.length === 0) {
@@ -186,8 +183,7 @@ export class StationsService {
 
     const response: IGetAllStationsResponse = {
       status: HttpStatus.OK,
-      data: stations,
-      totalCount,
+      data: { stations: stations, params: { totalCount } },
     };
 
     return response;
@@ -265,14 +261,7 @@ export class StationsService {
       ],
       order: [['id', 'DESC']],
     };
-
-    if (limit && page) {
-      const offset = (page - 1) * limit;
-      options.limit = limit;
-      options.offset = offset;
-    } else if (limit) {
-      options.limit = limit;
-    }
+    applyPaginationOptions(options, limit, page);
 
     const stations: Station[] | null = await this.stationRepository.findAll(options);
 
@@ -281,11 +270,19 @@ export class StationsService {
     }
 
     const totalCount = await this.stationRepository.count({ where });
+    const amountOfPages = calculateAmountOfPages(totalCount, limit);
+    const currentPage = page;
 
     const response: IGetAllStationsResponse = {
       status: HttpStatus.OK,
-      data: stations,
-      totalCount,
+      data: {
+        stations: stations,
+        params: {
+          totalCount,
+          amountOfPages,
+          currentPage,
+        },
+      },
     };
 
     return response;

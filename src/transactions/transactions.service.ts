@@ -9,6 +9,7 @@ import {
 import { makeDeleteMessage, makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
 import { CreateTransactionDto } from './dto/transactions.dto';
 import { FindOptions, Op, WhereOptions } from 'sequelize';
+import { applyPaginationOptions, calculateAmountOfPages } from 'src/utils/pagination';
 
 @Injectable()
 export class TransactionsService {
@@ -20,7 +21,10 @@ export class TransactionsService {
     if (transactions.length === 0) {
       throw new HttpException(makeNotFoundMessage('Transactions'), HttpStatus.NOT_FOUND);
     }
-    const response: IGetAllTransactionsResponse = { status: HttpStatus.OK, data: transactions };
+    const response: IGetAllTransactionsResponse = {
+      status: HttpStatus.OK,
+      data: { transactions: transactions },
+    };
     return response;
   }
 
@@ -31,7 +35,7 @@ export class TransactionsService {
     fuelType?: string,
     discount?: string,
     limit?: number,
-    offset?: number,
+    page?: number,
   ): Promise<IGetAllTransactionsResponse> {
     const where: WhereOptions<Transaction> = {
       businessId: {
@@ -72,25 +76,24 @@ export class TransactionsService {
       order: [['createdAt', 'DESC']],
     };
 
-    if (limit) {
-      options.limit = limit;
-    }
-
-    if (offset) {
-      options.offset = offset;
-    }
+    applyPaginationOptions(options, limit, page);
 
     const transactions: Transaction[] | null = await this.transactionsRepository.findAll(options);
 
     if (transactions.length === 0) {
       throw new HttpException(makeNotFoundMessage('Transactions'), HttpStatus.NOT_FOUND);
     }
+
     const totalCount = await this.transactionsRepository.count({ where });
+    const amountOfPages = calculateAmountOfPages(totalCount, limit);
+    const currentPage = page;
 
     const response: IGetAllTransactionsResponse = {
       status: HttpStatus.OK,
-      data: transactions,
-      totalCount,
+      data: {
+        transactions: transactions,
+        params: { totalCount, amountOfPages, currentPage },
+      },
     };
     return response;
   }
@@ -102,7 +105,7 @@ export class TransactionsService {
     fuelType?: string,
     discount?: string,
     limit?: number,
-    offset?: number,
+    page?: number,
   ): Promise<IGetAllTransactionsResponse> {
     const where: WhereOptions<Transaction> = {
       stationId: {
@@ -151,14 +154,7 @@ export class TransactionsService {
       order: [['createdAt', 'DESC']],
     };
 
-    if (limit) {
-      options.limit = limit;
-    }
-
-    if (offset) {
-      options.offset = offset;
-    }
-
+    applyPaginationOptions(options, limit, page);
     const transactions: Transaction[] | null = await this.transactionsRepository.findAll(options);
 
     if (transactions.length === 0) {
@@ -166,11 +162,12 @@ export class TransactionsService {
     }
 
     const totalCount = await this.transactionsRepository.count({ where });
+    const amountOfPages = calculateAmountOfPages(totalCount, limit);
+    const currentPage = page;
 
     const response: IGetAllTransactionsResponse = {
       status: HttpStatus.OK,
-      data: transactions,
-      totalCount,
+      data: { transactions: transactions, params: { totalCount, amountOfPages, currentPage } },
     };
     return response;
   }

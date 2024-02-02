@@ -1,9 +1,12 @@
 import { Transaction } from 'src/transactions/transactions.model';
+import { IPaginationParams } from 'src/types/responses/index';
 
 export interface IGetAllTransactionsResponse {
   status: number;
-  data: Transaction[];
-  totalCount?: number;
+  data: {
+    transactions: Transaction[];
+    params?: IPaginationParams;
+  };
 }
 
 export interface IBasicTransactionResponse {
