@@ -1,5 +1,5 @@
-import { Transaction } from 'src/transactions/transactions.model';
-import { IPaginationParams } from 'src/types/responses/index';
+import { Transaction } from '../../../transactions/transactions.model';
+import { IPaginationParams } from '../../../types/responses/index';
 
 export interface IGetAllTransactionsResponse {
   status: number;

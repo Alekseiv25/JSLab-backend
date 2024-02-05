@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateBusinessDto } from './dto/create-business.dto';
-import { IBasicResponse } from 'src/types/responses';
+import { IBasicResponse } from '../types/responses';
 import { InjectModel } from '@nestjs/sequelize';
 import { Business } from './businesses.model';
 import {
@@ -8,12 +8,12 @@ import {
   makeConflictMessage,
   makeDeleteMessage,
   makeNotFoundMessage,
-} from 'src/utils/generators/messageGenerators';
+} from '../utils/generators/messageGenerators';
 import {
   IBasicBusinessResponse,
   IDeleteBusinessResponse,
   IGetAllBusinessResponse,
-} from 'src/types/responses/businesses';
+} from '../types/responses/businesses';
 
 @Injectable()
 export class BusinessesService {

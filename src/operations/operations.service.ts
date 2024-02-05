@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Operation } from './operations.model';
 import { InjectModel } from '@nestjs/sequelize';
-import { IBasicOperationResponse, IGetAllOperationsResponse } from 'src/types/responses/operations';
-import { makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
+import { IBasicOperationResponse, IGetAllOperationsResponse } from '../types/responses/operations';
+import { makeNotFoundMessage } from '../utils/generators/messageGenerators';
 import { CreateOperationDto } from './dto/create-operation.dto';
 import { Op } from 'sequelize';
 

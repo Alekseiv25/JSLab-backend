@@ -1,7 +1,7 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
-import { Business } from 'src/businesses/businesses.model';
-import { Station } from 'src/stations/stations.model';
-import { TransactionsColumns } from 'src/types/tableColumns';
+import { Business } from '../businesses/businesses.model';
+import { Station } from '../stations/stations.model';
+import { TransactionsColumns } from '../types/tableColumns';
 
 @Table({ tableName: 'transactions' })
 export class Transaction extends Model<Transaction, TransactionsColumns> {

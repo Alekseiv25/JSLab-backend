@@ -1,11 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Put, Query, UseGuards } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { IBasicResponse } from 'src/types/responses';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { IBasicResponse } from '../types/responses';
+import { AuthGuard } from '../auth/auth.guard';
 import {
   ILastNotificationResponse,
   INotificationsResponse,
-} from 'src/types/responses/notifications';
+} from '../types/responses/notifications';
 
 @Controller('notifications')
 export class NotificationsController {

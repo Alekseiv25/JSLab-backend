@@ -1,4 +1,4 @@
-import { Account } from 'src/accounts/accounts.model';
+import { Account } from '../../../accounts/accounts.model';
 
 export interface IBasicAccountResponse {
   status: number;

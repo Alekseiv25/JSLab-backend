@@ -1,10 +1,10 @@
 import { Column, DataType, Model, Table, HasMany } from 'sequelize-typescript';
-import { Account } from 'src/accounts/accounts.model';
-import { Payment } from 'src/payments/payments.model';
-import { Station } from 'src/stations/stations.model';
-import { Transaction } from 'src/transactions/transactions.model';
-import { BusinessTableColumns } from 'src/types/tableColumns';
-import { User } from 'src/users/users.model';
+import { Account } from '../accounts/accounts.model';
+import { Payment } from '../payments/payments.model';
+import { Station } from '../stations/stations.model';
+import { Transaction } from '../transactions/transactions.model';
+import { BusinessTableColumns } from '../types/tableColumns';
+import { User } from '../users/users.model';
 
 @Table({ tableName: 'businesses' })
 export class Business extends Model<Business, BusinessTableColumns> {

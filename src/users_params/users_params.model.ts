@@ -1,6 +1,6 @@
 import { Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
-import { UserStatusTypes, UsersParamsTableColumns } from 'src/types/tableColumns';
-import { User } from 'src/users/users.model';
+import { UserStatusTypes, UsersParamsTableColumns } from '../types/tableColumns';
+import { User } from '../users/users.model';
 
 @Table({ tableName: 'users_params', timestamps: false })
 export class UsersParams extends Model<UsersParams, UsersParamsTableColumns> {

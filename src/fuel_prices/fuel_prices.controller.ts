@@ -5,9 +5,9 @@ import {
   IDeleteFuelPriceResponse,
   IDeleteFuelPricesResponse,
   IGetAllFuelPricesResponse,
-} from 'src/types/responses/fuel_prices';
+} from '../types/responses/fuel_prices';
 import { CreateFuelPriceDto } from './dto/fuel-price.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('fuel-prices')
 export class FuelPricesController {

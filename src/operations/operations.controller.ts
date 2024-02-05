@@ -1,8 +1,8 @@
-import { IBasicOperationResponse, IGetAllOperationsResponse } from 'src/types/responses/operations';
+import { IBasicOperationResponse, IGetAllOperationsResponse } from '../types/responses/operations';
 import { OperationsService } from './operations.service';
 import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
 import { CreateOperationDto } from './dto/create-operation.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('operations')
 export class OperationsController {

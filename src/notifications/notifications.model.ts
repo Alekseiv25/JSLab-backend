@@ -1,5 +1,5 @@
 import { Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
-import { User } from 'src/users/users.model';
+import { User } from '../users/users.model';
 
 @Table({ tableName: 'notifications', timestamps: false })
 export class Notification extends Model<Notification> {

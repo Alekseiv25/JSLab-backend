@@ -1,4 +1,4 @@
-import { TokenTableColumns } from 'src/types/tableColumns';
+import { TokenTableColumns } from '../types/tableColumns';
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
 
 @Table({ tableName: 'tokens' })

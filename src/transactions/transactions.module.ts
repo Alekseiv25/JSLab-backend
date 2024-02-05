@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { TokensModule } from 'src/tokens/tokens.module';
+import { TokensModule } from '../tokens/tokens.module';
 import { TransactionsService } from './transactions.service';
 import { TransactionsController } from './transactions.controller';
 import { Transaction } from './transactions.model';

@@ -1,4 +1,4 @@
-import { UserStatusTypes } from 'src/types/tableColumns';
+import { UserStatusTypes } from '../../types/tableColumns';
 
 export class CreateUserParamsDto {
   readonly userId: number;

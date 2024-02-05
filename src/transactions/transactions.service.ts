@@ -5,11 +5,11 @@ import {
   IBasicTransactionResponse,
   IDeleteTransactionsResponse,
   IGetAllTransactionsResponse,
-} from 'src/types/responses/transactions';
-import { makeDeleteMessage, makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
+} from '../types/responses/transactions';
+import { makeDeleteMessage, makeNotFoundMessage } from '../utils/generators/messageGenerators';
 import { CreateTransactionDto } from './dto/transactions.dto';
 import { FindOptions, Op, WhereOptions } from 'sequelize';
-import { applyPaginationOptions, calculateAmountOfPages } from 'src/utils/pagination';
+import { applyPaginationOptions, calculateAmountOfPages } from '../utils/pagination';
 
 @Injectable()
 export class TransactionsService {

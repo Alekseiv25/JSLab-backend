@@ -1,4 +1,4 @@
-import { UserStationRoleTypes, UserStatusTypes } from 'src/types/tableColumns';
+import { UserStationRoleTypes, UserStatusTypes } from '../../../../types/tableColumns';
 
 export interface IGeneralData {
   id: number;

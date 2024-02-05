@@ -1,6 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
-import { Station } from 'src/stations/stations.model';
-import { OperationTableColumns } from 'src/types/tableColumns';
+import { Station } from '../stations/stations.model';
+import { OperationTableColumns } from '../types/tableColumns';
 
 @Table({ tableName: 'operations_hours' })
 export class Operation extends Model<Operation, OperationTableColumns> {

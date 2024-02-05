@@ -1,5 +1,5 @@
-import { Payment } from 'src/payments/payments.model';
-import { IPaginationParams } from 'src/types/responses/index';
+import { Payment } from '../../../payments/payments.model';
+import { IPaginationParams } from '../../../types/responses/index';
 
 export interface IGetAllPaymentsResponse {
   status: number;

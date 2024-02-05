@@ -1,18 +1,18 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import { ISupportResponse } from 'src/types/responses/support';
-import { User } from 'src/users/users.model';
-import { UsersService } from 'src/users/users.service';
+import { ISupportResponse } from '../types/responses/support';
+import { User } from '../users/users.model';
+import { UsersService } from '../users/users.service';
 import {
   makeNotFoundMessage,
   makeSuccessSendingMessage,
-} from 'src/utils/generators/messageGenerators';
+} from '../utils/generators/messageGenerators';
 import {
   ISupportEmailGeneratorArguments,
   IUserEmailGeneratorArguments,
   generateHTMLForEmailToSupport,
   generateHTMLForEmailToUser,
-} from 'src/utils/generators/emailGenerators';
+} from '../utils/generators/emailGenerators';
 
 @Injectable()
 export class SupportService {

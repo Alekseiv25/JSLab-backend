@@ -38,6 +38,7 @@ import { Notification } from './notifications/notifications.model';
     }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
+      dialectModule: require('pg'),
       host: process.env.POSTGRES_HOST,
       port: Number(process.env.POSTGRES_PORT),
       username: process.env.POSTGRES_USER,

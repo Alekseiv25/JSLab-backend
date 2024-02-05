@@ -2,15 +2,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateStationDto } from './dto/create-station.dto';
 import { Station } from './stations.model';
-import { Account, StationAccount } from 'src/accounts/accounts.model';
+import { Account, StationAccount } from '../accounts/accounts.model';
 import {
   makeAvailableMessage,
   makeConflictMessage,
   makeDeleteMessage,
   makeNotFoundMessage,
-} from 'src/utils/generators/messageGenerators';
-import * as crypto from 'crypto';
-import * as fs from 'fs';
+} from '../utils/generators/messageGenerators';
 import {
   IBasicStationResponse,
   ICheckStationNameResponse,
@@ -18,22 +16,22 @@ import {
   IDeleteStationsResponse,
   IGetAllStationsResponse,
   IGetStationResponse,
-} from 'src/types/responses/stations';
-import { decrypt } from 'src/utils/crypto';
-import { Operation } from 'src/operations/operations.model';
-import { OperationsService } from 'src/operations/operations.service';
-import { FuelPrice } from 'src/fuel_prices/fuel_prices.model';
-import { Transaction } from 'src/transactions/transactions.model';
+} from '../types/responses/stations';
+import { decrypt } from '../utils/crypto';
+import { Operation } from '../operations/operations.model';
+import { OperationsService } from '../operations/operations.service';
+import { FuelPrice } from '../fuel_prices/fuel_prices.model';
+import { Transaction } from '../transactions/transactions.model';
 import { FindOptions, Op, WhereOptions } from 'sequelize';
-import { Payment } from 'src/payments/payments.model';
-import { UsersService } from 'src/users/users.service';
-import { UsersStationsService } from 'src/users_stations/users_stations.service';
-import { UsersStations } from 'src/users_stations/users_stations.model';
+import { Payment } from '../payments/payments.model';
+import { UsersService } from '../users/users.service';
+import { UsersStationsService } from '../users_stations/users_stations.service';
+import { UsersStations } from '../users_stations/users_stations.model';
 import {
   IGlobalSearchStationsResponse,
   IStationsDataForGlobalSearch,
-} from 'src/types/responses/globalSEarch';
-import { applyPaginationOptions, calculateAmountOfPages } from 'src/utils/pagination';
+} from '../types/responses/globalSEarch';
+import { applyPaginationOptions, calculateAmountOfPages } from '../utils/pagination';
 
 @Injectable()
 export class StationsService {
@@ -46,39 +44,8 @@ export class StationsService {
     private usersService: UsersService,
     private usersStationsService: UsersStationsService,
   ) {
-    const { key32, key16 } = this.loadEncryptionKeys();
-    this.key32 = key32;
-    this.key16 = key16;
-  }
-
-  private generateEncryptionKeys(): { key32: Buffer; key16: Buffer } {
-    const key32 = crypto.randomBytes(32);
-    const key16 = crypto.randomBytes(16);
-    return { key32, key16 };
-  }
-
-  private saveEncryptionKeys(keys: { key32: Buffer; key16: Buffer }): void {
-    const config = {
-      key32: keys.key32.toString('hex'),
-      key16: keys.key16.toString('hex'),
-    };
-    fs.writeFileSync('keys.json', JSON.stringify(config));
-  }
-
-  private loadEncryptionKeys(): { key32: Buffer; key16: Buffer } {
-    try {
-      const config = JSON.parse(fs.readFileSync('keys.json', 'utf8'));
-      const key32String = config.key32;
-      const key16String = config.key16;
-      return {
-        key32: Buffer.from(key32String, 'hex'),
-        key16: Buffer.from(key16String, 'hex'),
-      };
-    } catch (error) {
-      const newKeys = this.generateEncryptionKeys();
-      this.saveEncryptionKeys(newKeys);
-      return newKeys;
-    }
+    this.key32 = Buffer.from(process.env.KEY_32, 'hex');
+    this.key16 = Buffer.from(process.env.KEY_16, 'hex');
   }
 
   async getAllStations(): Promise<IGetAllStationsResponse> {

@@ -1,16 +1,16 @@
 import { Body, Controller, Get, HttpStatus, Post, Query, Req, Res } from '@nestjs/common';
-import { ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
+import { ILoginUserData, IUserInvitationRequest } from '../types/requests/users';
 import { ActivateUserDto, CreateNewUserDto } from './dto/create-user.dto';
-import { IInvitedUserDataResponse } from 'src/types/responses/users';
+import { IInvitedUserDataResponse } from '../types/responses/users';
 import { CookieOptions, Request, Response } from 'express';
-import { UsersService } from 'src/users/users.service';
-import { IBasicResponse } from 'src/types/responses';
+import { UsersService } from '../users/users.service';
+import { IBasicResponse } from '../types/responses';
 import { AuthService } from './auth.service';
 import {
   ILoginResponse,
   IRefreshResponseJWT,
   IRegistrationResponseJWT,
-} from 'src/types/responses/users/registration';
+} from '../types/responses/users/registration';
 
 @Controller('auth')
 export class AuthController {

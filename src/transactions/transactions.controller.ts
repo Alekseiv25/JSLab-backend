@@ -1,11 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 import {
   IBasicTransactionResponse,
   IDeleteTransactionsResponse,
   IGetAllTransactionsResponse,
-} from 'src/types/responses/transactions';
+} from '../types/responses/transactions';
 import { CreateTransactionDto } from './dto/transactions.dto';
 
 @Controller('transactions')

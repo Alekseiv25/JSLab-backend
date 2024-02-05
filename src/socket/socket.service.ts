@@ -1,5 +1,5 @@
-import { UsersParamsService } from 'src/users_params/users_params.service';
-import { Notification } from 'src/notifications/notifications.model';
+import { UsersParamsService } from '../users_params/users_params.service';
+import { Notification } from '../notifications/notifications.model';
 import {
   SubscribeMessage,
   WebSocketGateway,
@@ -10,7 +10,8 @@ import {
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: 'http://localhost:3000',
+    credentials: true,
   },
 })
 export class SocketService implements OnGatewayConnection, OnGatewayDisconnect {

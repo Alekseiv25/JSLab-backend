@@ -1,15 +1,15 @@
-import { IBasicUserResponse, IUserParamsUpdateResponse } from 'src/types/responses/users';
-import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
-import { IGlobalSearchUsersResponse } from 'src/types/responses/globalSEarch';
-import { IUserAssignUpdateRequest } from 'src/types/requests/users';
+import { IBasicUserResponse, IUserParamsUpdateResponse } from '../types/responses/users';
+import { CreateUserParamsDto } from '../users_params/dto/create-users_params.dto';
+import { IGlobalSearchUsersResponse } from '../types/responses/globalSEarch';
+import { IUserAssignUpdateRequest } from '../types/requests/users';
 import { CreateUserDto } from './dto/create-user.dto';
-import { IBasicResponse } from 'src/types/responses';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { IBasicResponse } from '../types/responses';
+import { AuthGuard } from '../auth/auth.guard';
 import { UsersService } from './users.service';
 import {
   IFiltersDataForAdminTableResponse,
   IUserDataForAdminTableResponse,
-} from 'src/types/responses/users/admin_table';
+} from '../types/responses/users/admin_table';
 import {
   Controller,
   Get,

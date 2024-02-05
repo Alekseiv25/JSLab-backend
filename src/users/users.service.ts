@@ -1,18 +1,18 @@
-import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
-import { UsersStationsService } from 'src/users_stations/users_stations.service';
-import { IInviteDto, IUserAssignUpdateRequest } from 'src/types/requests/users';
-import { NotificationsService } from 'src/notifications/notifications.service';
-import { UsersParamsService } from 'src/users_params/users_params.service';
+import { CreateUserParamsDto } from '../users_params/dto/create-users_params.dto';
+import { UsersStationsService } from '../users_stations/users_stations.service';
+import { IInviteDto, IUserAssignUpdateRequest } from '../types/requests/users';
+import { NotificationsService } from '../notifications/notifications.service';
+import { UsersParamsService } from '../users_params/users_params.service';
 import { FindOptions, IncludeOptions, Op, WhereOptions } from 'sequelize';
-import { UsersStations } from 'src/users_stations/users_stations.model';
+import { UsersStations } from '../users_stations/users_stations.model';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { BusinessesService } from 'src/businesses/businesses.service';
-import { UsersParams } from 'src/users_params/users_params.model';
-import { UserStationRoleTypes } from 'src/types/tableColumns';
-import { Business } from 'src/businesses/businesses.model';
+import { BusinessesService } from '../businesses/businesses.service';
+import { UsersParams } from '../users_params/users_params.model';
+import { UserStationRoleTypes } from '../types/tableColumns';
+import { Business } from '../businesses/businesses.model';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Station } from 'src/stations/stations.model';
-import { IBasicResponse } from 'src/types/responses';
+import { Station } from '../stations/stations.model';
+import { IBasicResponse } from '../types/responses';
 import { InjectModel } from '@nestjs/sequelize';
 import * as nodemailer from 'nodemailer';
 import { User } from './users.model';
@@ -28,16 +28,16 @@ import {
   makeNotFoundMessage,
   makeDeleteMessage,
   makeUnauthorizedMessage,
-} from 'src/utils/generators/messageGenerators';
+} from '../utils/generators/messageGenerators';
 import {
   IUserParamsUpdateResponse,
   IInvitedUserDataResponse,
   IBasicUserResponse,
-} from 'src/types/responses/users';
+} from '../types/responses/users';
 import {
   generateHTMLForEmailToInviteUser,
   IUserInviteGeneratorArguments,
-} from 'src/utils/generators/emailGenerators';
+} from '../utils/generators/emailGenerators';
 import {
   IFiltersDataForAdminTableResponse,
   IUserDataForAdminTableResponse,
@@ -47,11 +47,11 @@ import {
   IAssignedToData,
   IGeneralData,
   IParamsData,
-} from 'src/types/responses/users/admin_table';
+} from '../types/responses/users/admin_table';
 import {
   IGlobalSearchUsersResponse,
   IUserDataForGlobalSearch,
-} from 'src/types/responses/globalSEarch';
+} from '../types/responses/globalSEarch';
 
 @Injectable()
 export class UsersService {

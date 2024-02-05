@@ -1,6 +1,6 @@
 import { CreateUsersStationsDto } from './dto/create-users_stations.dto';
 import { UsersStations } from './users_stations.model';
-import { Station } from 'src/stations/stations.model';
+import { Station } from '../stations/stations.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { Injectable } from '@nestjs/common';
 

@@ -1,6 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
-import { Station } from 'src/stations/stations.model';
-import { FuelPricesColumns } from 'src/types/tableColumns';
+import { Station } from '../stations/stations.model';
+import { FuelPricesColumns } from '../types/tableColumns';
 
 @Table({ tableName: 'fuel_prices' })
 export class FuelPrice extends Model<FuelPrice, FuelPricesColumns> {

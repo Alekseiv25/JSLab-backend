@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
+import { makeNotFoundMessage } from '../utils/generators/messageGenerators';
 import { CreateUserParamsDto } from './dto/create-users_params.dto';
 import { UsersParams } from './users_params.model';
 import { InjectModel } from '@nestjs/sequelize';

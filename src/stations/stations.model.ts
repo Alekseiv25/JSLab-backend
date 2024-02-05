@@ -1,6 +1,6 @@
-import { Account, StationAccount } from 'src/accounts/accounts.model';
-import { Business } from 'src/businesses/businesses.model';
-import { StationTableColumns } from 'src/types/tableColumns';
+import { Account, StationAccount } from '../accounts/accounts.model';
+import { Business } from '../businesses/businesses.model';
+import { StationTableColumns } from '../types/tableColumns';
 import {
   Column,
   DataType,
@@ -11,12 +11,12 @@ import {
   BelongsToMany,
   HasMany,
 } from 'sequelize-typescript';
-import { Operation } from 'src/operations/operations.model';
-import { FuelPrice } from 'src/fuel_prices/fuel_prices.model';
-import { Transaction } from 'src/transactions/transactions.model';
-import { Payment } from 'src/payments/payments.model';
-import { User } from 'src/users/users.model';
-import { UsersStations } from 'src/users_stations/users_stations.model';
+import { Operation } from '../operations/operations.model';
+import { FuelPrice } from '../fuel_prices/fuel_prices.model';
+import { Transaction } from '../transactions/transactions.model';
+import { Payment } from '../payments/payments.model';
+import { User } from '../users/users.model';
+import { UsersStations } from '../users_stations/users_stations.model';
 
 @Table({ tableName: 'stations' })
 export class Station extends Model<Station, StationTableColumns> {

@@ -1,8 +1,8 @@
-import { UsersStations } from 'src/users_stations/users_stations.model';
-import { UsersParams } from 'src/users_params/users_params.model';
-import { Business } from 'src/businesses/businesses.model';
-import { UserTableColumns } from 'src/types/tableColumns';
-import { Station } from 'src/stations/stations.model';
+import { UsersStations } from '../users_stations/users_stations.model';
+import { UsersParams } from '../users_params/users_params.model';
+import { Business } from '../businesses/businesses.model';
+import { UserTableColumns } from '../types/tableColumns';
+import { Station } from '../stations/stations.model';
 import {
   Column,
   DataType,

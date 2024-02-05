@@ -1,4 +1,4 @@
-import { FuelPrice } from 'src/fuel_prices/fuel_prices.model';
+import { FuelPrice } from '../../../fuel_prices/fuel_prices.model';
 
 export interface IGetAllFuelPricesResponse {
   status: number;

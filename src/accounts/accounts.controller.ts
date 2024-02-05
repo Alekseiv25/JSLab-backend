@@ -1,14 +1,14 @@
 import { Controller, Body, Param, Get, Post, Put, Delete, UseGuards } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto } from './dto/create-account.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 import {
   IBasicAccountResponse,
   IDeleteAccountResponse,
   IGetAllAccountsResponse,
-} from 'src/types/responses/accounts';
+} from '../types/responses/accounts';
 import { Account } from './accounts.model';
-import { StationsService } from 'src/stations/stations.service';
+import { StationsService } from '../stations/stations.service';
 
 @Controller('accounts')
 export class AccountsController {

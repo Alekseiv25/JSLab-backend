@@ -6,8 +6,8 @@ import {
   IDeleteFuelPriceResponse,
   IDeleteFuelPricesResponse,
   IGetAllFuelPricesResponse,
-} from 'src/types/responses/fuel_prices';
-import { makeDeleteMessage, makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
+} from '../types/responses/fuel_prices';
+import { makeDeleteMessage, makeNotFoundMessage } from '../utils/generators/messageGenerators';
 import { CreateFuelPriceDto } from './dto/fuel-price.dto';
 import { FindOptions, Op, WhereOptions } from 'sequelize';
 

@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
-import { UsersParams } from 'src/users_params/users_params.model';
-import { ITokensCreationResponse } from 'src/auth/auth.service';
-import { UserStatusTypes } from 'src/types/tableColumns';
+import { makeNotFoundMessage } from '../utils/generators/messageGenerators';
+import { UsersParams } from '../users_params/users_params.model';
+import { ITokensCreationResponse } from '../auth/auth.service';
+import { UserStatusTypes } from '../types/tableColumns';
 import { InjectModel } from '@nestjs/sequelize';
-import { User } from 'src/users/users.model';
+import { User } from '../users/users.model';
 import { Token } from './tokens.model';
 import * as jwt from 'jsonwebtoken';
 

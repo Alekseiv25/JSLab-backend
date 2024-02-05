@@ -1,5 +1,5 @@
-import { UsersParams } from 'src/users_params/users_params.model';
-import { User } from 'src/users/users.model';
+import { User } from '../../../users/users.model';
+import { UsersParams } from '../../../users_params/users_params.model';
 
 export interface IBasicUserResponse {
   status: number;

@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
-import { ICreatePaymentRequest, IDeletePaymentsRequest } from 'src/types/requests/payments';
+import { ICreatePaymentRequest, IDeletePaymentsRequest } from '../types/requests/payments';
 import { PaymentsService } from './payments.service';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 import {
   IBasicPaymentResponse,
   IDeletePaymentsResponse,
   IGetAllPaymentsResponse,
-} from 'src/types/responses/payments';
+} from '../types/responses/payments';
 
 @Controller('payments')
 export class PaymentsController {

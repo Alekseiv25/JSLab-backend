@@ -1,12 +1,12 @@
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { BusinessesService } from './businesses.service';
-import { IBasicResponse } from 'src/types/responses';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { IBasicResponse } from '../types/responses';
+import { AuthGuard } from '../auth/auth.guard';
 import {
   IBasicBusinessResponse,
   IDeleteBusinessResponse,
   IGetAllBusinessResponse,
-} from 'src/types/responses/businesses';
+} from '../types/responses/businesses';
 import {
   Controller,
   Body,

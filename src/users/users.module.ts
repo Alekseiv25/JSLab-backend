@@ -1,8 +1,8 @@
-import { UsersStationsModule } from 'src/users_stations/users_stations.module';
-import { NotificationsModule } from 'src/notifications/notifications.module';
-import { UsersParamsModule } from 'src/users_params/users_params.module';
-import { BusinessesModule } from 'src/businesses/businesses.module';
-import { TokensModule } from 'src/tokens/tokens.module';
+import { UsersStationsModule } from '../users_stations/users_stations.module';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { UsersParamsModule } from '../users_params/users_params.module';
+import { BusinessesModule } from '../businesses/businesses.module';
+import { TokensModule } from '../tokens/tokens.module';
 import { UsersController } from './users.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersService } from './users.service';

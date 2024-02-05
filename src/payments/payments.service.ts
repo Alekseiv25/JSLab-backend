@@ -5,16 +5,16 @@ import {
   IBasicPaymentResponse,
   IDeletePaymentsResponse,
   IGetAllPaymentsResponse,
-} from 'src/types/responses/payments';
-import { makeDeleteMessage, makeNotFoundMessage } from 'src/utils/generators/messageGenerators';
+} from '../types/responses/payments';
+import { makeDeleteMessage, makeNotFoundMessage } from '../utils/generators/messageGenerators';
 import { FindOptions, Op, WhereOptions } from 'sequelize';
 import { CreatePaymentDto } from './dto/payments.dto';
-import { NotificationsService } from 'src/notifications/notifications.service';
-import { StationsService } from 'src/stations/stations.service';
-import { Station } from 'src/stations/stations.model';
-import { UsersService } from 'src/users/users.service';
-import { User } from 'src/users/users.model';
-import { applyPaginationOptions, calculateAmountOfPages } from 'src/utils/pagination';
+import { NotificationsService } from '../notifications/notifications.service';
+import { StationsService } from '../stations/stations.service';
+import { Station } from '../stations/stations.model';
+import { UsersService } from '../users/users.service';
+import { User } from '../users/users.model';
+import { applyPaginationOptions, calculateAmountOfPages } from '../utils/pagination';
 
 @Injectable()
 export class PaymentsService {

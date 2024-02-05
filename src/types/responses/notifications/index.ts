@@ -1,4 +1,4 @@
-import { Notification } from 'src/notifications/notifications.model';
+import { Notification } from '../../../notifications/notifications.model';
 
 interface INotificationsResponseParamsData {
   page: number;

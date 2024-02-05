@@ -1,4 +1,4 @@
-import { User } from 'src/users/users.model';
+import { User } from '../../users/users.model';
 
 export class CreateNewUserDto {
   readonly businessId: number;

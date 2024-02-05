@@ -1,4 +1,4 @@
-import { Business } from 'src/businesses/businesses.model';
+import { Business } from '../../../businesses/businesses.model';
 
 export interface IBasicBusinessResponse {
   status: number;

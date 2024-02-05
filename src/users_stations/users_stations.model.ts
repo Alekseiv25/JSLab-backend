@@ -1,6 +1,6 @@
-import { UserStationRoleTypes } from 'src/types/tableColumns';
-import { Station } from 'src/stations/stations.model';
-import { User } from 'src/users/users.model';
+import { UserStationRoleTypes } from '../types/tableColumns';
+import { Station } from '../stations/stations.model';
+import { User } from '../users/users.model';
 import {
   BelongsTo,
   Column,

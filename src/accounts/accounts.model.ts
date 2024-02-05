@@ -11,7 +11,7 @@ import {
 import { Business } from '../businesses/businesses.model';
 import { Station } from '../stations/stations.model';
 import { AccountTableColumns } from '../types/tableColumns';
-import { Payment } from 'src/payments/payments.model';
+import { Payment } from '../payments/payments.model';
 
 @Table({ tableName: 'accounts' })
 export class Account extends Model<Account, AccountTableColumns> {

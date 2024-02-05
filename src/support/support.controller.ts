@@ -1,8 +1,8 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { SupportService } from './support.service';
-import { ISupportResponse } from 'src/types/responses/support';
-import { ISupportRequest } from 'src/types/requests/support';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { ISupportResponse } from '../types/responses/support';
+import { ISupportRequest } from '../types/requests/support';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('support')
 export class SupportController {

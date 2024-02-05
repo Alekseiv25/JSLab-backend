@@ -1,6 +1,6 @@
-import { StationAccount } from 'src/accounts/accounts.model';
-import { Station } from 'src/stations/stations.model';
-import { IPaginationParams } from 'src/types/responses/index';
+import { StationAccount } from '../../../accounts/accounts.model';
+import { Station } from '../../../stations/stations.model';
+import { IPaginationParams } from '../../../types/responses/index';
 
 interface IStationData {
   station: Station;

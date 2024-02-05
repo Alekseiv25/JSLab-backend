@@ -1,19 +1,19 @@
-import { IInviteDto, ILoginUserData, IUserInvitationRequest } from 'src/types/requests/users';
-import { UsersStationsService } from 'src/users_stations/users_stations.service';
-import { NotificationsService } from 'src/notifications/notifications.service';
-import { UsersParamsService } from 'src/users_params/users_params.service';
+import { IInviteDto, ILoginUserData, IUserInvitationRequest } from '../types/requests/users';
+import { UsersStationsService } from '../users_stations/users_stations.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { UsersParamsService } from '../users_params/users_params.service';
 import { ActivateUserDto, CreateNewUserDto } from './dto/create-user.dto';
-import { IRefreshToken, TokensService } from 'src/tokens/tokens.service';
+import { IRefreshToken, TokensService } from '../tokens/tokens.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { UsersParams } from 'src/users_params/users_params.model';
-import { IBasicUserResponse } from 'src/types/responses/users';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { UserStationRoleTypes } from 'src/types/tableColumns';
-import { UsersService } from 'src/users/users.service';
-import { Station } from 'src/stations/stations.model';
-import { IBasicResponse } from 'src/types/responses';
-import { Token } from 'src/tokens/tokens.model';
-import { User } from 'src/users/users.model';
+import { UsersParams } from '../users_params/users_params.model';
+import { IBasicUserResponse } from '../types/responses/users';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { UserStationRoleTypes } from '../types/tableColumns';
+import { UsersService } from '../users/users.service';
+import { Station } from '../stations/stations.model';
+import { IBasicResponse } from '../types/responses';
+import { Token } from '../tokens/tokens.model';
+import { User } from '../users/users.model';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
 import {
@@ -24,13 +24,13 @@ import {
   makeSuccessInvitingMessage,
   makeSuspendMessage,
   makeUnauthorizedMessage,
-} from 'src/utils/generators/messageGenerators';
+} from '../utils/generators/messageGenerators';
 import {
   ILoginResponse,
   IRefreshResponseJWT,
   IRegistrationResponseJWT,
-} from 'src/types/responses/users/registration';
-import { CreateUserParamsDto } from 'src/users_params/dto/create-users_params.dto';
+} from '../types/responses/users/registration';
+import { CreateUserParamsDto } from '../users_params/dto/create-users_params.dto';
 
 export interface ITokensCreationResponse {
   accessToken: string;

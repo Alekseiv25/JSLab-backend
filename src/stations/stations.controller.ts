@@ -1,7 +1,7 @@
-import { IGlobalSearchStationsResponse } from 'src/types/responses/globalSEarch';
+import { IGlobalSearchStationsResponse } from '../types/responses/globalSEarch';
 import { StationsService } from './stations.service';
 import { CreateStationDto } from './dto/create-station.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 import {
   IBasicStationResponse,
   ICheckStationNameResponse,
@@ -9,7 +9,7 @@ import {
   IDeleteStationsResponse,
   IGetAllStationsResponse,
   IGetStationResponse,
-} from 'src/types/responses/stations';
+} from '../types/responses/stations';
 import {
   Controller,
   Get,

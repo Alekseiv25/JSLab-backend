@@ -6,8 +6,8 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { makeUnauthorizedMessage } from 'src/utils/generators/messageGenerators';
-import { IAccessToken, TokensService } from 'src/tokens/tokens.service';
+import { makeUnauthorizedMessage } from '../utils/generators/messageGenerators';
+import { IAccessToken, TokensService } from '../tokens/tokens.service';
 import { Request } from 'express';
 
 @Injectable()

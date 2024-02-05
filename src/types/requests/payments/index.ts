@@ -1,4 +1,4 @@
-import { CreatePaymentDto } from 'src/payments/dto/payments.dto';
+import { CreatePaymentDto } from '../../../payments/dto/payments.dto';
 
 export interface ICreatePaymentRequest {
   userId: number;

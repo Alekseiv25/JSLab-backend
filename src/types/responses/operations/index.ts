@@ -1,4 +1,4 @@
-import { Operation } from 'src/operations/operations.model';
+import { Operation } from '../../../operations/operations.model';
 
 export interface IGetAllOperationsResponse {
   status: number;

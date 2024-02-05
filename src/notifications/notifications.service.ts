@@ -1,10 +1,10 @@
-import * as messageGenerators from 'src/utils/generators/messageGenerators';
-import * as Responses from 'src/types/responses/notifications';
+import * as messageGenerators from '../utils/generators/messageGenerators';
+import * as Responses from '../types/responses/notifications';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { SocketService } from 'src/socket/socket.service';
+import { SocketService } from '../socket/socket.service';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Notification } from './notifications.model';
-import { IBasicResponse } from 'src/types/responses';
+import { IBasicResponse } from '../types/responses';
 import { InjectModel } from '@nestjs/sequelize';
 @Injectable()
 export class NotificationsService {
