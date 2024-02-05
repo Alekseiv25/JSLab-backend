@@ -38,11 +38,17 @@ import { Notification } from './notifications/notifications.model';
     }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
-      host: process.env.HOST,
+      host: process.env.POSTGRES_HOST,
       port: Number(process.env.POSTGRES_PORT),
-      username: process.env.USER,
-      password: process.env.PASSWORD,
-      database: process.env.DB,
+      username: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DATABASE,
+      ssl: true,
+      dialectOptions: {
+        ssl: {
+          require: true,
+        },
+      },
       models: [
         User,
         UsersStations,
