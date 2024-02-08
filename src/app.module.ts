@@ -23,7 +23,7 @@ import { UsersParamsModule } from './users_params/users_params.module';
 import { UsersParams } from './users_params/users_params.model';
 import { Payment } from './payments/payments.model';
 import { PaymentsModule } from './payments/payments.module';
-import { SocketService } from './socket/socket.service';
+import { PusherService } from './pusher/pusher.service';
 import { UsersStations } from './users_stations/users_stations.model';
 import { UsersStationsModule } from './users_stations/users_stations.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -31,7 +31,7 @@ import { Notification } from './notifications/notifications.model';
 
 @Module({
   controllers: [],
-  providers: [SocketService],
+  providers: [PusherService],
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',

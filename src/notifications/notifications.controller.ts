@@ -6,10 +6,14 @@ import {
   ILastNotificationResponse,
   INotificationsResponse,
 } from '../types/responses/notifications';
+import { PusherService } from '../pusher/pusher.service';
 
 @Controller('notifications')
 export class NotificationsController {
-  constructor(private notificationsService: NotificationsService) {}
+  constructor(
+    private notificationsService: NotificationsService,
+    private pusherService: PusherService,
+  ) {}
 
   @Get()
   @UseGuards(AuthGuard)
@@ -25,6 +29,12 @@ export class NotificationsController {
   @UseGuards(AuthGuard)
   getLastNotification(@Query('userId') userId: number): Promise<ILastNotificationResponse> {
     return this.notificationsService.getLastNotification(userId);
+  }
+
+  @Get('amountOfUnviewed')
+  @UseGuards(AuthGuard)
+  getAmountOfUnviewedUsingPusher(@Query('userId') userId: number): Promise<IBasicResponse> {
+    return this.notificationsService.getAmountOfUnviewedUsingPusher(userId);
   }
 
   @Put(':id')

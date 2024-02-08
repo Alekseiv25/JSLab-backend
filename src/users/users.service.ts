@@ -28,6 +28,7 @@ import {
   makeNotFoundMessage,
   makeDeleteMessage,
   makeUnauthorizedMessage,
+  makeSucceededMessage,
 } from '../utils/generators/messageGenerators';
 import {
   IUserParamsUpdateResponse,
@@ -424,6 +425,13 @@ export class UsersService {
       );
     }
 
+    return response;
+  }
+
+  async updateLastActivity(userId: number): Promise<IBasicResponse> {
+    await this.userParamsService.updateUserLastActivityTimestamp(userId);
+
+    const response: IBasicResponse = { status: HttpStatus.OK, message: makeSucceededMessage() };
     return response;
   }
 

@@ -75,3 +75,7 @@ export function makeAlreadyActivatedMessage(): string {
 export function makeNotActivatedAccountMessage(): string {
   return 'The account has not been activated.';
 }
+
+export function makeSucceededMessage(): string {
+  return 'The request succeeded.';
+}
