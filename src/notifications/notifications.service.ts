@@ -1,7 +1,7 @@
 import * as messageGenerators from '../utils/generators/messageGenerators';
-import * as Responses from '../types/responses/notifications';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { SocketService } from '../socket/socket.service';
+import * as Responses from '../types/responses/notifications';
+import { PusherService } from '../pusher/pusher.service';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Notification } from './notifications.model';
 import { IBasicResponse } from '../types/responses';
@@ -10,7 +10,7 @@ import { InjectModel } from '@nestjs/sequelize';
 export class NotificationsService {
   constructor(
     @InjectModel(Notification) private notificationsRepository: typeof Notification,
-    private socketService: SocketService,
+    private pusherService: PusherService,
   ) {}
 
   async getNotifications(
@@ -48,6 +48,16 @@ export class NotificationsService {
         notification: allNotifications[0] || null,
         params: { totalAmountOfPages, amountOfUnviewed },
       },
+    };
+    return response;
+  }
+
+  async getAmountOfUnviewedUsingPusher(userId: number): Promise<IBasicResponse> {
+    await this.sendNotificationBySocket(userId);
+
+    const response: IBasicResponse = {
+      status: HttpStatus.OK,
+      message: messageGenerators.makeSucceededMessage(),
     };
     return response;
   }
@@ -191,7 +201,10 @@ export class NotificationsService {
     const calcAmountOfUserUnreadNotifications: number =
       await this.calcAmountOfUserUnreadNotifications(userId);
 
-    await this.socketService.sendNotificationToUser(userId, calcAmountOfUserUnreadNotifications);
+    await this.pusherService.sendAmountOfUnviewedNotifications(
+      userId,
+      calcAmountOfUserUnreadNotifications,
+    );
   }
 
   private async calcAmountOfUserUnreadNotifications(userId: number): Promise<number> {

@@ -131,6 +131,12 @@ export class UsersController {
     return this.userService.updateUserAssign(Number(userID), assignData);
   }
 
+  @Put('lastActivity/:id')
+  @UseGuards(AuthGuard)
+  updateLastActivity(@Param('id') userID: number): Promise<IBasicResponse> {
+    return this.userService.updateLastActivity(Number(userID));
+  }
+
   @Delete('invite/:id')
   @UseGuards(AuthGuard)
   cancelUserInvite(@Param('id') id: number): Promise<IBasicResponse> {
