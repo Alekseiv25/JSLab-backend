@@ -9,7 +9,7 @@ async function start() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: ['https://jslab-dashboard.vercel.app', 'http://localhost:3000'],
     credentials: true,
   });
 

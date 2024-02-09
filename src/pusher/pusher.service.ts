@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { Injectable } from '@nestjs/common';
-import * as Pusher from 'pusher';
+const Pusher = require('pusher');
 
 const NOTIFICATIONS_EVENT = 'notifications-event';
 
 @Injectable()
 export class PusherService {
-  private pusher: Pusher;
+  private pusher: typeof Pusher;
 
   constructor() {
     this.pusher = new Pusher({
