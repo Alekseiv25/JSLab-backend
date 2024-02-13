@@ -72,14 +72,14 @@ export function generateHTMLForEmailToInviteUser(
     <head></head>
     <body style="font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif; margin: 0; padding: 40px 0 40px 0; background-color: #EBF0F4;">
       <div style="max-width: 600px; width: 100%; margin: 20px auto; padding: 20px; background-color: #fff; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-          <h1 style="color: #14151A; font-size: 24px; font-style: normal; font-weight: 600; line-height: 34px; margin-bottom: 20px; border-bottom: 1px solid #E1E5ED">Support Request</h1>
+          <h1 style="color: #14151A; font-size: 24px; font-style: normal; font-weight: 600; line-height: 34px; margin-bottom: 20px; border-bottom: 1px solid #E1E5ED">Join our ${information.businessName} team</h1>
           <div style="border-bottom: 1px solid #E1E5ED; padding-bottom: 10px; margin-bottom: 10px;">
-              <p style="font-size: 16px; font-style: normal; font-weight: 400; line-height: 24px; margin-bottom: 8px; color: #14151A;"><strong>Hello, ${information.invitedUserFirstName}! We have great news for you! ${information.inviterUserFirstName} ${information.inviterUserLastName} has invited you to join business — ${information.businessName}.</p>
-              <p style="font-size: 16px; font-style: normal; font-weight: 400; line-height: 24px; margin-bottom: 8px; color: #50576B;"><strong>Just follow the link: <a href=${information.inviteLink}>${information.inviteLink}</a>. There you will find all the necessary details.</p>
+              <p style="font-size: 16px; font-style: normal; font-weight: 400; line-height: 24px; margin-bottom: 8px; color: #14151A;"><strong>Hello, ${information.invitedUserFirstName}! ${information.inviterUserFirstName} ${information.inviterUserLastName} has invited you to join business — ${information.businessName}.</p>
+              <p style="font-size: 16px; font-style: normal; font-weight: 400; line-height: 24px; margin-bottom: 8px; color: #50576B;"><strong>To create an account and accept the invitation, follow this link: <a href=${information.inviteLink}>${information.inviteLink}</a>. There you will find all the necessary details.</p>
           </div>
           <div style="font-size: 16px; font-style: normal; font-weight: 400; line-height: 24px; color: #14151A;">
               <p>We hope to see you soon!</p>
-              <p>Best regards, ${information.inviterUserFirstName} and the JSLab team</p>
+              <p>Best regards, ${information.inviterUserFirstName} from ${information.businessName} and the JSLab team</p>
           </div>
       </div>
     </body>
