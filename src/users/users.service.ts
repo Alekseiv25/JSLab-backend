@@ -488,7 +488,8 @@ export class UsersService {
   }
 
   async checkIsEmailUnique(emailToCheck: string): Promise<boolean> {
-    const user: User | null = await this.findUserByEmail(emailToCheck);
+    const lowerCasedEmail: string = emailToCheck.toLowerCase();
+    const user: User | null = await this.findUserByEmail(lowerCasedEmail);
 
     if (user) {
       return false;

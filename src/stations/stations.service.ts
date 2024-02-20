@@ -449,7 +449,9 @@ export class StationsService {
 
   async checkUniquenessOfName(name: string): Promise<ICheckStationNameResponse> {
     const stationWithThisName: Station | null = await this.stationRepository.findOne({
-      where: { name },
+      where: {
+        name: { [Op.iLike]: name },
+      },
     });
 
     if (stationWithThisName) {
