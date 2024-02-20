@@ -113,7 +113,8 @@ export class AuthService {
   }
 
   async login(userData: ILoginUserData): Promise<ILoginResponse> {
-    const user: User | null = await this.userService.findUserByEmail(userData.email);
+    const lowerCasedEmail: string = userData.email.toLocaleLowerCase();
+    const user: User | null = await this.userService.findUserByEmail(lowerCasedEmail);
 
     if (!user) {
       throw new HttpException(makeNotCorrectDataMessage(), HttpStatus.UNAUTHORIZED);
@@ -256,7 +257,7 @@ export class AuthService {
       businessId: userDto.businessId,
       firstName: userDto.firstName,
       lastName: userDto.lastName,
-      email: userDto.email,
+      email: userDto.email.toLocaleLowerCase(),
       password: hashPassword ? hashPassword : null,
     };
     const newUser: User = await this.userService.createUser(newUserData);

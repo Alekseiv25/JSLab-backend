@@ -3,6 +3,7 @@ import { CreateBusinessDto } from './dto/create-business.dto';
 import { IBasicResponse } from '../types/responses';
 import { InjectModel } from '@nestjs/sequelize';
 import { Business } from './businesses.model';
+import { Op } from 'sequelize';
 import {
   makeAvailableMessage,
   makeConflictMessage,
@@ -77,7 +78,9 @@ export class BusinessesService {
 
   async checkIsNameUnique(businessNameForCheck: string): Promise<boolean> {
     const businessWithThisName: Business | null = await this.businessRepository.findOne({
-      where: { legalName: businessNameForCheck },
+      where: {
+        legalName: { [Op.iLike]: businessNameForCheck },
+      },
     });
 
     if (businessWithThisName) {
