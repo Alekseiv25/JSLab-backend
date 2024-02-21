@@ -3,6 +3,7 @@ import { makeNotFoundMessage } from '../utils/generators/messageGenerators';
 import { CreateUserParamsDto } from './dto/create-users_params.dto';
 import { UsersParams } from './users_params.model';
 import { InjectModel } from '@nestjs/sequelize';
+import { UserStatusTypes } from '../types/tableColumns';
 
 @Injectable()
 export class UsersParamsService {
@@ -71,6 +72,11 @@ export class UsersParamsService {
     }
 
     return userParams;
+  }
+
+  async getUserStatus(userId: number): Promise<UserStatusTypes> {
+    const userParams: UsersParams | null = await this.findUserParamsByID(userId);
+    return userParams.status;
   }
 
   private async getCurrentTimestamp(): Promise<string> {
