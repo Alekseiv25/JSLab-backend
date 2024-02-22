@@ -22,7 +22,8 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    const userDataFromToken: IAccessToken | null = this.tokensService.validateAccessToken(token);
+    const userDataFromToken: IAccessToken | null =
+      await this.tokensService.validateAccessToken(token);
 
     if (!userDataFromToken) {
       throw new UnauthorizedException();

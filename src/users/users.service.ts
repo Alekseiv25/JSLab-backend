@@ -188,8 +188,12 @@ export class UsersService {
     const requester: User = await this.findUserByID(requesterId);
 
     const membersOfRequesterBusiness: User[] = await this.userRepository.findAll({
-      where: { businessId: requester.businessId },
+      where: {
+        businessId: requester.businessId,
+        id: { [Op.ne]: requesterId },
+      },
     });
+
     if (!membersOfRequesterBusiness || membersOfRequesterBusiness.length === 0) {
       throw new HttpException(makeNotFoundMessage('Users'), HttpStatus.NOT_FOUND);
     }

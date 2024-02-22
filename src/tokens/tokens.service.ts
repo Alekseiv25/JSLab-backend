@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { User } from '../users/users.model';
 import { Token } from './tokens.model';
 import * as jwt from 'jsonwebtoken';
+import { UsersParamsService } from '../users_params/users_params.service';
 
 const ACCESS_TOKEN_EXPIRES_IN = '5min';
 const REFRESH_TOKEN_EXPIRES_IN = '1d';
@@ -23,7 +24,10 @@ export interface IRefreshToken {
 
 @Injectable()
 export class TokensService {
-  constructor(@InjectModel(Token) private tokenRepository: typeof Token) {}
+  constructor(
+    @InjectModel(Token) private tokenRepository: typeof Token,
+    private usersParamsService: UsersParamsService,
+  ) {}
 
   async generateToken(user: User, userParams: UsersParams): Promise<ITokensCreationResponse> {
     const accessTokenPayload: IAccessToken = {
@@ -77,19 +81,24 @@ export class TokensService {
     return tokenInDB;
   }
 
-  validateAccessToken(accessToken: string): IAccessToken | null {
+  async validateAccessToken(accessToken: string): Promise<IAccessToken | null> {
     try {
       const userDataFromToken: IAccessToken = jwt.verify(
         accessToken,
         process.env.JWT_PRIVATE_KEY,
       ) as IAccessToken;
-      return userDataFromToken;
+
+      const userStatus: UserStatusTypes = await this.usersParamsService.getUserStatus(
+        userDataFromToken.id,
+      );
+
+      return { ...userDataFromToken, status: userStatus };
     } catch (e) {
       return null;
     }
   }
 
-  validateRefreshToken(refreshToken: string): IRefreshToken | null {
+  async validateRefreshToken(refreshToken: string): Promise<IRefreshToken | null> {
     try {
       const userDataFromToken: IRefreshToken = jwt.verify(
         refreshToken,

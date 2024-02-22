@@ -53,7 +53,7 @@ export class AuthService {
     }
 
     const userDataFromToken: IRefreshToken | null =
-      this.tokensService.validateRefreshToken(refreshToken);
+      await this.tokensService.validateRefreshToken(refreshToken);
 
     if (!userDataFromToken) {
       await this.tokensService.removeRefreshToken(refreshToken);
